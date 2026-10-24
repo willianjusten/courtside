@@ -4,6 +4,9 @@ import { EspnRequestError } from "@/app/lib/espn";
 import { gameSummaryQueryOptions } from "@/app/lib/queries/game-summary";
 import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
 
+// The navigation reads today's live scoreboard to decide on the Playoffs tab, so the page renders on every request.
+export const dynamic = "force-dynamic";
+
 // ESPN event ids are numeric.
 const GAME_ID_PATTERN = /^\d+$/;
 // ESPN answers 404 for an unknown event and 400 for an id it cannot read.

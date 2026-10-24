@@ -18,7 +18,9 @@ import GamesPage from "./games/[date]/page";
 import GamePage from "./game/[id]/page";
 import StandingsPage from "./standings/page";
 import { GET as getLeaders } from "./api/leaders/route";
-import TeamPage from "./teams/[slug]/page";
+import TeamPage, {
+  generateStaticParams as generateTeamStaticParams,
+} from "./teams/[slug]/page";
 import PlayoffsPage from "./playoffs/page";
 import finalDay from "./lib/espn/__fixtures__/scoreboard-final-day.json";
 import headerWeek from "./lib/espn/__fixtures__/scoreboard-header-week.json";
@@ -542,16 +544,61 @@ describe("routes", () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
     expect(
-      screen.getByRole("heading", { name: "Los Angeles Lakers" }),
+      await screen.findByRole("heading", { name: "Los Angeles Lakers" }),
     ).toBeDefined();
-    expect(screen.getByText(strings.team.record("1-0"))).toBeDefined();
-    expect(screen.getByText("1st in Pacific Division")).toBeDefined();
+    expect(screen.getByText("4th West")).toBeDefined();
+    expect(screen.getByText("W1")).toBeDefined();
+  });
+
+  it("shows the team's home, away, and last 10 records", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const tiles = await screen.findByLabelText(strings.team.tiles.label);
+    expect(
+      within(tiles)
+        .getAllByRole("definition")
+        .map((tile) => tile.textContent),
+    ).toEqual(["1-0", "0-0", "1-0"]);
+  });
+
+  it("opens on the schedule tab and keeps the picked tab in the URL", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    expect(
+      (
+        await screen.findByRole("tab", { name: strings.team.tabs.schedule })
+      ).getAttribute("aria-selected"),
+    ).toBe("true");
+
+    fireEvent.mouseDown(
+      screen.getByRole("tab", { name: strings.team.tabs.roster }),
+    );
+
+    expect(window.location.search).toBe("?tab=roster");
+  });
+
+  it("restores the tab from the URL", async () => {
+    window.history.replaceState(null, "", "/teams/lakers?tab=standings");
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    expect(
+      (
+        await screen.findByRole("tab", { name: strings.team.tabs.standings })
+      ).getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("generates a page for every team, with hyphenated slugs", async () => {
+    const staticParams = await generateTeamStaticParams();
+
+    expect(staticParams).toHaveLength(30);
+    expect(staticParams).toContainEqual({ slug: "trail-blazers" });
   });
 
   it("lists the team's past games with final scores", async () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
-    const results = screen.getByRole("region", {
+    const results = await screen.findByRole("region", {
       name: strings.team.schedule.results,
     });
     expect(within(results).getAllByRole("listitem")).toHaveLength(1);
@@ -564,7 +611,7 @@ describe("routes", () => {
   it("lists the team's upcoming games with their start times", async () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
-    const upcoming = screen.getByRole("region", {
+    const upcoming = await screen.findByRole("region", {
       name: strings.team.schedule.upcoming,
     });
     const upcomingGames = within(upcoming).getAllByRole("listitem");
@@ -578,7 +625,7 @@ describe("routes", () => {
   it("shows the team's roster", async () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
-    const roster = screen.getByRole("region", {
+    const roster = await screen.findByRole("region", {
       name: strings.team.roster.title,
     });
     expect(within(roster).getAllByRole("row")).toHaveLength(19);

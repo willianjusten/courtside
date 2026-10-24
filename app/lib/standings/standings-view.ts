@@ -197,7 +197,7 @@ function selectedConferenceOf(
   );
 }
 
-function zoneOf(seed: number): StandingsZone {
+export function zoneOf(seed: number): StandingsZone {
   if (seed <= LAST_PLAYOFF_SEED) return "playoff";
   if (seed <= LAST_PLAY_IN_SEED) return "play-in";
   return "none";

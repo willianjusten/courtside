@@ -401,7 +401,28 @@ export const strings = {
     categoryError: "We couldn't load these leaders right now.",
   },
   team: {
-    record: (record: string) => `Record ${record}`,
+    eyebrowSeparator: " · ",
+    rank: (ordinalSeed: string, conferenceAbbreviation: string) =>
+      `${ordinalSeed} ${conferenceAbbreviation}`,
+    tiles: {
+      label: "Records",
+      home: "Home",
+      away: "Away",
+      lastTen: "Last 10",
+    },
+    homeAway: (homeRecord: string, awayRecord: string) =>
+      `Home ${homeRecord} · Away ${awayRecord}`,
+    tabs: {
+      label: "Team sections",
+      schedule: "Schedule",
+      roster: "Roster",
+      standings: "Standings",
+    },
+    standings: {
+      fullTable: "Full table",
+      fullTableLabel: (conferenceName: string) =>
+        `Full ${conferenceName} standings`,
+    },
     schedule: {
       results: "Results",
       upcoming: "Upcoming",

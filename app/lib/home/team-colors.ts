@@ -79,6 +79,10 @@ function readableOptionsOf(team: Team): string[] {
     .filter((color): color is string => color !== null && isReadable(color));
 }
 
+export function readableTeamColor(team: Team) {
+  return readableOptionsOf(team)[0];
+}
+
 export function readableTeamColors(
   home: Team,
   away: Team,

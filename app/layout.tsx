@@ -8,9 +8,6 @@ import { strings } from "@/app/lib/strings";
 
 import "./globals.css";
 
-// The navigation reads today's live scoreboard to decide on the Playoffs tab, so no page can be prerendered at build time.
-export const dynamic = "force-dynamic";
-
 // next/font self-hosts the files and sizes a fallback to each font's metrics, so swapping fonts does not shift the layout.
 const bebasNeue = Bebas_Neue({
   weight: "400",

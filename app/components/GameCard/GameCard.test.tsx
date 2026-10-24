@@ -55,6 +55,22 @@ describe("GameCard", () => {
     expect(cardLink.getAttribute("href")).toBe(`/game/${finalGame.id}`);
   });
 
+  // A component test despite the spec's view-only rule: the link nests over the card-wide link, which only the markup shows.
+  it.each([
+    ["final", finalGame],
+    ["upcoming", scheduledGame],
+  ])("links both teams on the %s card to their team pages", (_kind, game) => {
+    renderCard(cardFor(game));
+
+    for (const { team } of [game.away, game.home]) {
+      expect(
+        screen
+          .getByRole("link", { name: team.displayName })
+          .getAttribute("href"),
+      ).toBe(`/teams/${team.name.toLowerCase().replaceAll(" ", "-")}`);
+    }
+  });
+
   it("offers highlights and recap on a final, linking to the game center", () => {
     renderCard(cardFor(finalGame));
 

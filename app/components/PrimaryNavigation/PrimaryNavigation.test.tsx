@@ -5,7 +5,10 @@ import regularSeasonDay from "@/app/lib/espn/__fixtures__/scoreboard-final-day.j
 import playoffDay from "@/app/lib/espn/__fixtures__/scoreboard-playoff-game.json";
 import PrimaryNavigation from ".";
 
-vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
+  usePathname: vi.fn(() => "/"),
+}));
 
 function respondWith(body: unknown, status = 200) {
   vi.stubGlobal(

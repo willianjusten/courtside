@@ -4,6 +4,7 @@ import { hasScore, isInProgress } from "@/app/lib/game/status";
 import type { HomeCard, TeamWinProbability } from "@/app/lib/home/home-view";
 import type { TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
+import { teamPathOf } from "@/app/lib/team/team-path";
 import TeamLogo from "@/app/components/TeamLogo";
 import GameStatusChip from "@/app/components/StatusChip";
 
@@ -34,7 +35,14 @@ function TeamName({
 }) {
   return (
     <span className={`inline-flex items-center gap-1 ${TEAM_NAME_CLASS_NAME}`}>
-      {competitor.team.name}
+      {/* Sits above the card-wide link so the name opens the team page instead of the game center. */}
+      <Link
+        href={teamPathOf(competitor.team.name)}
+        className="relative z-10 rounded-sm hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        <span className="sr-only">{competitor.team.displayName}</span>
+        <span aria-hidden="true">{competitor.team.name}</span>
+      </Link>
       {isFavorite && <FavoriteStar />}
     </span>
   );
