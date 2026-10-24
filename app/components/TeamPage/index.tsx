@@ -20,6 +20,7 @@ import {
 } from "@/app/lib/queries/team";
 import type { StandingsQueryState } from "@/app/lib/standings/standings-view";
 import { strings } from "@/app/lib/strings";
+import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import {
   buildTeamView,
   type TeamQueryState,
@@ -80,6 +81,7 @@ export function TeamPageContent({
   const { data: games } = useQuery(teamScheduleQueryOptions(teamId));
   const { data: players } = useQuery(teamRosterQueryOptions(teamId));
   const favoriteTeamIds = useFavoriteTeamIds();
+  const timeZone = useBrowserTimeZone();
 
   // Data is checked before the error: a failed refetch keeps the last team instead of hiding it.
   const query: TeamQueryState = team
@@ -100,6 +102,8 @@ export function TeamPageContent({
     slug,
     query,
     standingsQuery,
+    games: games ?? null,
+    timeZone,
     tabParam,
     favoriteTeamIds,
   });
@@ -118,7 +122,9 @@ export function TeamPageContent({
         tabs={tabs}
         // Replacing the entry keeps the tab in the URL without adding a history step per tab.
         onSelectTab={({ href }) => window.history.replaceState(null, "", href)}
-        schedule={games && <TeamSchedule teamId={teamId} games={games} />}
+        schedule={
+          screen.schedule && <TeamSchedule schedule={screen.schedule} />
+        }
         roster={players && <TeamRoster players={players} />}
         standings={<ConferenceStandings screen={screen} />}
       />

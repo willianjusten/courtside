@@ -1,4 +1,8 @@
-import type { Game, GameStatus } from "@/app/lib/domain/game";
+import {
+  LEAGUE_PASS_NAME,
+  type Game,
+  type GameStatus,
+} from "@/app/lib/domain/game";
 import type { TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
 
@@ -19,6 +23,10 @@ export function isInProgress(status: GameStatus) {
 
 function wentToOvertime(period: number) {
   return period > REGULATION_PERIODS;
+}
+
+export function overtimeLabelOf(period: number): string | null {
+  return wentToOvertime(period) ? periodLabel(period) : null;
 }
 
 export function periodLabel(period: number) {
@@ -43,4 +51,18 @@ export function channelLabelOf({ broadcasts }: Game) {
   return broadcasts
     .map((broadcast) => broadcast.name)
     .join(strings.broadcast.separator);
+}
+
+// A game whose only channel is League Pass airs on the teams' local TV.
+export function nationalChannelLabelOf({ broadcasts }: Game) {
+  const nationalChannelNames = broadcasts
+    .filter(
+      ({ market, name }) =>
+        market === "national" &&
+        name.toLowerCase() !== LEAGUE_PASS_NAME.toLowerCase(),
+    )
+    .map(({ name }) => name);
+  return nationalChannelNames.length > 0
+    ? nationalChannelNames.join(strings.broadcast.separator)
+    : strings.broadcast.localTv;
 }

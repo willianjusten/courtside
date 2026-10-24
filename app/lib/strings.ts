@@ -133,6 +133,7 @@ export const strings = {
   broadcast: {
     label: "Broadcast: ",
     separator: " · ",
+    localTv: "Local TV",
   },
   game: {
     title: (awayTeamName: string, homeTeamName: string) =>
@@ -426,15 +427,20 @@ export const strings = {
         `Full ${conferenceName} standings`,
     },
     schedule: {
+      upNext: "Up next",
       results: "Results",
-      upcoming: "Upcoming",
       noResults: "No games played yet.",
-      noUpcoming: "No upcoming games.",
-      versus: (opponentName: string) => `vs ${opponentName}`,
-      at: (opponentName: string) => `@ ${opponentName}`,
-      result: (won: boolean, teamScore: number, opponentScore: number) =>
-        `${won ? "W" : "L"} ${teamScore}-${opponentScore}`,
-      inProgress: "In progress",
+      offseason:
+        "No upcoming games. The schedule for next season isn't out yet.",
+      versus: "vs",
+      at: "@",
+      next: "Next",
+      outcomes: {
+        win: { label: "W", accessibleLabel: "Win" },
+        loss: { label: "L", accessibleLabel: "Loss" },
+      },
+      score: (teamScore: number, opponentScore: number) =>
+        `${teamScore}-${opponentScore}`,
     },
     roster: {
       title: "Roster",

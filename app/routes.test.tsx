@@ -598,28 +598,44 @@ describe("routes", () => {
     expect(staticParams).toContainEqual({ slug: "trail-blazers" });
   });
 
-  it("lists the team's past games with final scores", async () => {
+  it("lists the team's results with W/L announced in full and a game center link", async () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
     const results = await screen.findByRole("region", {
       name: strings.team.schedule.results,
     });
+    const resultLink = within(results).getByRole("link");
     expect(within(results).getAllByRole("listitem")).toHaveLength(1);
-    expect(within(results).getByText(/Golden State Warriors/)).toBeDefined();
+    expect(resultLink.getAttribute("href")).toBe(`/game/${FINAL_GAME_ID}`);
+    expect(resultLink.textContent).toContain("Golden State Warriors");
+    expect(resultLink.textContent).toContain("127-105");
     expect(
-      within(results).getByText(strings.team.schedule.result(true, 127, 105)),
+      within(resultLink)
+        .getByText(strings.team.schedule.outcomes.win.label)
+        .getAttribute("aria-hidden"),
+    ).toBe("true");
+    expect(
+      within(resultLink).getByText(
+        strings.team.schedule.outcomes.win.accessibleLabel,
+      ),
     ).toBeDefined();
   });
 
-  it("lists the team's upcoming games with their start times", async () => {
+  it("lists the team's upcoming games with their start times and channels", async () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
-    const upcoming = await screen.findByRole("region", {
-      name: strings.team.schedule.upcoming,
+    const upNext = await screen.findByRole("region", {
+      name: strings.team.schedule.upNext,
     });
-    const upcomingGames = within(upcoming).getAllByRole("listitem");
+    const upcomingGames = within(upNext).getAllByRole("listitem");
     expect(upcomingGames).toHaveLength(4);
     expect(within(upcomingGames[0]).getByText(/LA Clippers/)).toBeDefined();
+    expect(
+      within(upcomingGames[0]).getByText(strings.team.schedule.next),
+    ).toBeDefined();
+    expect(
+      within(upcomingGames[0]).getByText(strings.broadcast.localTv),
+    ).toBeDefined();
     expect(
       upcomingGames[0].querySelector("time")?.getAttribute("dateTime"),
     ).toBe("2026-10-24T02:00Z");

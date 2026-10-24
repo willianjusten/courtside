@@ -1,56 +1,145 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
-import type { Game, GameCompetitor } from "@/app/lib/domain/game";
+import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
+import { PANEL_HEADING_CLASS_NAME } from "@/app/components/HomeSidebar/styles";
 import TeamLogo from "@/app/components/TeamLogo";
 import { strings } from "@/app/lib/strings";
-import { formatNbaDate } from "@/app/lib/time/nba-date";
-import GameTime from "@/app/components/GameTime";
+import type {
+  TeamOpponent,
+  TeamResult,
+  TeamResultOutcome,
+  TeamSchedule as TeamScheduleView,
+  TeamUpcomingGame,
+} from "@/app/lib/team/team-view";
 
-const LOGO_DISPLAY_SIZE = 24;
+const LOGO_DISPLAY_SIZE = 28;
+const UP_NEXT_HEADING_ID = "team-schedule-up-next";
+const RESULTS_HEADING_ID = "team-schedule-results";
 
-type TeamScheduleProps = {
-  teamId: string;
-  games: Game[];
+// The date, opponent, and trailing columns of the TeamPage and TeamPageDesktop artboards.
+const ROW_CLASS_NAME =
+  "grid min-h-14 grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[14px] border px-3 py-2.5 md:grid-cols-[110px_minmax(0,1fr)_auto] md:gap-4 md:px-3.5";
+const DEFAULT_ROW_TONE_CLASS_NAME = "border-white/7 bg-white/3.5";
+
+const OUTCOME_CLASS_NAME: Record<TeamResultOutcome, string> = {
+  win: "bg-win/16 text-win-soft",
+  loss: "bg-loss/16 text-loss",
 };
 
-function sidesOf(game: Game, teamId: string) {
-  const isHome = game.home.team.id === teamId;
-  return {
-    isHome,
-    team: isHome ? game.home : game.away,
-    opponent: isHome ? game.away : game.home,
-  };
-}
-
-function Opponent({
-  opponent,
-  isHome,
+function GameDay({
+  weekdayLabel,
+  dateLabel,
 }: {
-  opponent: GameCompetitor;
-  isHome: boolean;
+  weekdayLabel: string;
+  dateLabel: string;
 }) {
-  const formatOpponentLabel = isHome
-    ? strings.team.schedule.versus
-    : strings.team.schedule.at;
-
   return (
-    <span className="flex grow items-center gap-2">
-      <TeamLogo logoUrl={opponent.team.logoUrl} size={LOGO_DISPLAY_SIZE} lazy />
-      {formatOpponentLabel(opponent.team.displayName)}
+    <span className="flex flex-col uppercase">
+      <span className="text-[10px] tracking-[0.12em] text-muted">
+        {weekdayLabel}
+      </span>
+      <span className="font-display text-[17px] leading-tight md:text-lg">
+        {dateLabel}
+      </span>
     </span>
   );
 }
 
-function UpcomingStatus({ game }: { game: Game }) {
-  switch (game.status.kind) {
-    case "scheduled":
-      return <GameTime startTime={game.startTime} showDate />;
-    case "postponed":
-      return strings.gameStatus.postponed;
-    case "canceled":
-      return strings.gameStatus.canceled;
-    default:
-      return strings.team.schedule.inProgress;
-  }
+// Mobile names the opponent by its short name, desktop by its full name, as in the artboards.
+function Opponent({
+  sideLabel,
+  opponent,
+  children,
+}: {
+  sideLabel: string;
+  opponent: TeamOpponent;
+  children?: ReactNode;
+}) {
+  return (
+    <span className="flex min-w-0 items-center gap-2 md:gap-2.5">
+      <span className="w-3.5 shrink-0 text-[11px] text-muted md:w-4 md:text-xs">
+        {sideLabel}
+      </span>
+      <TeamLogo logoUrl={opponent.logoUrl} size={LOGO_DISPLAY_SIZE} lazy />
+      <span className="truncate text-[13px] font-bold md:text-sm">
+        <span className="md:hidden">{opponent.name}</span>
+        <span className="hidden md:inline">{opponent.displayName}</span>
+      </span>
+      {children}
+    </span>
+  );
+}
+
+function UpcomingGameRow({ game }: { game: TeamUpcomingGame }) {
+  const toneClassName = game.isNext
+    ? "border-accent/45 bg-accent/8"
+    : DEFAULT_ROW_TONE_CLASS_NAME;
+
+  return (
+    <li
+      className={`${ROW_CLASS_NAME} ${toneClassName} ${game.isInDesktopUpNext ? "" : "md:hidden"}`}
+    >
+      <GameDay weekdayLabel={game.weekdayLabel} dateLabel={game.dateLabel} />
+      <Opponent sideLabel={game.sideLabel} opponent={game.opponent}>
+        {game.isNext && (
+          <span className="shrink-0 rounded-full bg-accent/16 px-2 py-0.5 text-[10px] font-bold tracking-[0.08em] text-accent-soft uppercase">
+            {strings.team.schedule.next}
+          </span>
+        )}
+      </Opponent>
+      <span className="flex flex-col items-end text-right md:flex-row-reverse md:items-center md:gap-4">
+        {game.isPostponed ? (
+          <span className="text-[13px] font-bold text-warning md:text-sm">
+            {strings.gameStatus.postponed}
+          </span>
+        ) : (
+          // Empty until the browser timezone is known, so the server markup carries no time.
+          <time
+            dateTime={game.startTime}
+            className="text-[13px] font-bold md:text-sm"
+          >
+            {game.timeLabel}
+          </time>
+        )}
+        <span className="text-[10px] text-muted md:text-xs">
+          {game.channelLabel}
+        </span>
+      </span>
+    </li>
+  );
+}
+
+function ResultRow({ result }: { result: TeamResult }) {
+  return (
+    <li>
+      <Link
+        href={result.href}
+        className={`${ROW_CLASS_NAME} ${DEFAULT_ROW_TONE_CLASS_NAME} transition-colors hover:bg-white/7 ${FOCUS_RING_CLASS_NAME}`}
+      >
+        <GameDay
+          weekdayLabel={result.weekdayLabel}
+          dateLabel={result.dateLabel}
+        />
+        <Opponent sideLabel={result.sideLabel} opponent={result.opponent} />
+        <span className="flex items-center gap-2 md:gap-3">
+          <span
+            className={`flex size-5.5 items-center justify-center rounded-[7px] text-[11px] font-bold md:size-6.5 md:text-xs ${OUTCOME_CLASS_NAME[result.outcome]}`}
+          >
+            <span aria-hidden="true">{result.outcomeLabel}</span>
+            <span className="sr-only">{result.outcomeAccessibleLabel}</span>
+          </span>
+          <span className="font-display text-[17px] tabular-nums md:text-xl">
+            {result.score}
+          </span>
+          {result.overtimeLabel && (
+            <span className="text-[10px] font-bold text-muted md:text-xs">
+              {result.overtimeLabel}
+            </span>
+          )}
+        </span>
+      </Link>
+    </li>
+  );
 }
 
 function ScheduleSection({
@@ -61,72 +150,55 @@ function ScheduleSection({
 }: {
   headingId: string;
   title: string;
-  emptyMessage: string;
+  emptyMessage: string | null;
   children: ReactNode[];
 }) {
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-2">
-      <h2 id={headingId} className="font-display text-2xl tracking-[0.06em]">
+    <section
+      aria-labelledby={headingId}
+      // A panel only from md up, as in the TeamPageDesktop artboard; mobile lists the rows straight in the tab.
+      className="flex flex-col gap-1.5 md:card md:gap-2.5 md:border-white/10 md:bg-white/4.5 md:p-5"
+    >
+      <h2
+        id={headingId}
+        className={`${PANEL_HEADING_CLASS_NAME} px-0.5 py-1 md:text-xl`}
+      >
         {title}
       </h2>
       {children.length > 0 ? (
-        <ul className="flex flex-col gap-2">{children}</ul>
+        <ul className="flex flex-col gap-1.5 md:gap-2.5">{children}</ul>
       ) : (
-        <p className="text-muted">{emptyMessage}</p>
+        <p className="text-sm text-muted">{emptyMessage}</p>
       )}
     </section>
   );
 }
 
-const ROW_CLASS_NAME = "flex items-center gap-3 card px-4 py-3 text-sm";
-
-export default function TeamSchedule({ teamId, games }: TeamScheduleProps) {
-  const pastGames = games.filter((game) => game.status.kind === "final");
-  const upcomingGames = games.filter((game) => game.status.kind !== "final");
-
+// Mobile lists every upcoming game in the Schedule tab; desktop's "Up next" keeps the next few, as in the artboards.
+export default function TeamSchedule({
+  schedule,
+}: {
+  schedule: TeamScheduleView;
+}) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 md:gap-5">
       <ScheduleSection
-        headingId="team-schedule-results"
+        headingId={UP_NEXT_HEADING_ID}
+        title={strings.team.schedule.upNext}
+        emptyMessage={schedule.emptyUpcomingMessage}
+      >
+        {schedule.upcoming.map((game) => (
+          <UpcomingGameRow key={game.id} game={game} />
+        ))}
+      </ScheduleSection>
+      <ScheduleSection
+        headingId={RESULTS_HEADING_ID}
         title={strings.team.schedule.results}
         emptyMessage={strings.team.schedule.noResults}
       >
-        {pastGames.map((game) => {
-          const { isHome, team, opponent } = sidesOf(game, teamId);
-          return (
-            <li key={game.id} className={ROW_CLASS_NAME}>
-              <span className="w-48 text-secondary">
-                {formatNbaDate(game.nbaDate)}
-              </span>
-              <Opponent opponent={opponent} isHome={isHome} />
-              <span className="font-bold tabular-nums">
-                {strings.team.schedule.result(
-                  // Derived from the scores, since ESPN can leave the winner flag out of a final game.
-                  team.score > opponent.score,
-                  team.score,
-                  opponent.score,
-                )}
-              </span>
-            </li>
-          );
-        })}
-      </ScheduleSection>
-      <ScheduleSection
-        headingId="team-schedule-upcoming"
-        title={strings.team.schedule.upcoming}
-        emptyMessage={strings.team.schedule.noUpcoming}
-      >
-        {upcomingGames.map((game) => {
-          const { isHome, opponent } = sidesOf(game, teamId);
-          return (
-            <li key={game.id} className={ROW_CLASS_NAME}>
-              <span className="w-48 text-secondary">
-                <UpcomingStatus game={game} />
-              </span>
-              <Opponent opponent={opponent} isHome={isHome} />
-            </li>
-          );
-        })}
+        {schedule.results.map((result) => (
+          <ResultRow key={result.id} result={result} />
+        ))}
       </ScheduleSection>
     </div>
   );

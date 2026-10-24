@@ -1,15 +1,20 @@
+import type { Game } from "@/app/lib/domain/game";
+import type { NbaDate } from "@/app/lib/domain/nba-date";
 import type { Standings } from "@/app/lib/domain/standings";
 import type { TeamDetail } from "@/app/lib/domain/team";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
 import lakersDetailFixture from "@/app/lib/espn/__fixtures__/team-detail-lakers.json";
+import lakersScheduleFixture from "@/app/lib/espn/__fixtures__/team-schedule-lakers.json";
 import {
   mapConferenceStandings,
+  mapScheduleGame,
   mapSeason,
   mapTeamDetail,
 } from "@/app/lib/espn/mappers";
 import type {
   RawStandingsResponse,
   RawTeamDetailResponse,
+  RawTeamScheduleResponse,
 } from "@/app/lib/espn/raw-types";
 import type { StandingsQueryState } from "@/app/lib/standings/standings-view";
 import { strings } from "@/app/lib/strings";
@@ -17,6 +22,7 @@ import {
   buildTeamView,
   type TeamQueryState,
   type TeamReadyScreen,
+  type TeamSchedule,
   type TeamScreen,
 } from "./team-view";
 
@@ -42,6 +48,20 @@ const knicks: TeamDetail = {
 // The fixture's Nuggets have not played yet.
 const nuggets: TeamDetail = { ...lakers, id: "7", slug: "nuggets" };
 
+// The fixture's Lakers beat the Warriors at home, then play the Clippers at home, the Jazz away,
+// the Trail Blazers at home, and the Clippers away.
+const [warriorsAtHome, clippersAtHome, jazzAway, blazersAtHome, clippersAway] =
+  (
+    (lakersScheduleFixture as unknown as RawTeamScheduleResponse).events ?? []
+  ).map(mapScheduleGame);
+const lakersGames = [
+  warriorsAtHome,
+  clippersAtHome,
+  jazzAway,
+  blazersAtHome,
+  clippersAway,
+];
+
 const loadedStandings: StandingsQueryState = {
   status: "success",
   standings,
@@ -51,12 +71,16 @@ function viewFor({
   team = lakers,
   query = { status: "success", team },
   standingsQuery = loadedStandings,
+  games = lakersGames,
+  timeZone = "America/Los_Angeles",
   tabParam = null,
   favoriteTeamIds = [],
 }: {
   team?: TeamDetail;
   query?: TeamQueryState;
   standingsQuery?: StandingsQueryState;
+  games?: Game[] | null;
+  timeZone?: string | null;
   tabParam?: string | null;
   favoriteTeamIds?: string[];
 } = {}) {
@@ -64,9 +88,17 @@ function viewFor({
     slug: team.slug,
     query,
     standingsQuery,
+    games,
+    timeZone,
     tabParam,
     favoriteTeamIds,
   });
+}
+
+function scheduleOf(options: Parameters<typeof viewFor>[0] = {}): TeamSchedule {
+  const schedule = readyScreenOf(viewFor(options).screen).schedule;
+  if (!schedule) throw new Error("Expected the schedule to be loaded");
+  return schedule;
 }
 
 function readyScreenOf(screen: TeamScreen): TeamReadyScreen {
@@ -292,6 +324,235 @@ describe("buildTeamView", () => {
       expect(readyScreenOf(screen).header.displayName).toBe(
         "Los Angeles Lakers",
       );
+    });
+  });
+
+  describe("schedule", () => {
+    it("lists the upcoming games soonest first", () => {
+      const { upcoming } = scheduleOf({
+        games: [
+          clippersAway,
+          blazersAtHome,
+          warriorsAtHome,
+          jazzAway,
+          clippersAtHome,
+        ],
+      });
+
+      expect(upcoming.map(({ id }) => id)).toEqual([
+        clippersAtHome.id,
+        jazzAway.id,
+        blazersAtHome.id,
+        clippersAway.id,
+      ]);
+    });
+
+    it("shows each upcoming game's date, local time, opponent, and side", () => {
+      const [clippersGame, jazzGame] = scheduleOf().upcoming;
+
+      expect(clippersGame).toMatchObject({
+        id: clippersAtHome.id,
+        startTime: "2026-10-24T02:00Z",
+        weekdayLabel: "Fri",
+        dateLabel: "Oct 23",
+        timeLabel: "7:00 PM",
+        isHome: true,
+        sideLabel: strings.team.schedule.versus,
+        opponent: {
+          name: "Clippers",
+          displayName: "LA Clippers",
+          logoUrl: clippersAtHome.away.team.logoUrl,
+        },
+      });
+      expect(jazzGame).toMatchObject({
+        isHome: false,
+        sideLabel: strings.team.schedule.at,
+        opponent: { name: "Jazz" },
+      });
+    });
+
+    it("shows the tip-off date and time in the browser timezone", () => {
+      const [clippersGame] = scheduleOf({ timeZone: "Asia/Tokyo" }).upcoming;
+
+      expect(clippersGame).toMatchObject({
+        weekdayLabel: "Sat",
+        dateLabel: "Oct 24",
+        timeLabel: "11:00 AM",
+      });
+    });
+
+    it("shows the NBA date without a time until the browser timezone is known", () => {
+      const [clippersGame] = scheduleOf({ timeZone: null }).upcoming;
+
+      expect(clippersGame).toMatchObject({
+        weekdayLabel: "Fri",
+        dateLabel: "Oct 23",
+        timeLabel: null,
+      });
+    });
+
+    it("labels a game without a national channel as on local TV", () => {
+      const [clippersGame] = scheduleOf().upcoming;
+
+      expect(clippersGame.channelLabel).toBe(strings.broadcast.localTv);
+    });
+
+    it("labels a game by its national channels", () => {
+      const nationalGame: Game = {
+        ...clippersAtHome,
+        broadcasts: [
+          { name: "Prime Video", market: "national" },
+          { name: "NBA League Pass", market: "national" },
+        ],
+      };
+
+      const [game] = scheduleOf({ games: [nationalGame] }).upcoming;
+
+      expect(game.channelLabel).toBe("Prime Video");
+    });
+
+    it("flags the soonest game as the next one", () => {
+      const { upcoming } = scheduleOf();
+
+      expect(upcoming.map(({ isNext }) => isNext)).toEqual([
+        true,
+        false,
+        false,
+        false,
+      ]);
+    });
+
+    it("marks a postponed game and flags the next game after it", () => {
+      const postponedGame: Game = {
+        ...clippersAtHome,
+        status: { kind: "postponed" },
+      };
+
+      const [postponed, jazzGame] = scheduleOf({
+        games: [postponedGame, jazzAway],
+      }).upcoming;
+
+      expect(postponed).toMatchObject({ isPostponed: true, isNext: false });
+      expect(jazzGame).toMatchObject({ isPostponed: false, isNext: true });
+    });
+
+    it("shows the next four games in the desktop up next", () => {
+      const fifthGame: Game = {
+        ...clippersAway,
+        id: "fifth-game",
+        startTime: "2026-10-31T02:30Z",
+        nbaDate: "2026-10-30" as NbaDate,
+      };
+
+      const { upcoming } = scheduleOf({ games: [...lakersGames, fifthGame] });
+
+      expect(
+        upcoming.map(({ isInDesktopUpNext }) => isInDesktopUpNext),
+      ).toEqual([true, true, true, true, false]);
+    });
+
+    it("lists the results newest first with a link to each game center", () => {
+      const laterWin: Game = {
+        ...warriorsAtHome,
+        id: "later-win",
+        startTime: "2026-10-23T02:00Z",
+        nbaDate: "2026-10-22" as NbaDate,
+      };
+
+      const { results } = scheduleOf({ games: [warriorsAtHome, laterWin] });
+
+      expect(results.map(({ id, href }) => [id, href])).toEqual([
+        ["later-win", "/game/later-win"],
+        [warriorsAtHome.id, `/game/${warriorsAtHome.id}`],
+      ]);
+    });
+
+    it("shows a win with the team's score first", () => {
+      const [result] = scheduleOf().results;
+
+      expect(result).toMatchObject({
+        weekdayLabel: "Wed",
+        dateLabel: "Oct 21",
+        isHome: true,
+        sideLabel: strings.team.schedule.versus,
+        opponent: { name: "Warriors" },
+        outcome: "win",
+        outcomeLabel: "W",
+        outcomeAccessibleLabel: "Win",
+        score: "127-105",
+        overtimeLabel: null,
+      });
+    });
+
+    it("shows a loss away with the team's score first", () => {
+      const awayLoss: Game = {
+        ...jazzAway,
+        status: { kind: "final", period: 4 },
+        home: { ...jazzAway.home, score: 112, winner: true },
+        away: { ...jazzAway.away, score: 104, winner: false },
+      };
+
+      const [result] = scheduleOf({ games: [awayLoss] }).results;
+
+      expect(result).toMatchObject({
+        isHome: false,
+        sideLabel: strings.team.schedule.at,
+        outcome: "loss",
+        outcomeLabel: "L",
+        outcomeAccessibleLabel: "Loss",
+        score: "104-112",
+      });
+    });
+
+    it.each([
+      [5, "OT"],
+      [6, "2OT"],
+    ])(
+      "marks a game that ended in period %i as %s",
+      (period, overtimeLabel) => {
+        const overtimeWin: Game = {
+          ...warriorsAtHome,
+          status: { kind: "final", period },
+        };
+
+        const [result] = scheduleOf({ games: [overtimeWin] }).results;
+
+        expect(result.overtimeLabel).toBe(overtimeLabel);
+      },
+    );
+
+    it("keeps live and canceled games out of the upcoming games and the results", () => {
+      const liveGame: Game = {
+        ...clippersAtHome,
+        status: { kind: "live", period: 2, clock: "5:00" },
+      };
+      const canceledGame: Game = {
+        ...jazzAway,
+        status: { kind: "canceled" },
+      };
+
+      const schedule = scheduleOf({ games: [liveGame, canceledGame] });
+
+      expect([schedule.upcoming, schedule.results]).toEqual([[], []]);
+    });
+
+    it("shows the offseason message when no games are left", () => {
+      const schedule = scheduleOf({ games: [warriorsAtHome] });
+
+      expect(schedule.upcoming).toEqual([]);
+      expect(schedule.emptyUpcomingMessage).toBe(
+        strings.team.schedule.offseason,
+      );
+    });
+
+    it("leaves the offseason message out while games are left", () => {
+      expect(scheduleOf().emptyUpcomingMessage).toBeNull();
+    });
+
+    it("leaves the schedule out until it loads", () => {
+      const screen = viewFor({ games: null }).screen;
+
+      expect(readyScreenOf(screen).schedule).toBeNull();
     });
   });
 
