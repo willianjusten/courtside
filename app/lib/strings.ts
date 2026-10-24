@@ -168,7 +168,12 @@ export const strings = {
     },
     highlights: {
       title: "Highlights",
-      pending: "Highlights appear here soon.",
+      count: (count: number) => `${count} ${count === 1 ? "video" : "videos"}`,
+      play: (title: string) => `Play ${title}`,
+      videos: "Highlight videos",
+      viewMore: "View more",
+      viewLess: "View less",
+      watchOnEspn: "Watch on ESPN",
     },
     teamStats: {
       title: "Team stats",

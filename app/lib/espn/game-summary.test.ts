@@ -1,5 +1,6 @@
 import { fetchGameSummary } from "@/app/lib/espn";
 import finalSummary from "./__fixtures__/summary-final.json";
+import finalVideosSummary from "./__fixtures__/summary-final-videos.json";
 import liveSummary from "./__fixtures__/summary-live.json";
 import preGameSummary from "./__fixtures__/summary-pre-game.json";
 
@@ -363,6 +364,7 @@ describe("fetchGameSummary", () => {
       expect(summary.teamStats).toEqual({ home: null, away: null });
       expect(summary.plays).toEqual([]);
       expect(summary.winProbability).toEqual([]);
+      expect(summary.videos).toEqual([]);
     });
 
     it("maps season average leaders, and none for a team without them", async () => {
@@ -377,6 +379,63 @@ describe("fetchGameSummary", () => {
       ]);
       expect(leaders.home[0].leader.displayValue).toBe("32.0");
       expect(leaders.away).toEqual([]);
+    });
+  });
+
+  describe("videos", () => {
+    it("maps every video in ESPN order", async () => {
+      respondWith(finalVideosSummary);
+
+      const { videos } = await fetchGameSummary("401909095");
+
+      expect(videos).toHaveLength(11);
+      expect(videos[0]).toEqual({
+        id: "50262487",
+        title: "New York Knicks vs. Boston Celtics: Game Highlights",
+        durationSeconds: 72,
+        thumbnailUrl:
+          "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/70b7d23e-7307-46ab-9444-adc57951396b/70b7d23e-7307-46ab-9444-adc57951396b.jpg",
+        sourceUrl:
+          "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/70b7d23e-7307-46ab-9444-adc57951396b/70b7d23e-7307-46ab-9444-adc57951396b.mp4",
+        espnUrl:
+          "https://www.espn.com/video/clip/_/id/50262487/game-highlights",
+      });
+      expect(videos.map(({ id }) => id).slice(0, 3)).toEqual([
+        "50262487",
+        "50261477",
+        "50261964",
+      ]);
+    });
+
+    it("drops the videos without an MP4 HD source", async () => {
+      const missingSource = structuredClone(finalVideosSummary);
+      const [recap, firstClip] = missingSource.videos;
+      delete (recap.links.source as { HD?: unknown }).HD;
+      delete (firstClip.links as { source?: unknown }).source;
+      respondWith(missingSource);
+
+      const { videos } = await fetchGameSummary("401909095");
+
+      expect(videos).toHaveLength(9);
+      expect(videos[0].id).toBe("50261964");
+    });
+
+    it("leaves the ESPN link out when the video has none", async () => {
+      const missingLink = structuredClone(finalVideosSummary);
+      delete (missingLink.videos[0].links as { web?: unknown }).web;
+      respondWith(missingLink);
+
+      const { videos } = await fetchGameSummary("401909095");
+
+      expect(videos[0].espnUrl).toBeNull();
+    });
+
+    it("maps no videos when the summary has none", async () => {
+      respondWith(finalSummary);
+
+      const { videos } = await fetchGameSummary("401909092");
+
+      expect(videos).toEqual([]);
     });
   });
 

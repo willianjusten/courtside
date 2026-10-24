@@ -47,6 +47,7 @@ function Slot({
 type GameSectionsProps = {
   tabs: GameTabs;
   onSelectTab: (tab: GameTab) => void;
+  // Null hides the section, along with its slot in the layout.
   highlights: ReactNode;
   leaders: ReactNode;
   gameFlow: ReactNode;
@@ -56,7 +57,7 @@ type GameSectionsProps = {
 };
 
 // Mobile shows the sections under tabs, as in the GameDetail artboard; desktop lays them all out on one page,
-// as in the GameDetailDesktop artboard: highlights beside a side column of leaders and team stats, then full-width rows.
+// as in the GameDetailDesktop artboard: the box score beside a side column of leaders and team stats, then full-width rows.
 export function GameSections({
   tabs,
   onSelectTab,
@@ -95,24 +96,29 @@ export function GameSections({
         ))}
       </Tabs.List>
       <Panel value="summary">
-        <Slot className="md:col-start-1 md:row-span-2 md:row-start-1">
-          {highlights}
-        </Slot>
         <Slot className="-order-1 md:order-none md:col-start-2 md:row-start-1">
           {leaders}
         </Slot>
         <Slot className="-order-2 md:order-none md:col-span-2 md:row-start-3">
           {gameFlow}
         </Slot>
+        {highlights && (
+          <Slot className="md:col-span-2 md:row-start-4">{highlights}</Slot>
+        )}
       </Panel>
       <Panel value="box">
-        <Slot className="md:col-span-2 md:row-start-4">{boxScore}</Slot>
+        <Slot className="md:col-start-1 md:row-span-2 md:row-start-1">
+          {boxScore}
+        </Slot>
       </Panel>
       <Panel value="stats">
         <Slot className="md:col-start-2 md:row-start-2">{teamStats}</Slot>
       </Panel>
       <Panel value="plays">
-        <Slot className="md:col-span-2 md:row-start-5">
+        <Slot
+          // Without highlights, the plays move up a row so no empty track adds a second gap.
+          className={`md:col-span-2 ${highlights ? "md:row-start-5" : "md:row-start-4"}`}
+        >
           {hasOpenedPlays && plays}
         </Slot>
       </Panel>

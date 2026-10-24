@@ -1,6 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
+import finalVideosSummary from "@/app/lib/espn/__fixtures__/summary-final-videos.json";
 import overtimeSummary from "@/app/lib/espn/__fixtures__/summary-final-overtime-playoff.json";
 import liveSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game.json";
@@ -59,6 +60,21 @@ vi.mock("next/navigation", async () => {
       ),
   };
 });
+
+// Tailwind's md breakpoint, where the desktop layout starts.
+const DESKTOP_MEDIA_QUERY = "(min-width: 48rem)";
+
+function setViewport(viewport: "mobile" | "desktop") {
+  vi.spyOn(window, "matchMedia").mockImplementation(
+    (query) =>
+      ({
+        matches: viewport === "desktop" && query === DESKTOP_MEDIA_QUERY,
+        media: query,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }) as unknown as MediaQueryList,
+  );
+}
 
 function jsonResponse(body: unknown) {
   return new Response(JSON.stringify(body), { status: 200 });
@@ -483,21 +499,7 @@ describe("GameDetail game leaders", () => {
 });
 
 describe("GameDetail play-by-play", () => {
-  // Tailwind's md breakpoint, where the desktop layout starts.
-  const DESKTOP_MEDIA_QUERY = "(min-width: 48rem)";
   const ROW_HEIGHT = 40;
-
-  function setViewport(viewport: "mobile" | "desktop") {
-    vi.spyOn(window, "matchMedia").mockImplementation(
-      (query) =>
-        ({
-          matches: viewport === "desktop" && query === DESKTOP_MEDIA_QUERY,
-          media: query,
-          addEventListener: () => {},
-          removeEventListener: () => {},
-        }) as unknown as MediaQueryList,
-    );
-  }
 
   beforeEach(() => {
     window.scrollTo(0, 0);
@@ -682,5 +684,160 @@ describe("GameDetail play-by-play", () => {
 
     expect(playRows()).toHaveLength(41);
     expect(window.scrollY).toBe(0);
+  });
+});
+
+describe("GameDetail highlights", () => {
+  const finalWithVideos = {
+    ...finalSummary,
+    videos: finalVideosSummary.videos,
+  };
+  const [recap, firstClip] = finalVideosSummary.videos;
+  const highlights = strings.game.highlights;
+
+  const highlightsRegion = () =>
+    screen.getByRole("region", { name: highlights.title });
+  const videoButtons = () =>
+    within(
+      within(highlightsRegion()).getByRole("list", { name: highlights.videos }),
+    ).getAllByRole("button");
+  const player = () => {
+    const video = highlightsRegion().querySelector("video");
+    if (!video) throw new Error("Expected the video player");
+    return video;
+  };
+
+  async function renderHighlights(viewport: "mobile" | "desktop") {
+    setViewport(viewport);
+    await renderLoadedGameDetail(finalWithVideos, DURING_LIVE_GAME);
+    // The player is loaded on demand.
+    await within(highlightsRegion()).findByRole("button", {
+      name: highlights.play(recap.headline),
+    });
+  }
+
+  it("hides the section when ESPN has no video", async () => {
+    setViewport("mobile");
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(screen.queryByRole("region", { name: highlights.title })).toBeNull();
+  });
+
+  it("sits in the Summary tab on mobile", async () => {
+    await renderHighlights("mobile");
+
+    expect(
+      screen
+        .getByRole("tabpanel", { name: strings.game.tabs.summary })
+        .contains(highlightsRegion()),
+    ).toBe(true);
+  });
+
+  it("loads the first video in a single player that downloads nothing until played", async () => {
+    await renderHighlights("mobile");
+
+    expect(highlightsRegion().querySelectorAll("video")).toHaveLength(1);
+    expect(player().getAttribute("src")).toBe(recap.links.source.HD.href);
+    expect(player().getAttribute("poster")).toBe(recap.thumbnail);
+    expect(player().getAttribute("preload")).toBe("none");
+    expect(highlightsRegion().textContent).toContain("11 videos");
+    expect(highlightsRegion().textContent).toContain(recap.headline);
+  });
+
+  it("plays the video in the page from the play button", async () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, "play")
+      .mockResolvedValue(undefined);
+    await renderHighlights("mobile");
+
+    fireEvent.click(
+      within(highlightsRegion()).getByRole("button", {
+        name: highlights.play(recap.headline),
+      }),
+    );
+    fireEvent.play(player());
+
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(player().hasAttribute("controls")).toBe(true);
+    expect(
+      within(highlightsRegion()).queryByRole("button", {
+        name: highlights.play(recap.headline),
+      }),
+    ).toBeNull();
+  });
+
+  it("lists the videos in ESPN order with title and duration, collapsed to 3 on mobile", async () => {
+    await renderHighlights("mobile");
+
+    expect(videoButtons()).toHaveLength(3);
+    expect(videoButtons()[0].textContent).toBe(`${recap.headline}1:12`);
+    expect(videoButtons()[1].textContent).toBe(`${firstClip.headline}0:19`);
+    expect(videoButtons()[0].getAttribute("aria-current")).toBe("true");
+    expect(videoButtons()[1].hasAttribute("aria-current")).toBe(false);
+  });
+
+  it("expands the list with View more without playing anything", async () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, "play")
+      .mockResolvedValue(undefined);
+    await renderHighlights("mobile");
+
+    const toggle = within(highlightsRegion()).getByRole("button", {
+      name: highlights.viewMore,
+    });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(
+      document.getElementById(toggle.getAttribute("aria-controls") ?? ""),
+    ).toBe(
+      within(highlightsRegion()).getByRole("list", { name: highlights.videos }),
+    );
+
+    fireEvent.click(toggle);
+    expect(videoButtons()).toHaveLength(11);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(toggle.textContent).toBe(highlights.viewLess);
+    expect(play).not.toHaveBeenCalled();
+    expect(player().getAttribute("src")).toBe(recap.links.source.HD.href);
+
+    fireEvent.click(toggle);
+    expect(videoButtons()).toHaveLength(3);
+  });
+
+  it("collapses the list to 4 on desktop", async () => {
+    await renderHighlights("desktop");
+
+    expect(videoButtons()).toHaveLength(4);
+  });
+
+  it("plays a picked video in the same player and highlights it", async () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, "play")
+      .mockResolvedValue(undefined);
+    await renderHighlights("mobile");
+    const video = player();
+
+    fireEvent.click(videoButtons()[1]);
+
+    expect(player()).toBe(video);
+    expect(video.getAttribute("src")).toBe(firstClip.links.source.HD.href);
+    expect(video.getAttribute("poster")).toBe(firstClip.thumbnail);
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(videoButtons()[1].getAttribute("aria-current")).toBe("true");
+    expect(videoButtons()[0].hasAttribute("aria-current")).toBe(false);
+    expect(highlightsRegion().textContent).toContain(firstClip.headline);
+  });
+
+  it("links the selected video to ESPN", async () => {
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+    await renderHighlights("mobile");
+    const watchOnEspn = () =>
+      within(highlightsRegion()).getByRole("link", {
+        name: highlights.watchOnEspn,
+      });
+
+    expect(watchOnEspn().getAttribute("href")).toBe(recap.links.web.href);
+
+    fireEvent.click(videoButtons()[1]);
+    expect(watchOnEspn().getAttribute("href")).toBe(firstClip.links.web.href);
   });
 });

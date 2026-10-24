@@ -38,20 +38,3 @@ export function Section({
     </section>
   );
 }
-
-// Holds a section's slot in the layout until its own ticket fills it.
-export function PendingSection({
-  headingId,
-  title,
-  note,
-}: {
-  headingId: string;
-  title: string;
-  note: string;
-}) {
-  return (
-    <Section headingId={headingId} title={title}>
-      <p className="text-sm text-muted">{note}</p>
-    </Section>
-  );
-}

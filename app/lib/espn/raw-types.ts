@@ -256,6 +256,7 @@ export type RawSummary = {
   plays?: RawPlay[];
   winprobability?: RawWinProbabilityPoint[];
   gameInfo?: { venue?: RawVenue };
+  videos?: RawVideo[];
 };
 
 // The summary header carries the event's season, while its competition mirrors a scoreboard competition.
@@ -347,4 +348,16 @@ export type RawPlay = {
 export type RawWinProbabilityPoint = {
   playId: string;
   homeWinPercentage: number;
+};
+
+export type RawVideo = {
+  id: number;
+  headline: string;
+  // In seconds.
+  duration: number;
+  thumbnail?: string;
+  links: {
+    source?: { HD?: { href: string } };
+    web?: { href: string };
+  };
 };

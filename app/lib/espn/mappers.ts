@@ -5,6 +5,7 @@ import type {
   GameLeader,
   GameSide,
   GameSummary,
+  GameVideo,
   Play,
   TeamBoxScore,
   TeamStatistics,
@@ -64,6 +65,7 @@ import type {
   RawSummaryLeaderCategory,
   RawSummaryTeamLeaders,
   RawTeam,
+  RawVideo,
 } from "./raw-types";
 
 const SEASON_TYPE_BY_ID: Record<number, SeasonType> = {
@@ -665,6 +667,24 @@ function mapPlay(play: RawPlay): Play {
   };
 }
 
+// A video without an MP4 HD file can't play in the page, so it is dropped.
+function mapVideos(videos: RawVideo[] = []): GameVideo[] {
+  return videos.flatMap(({ id, headline, duration, thumbnail, links }) => {
+    const sourceUrl = links.source?.HD?.href;
+    if (!sourceUrl) return [];
+    return [
+      {
+        id: String(id),
+        title: headline,
+        durationSeconds: duration,
+        thumbnailUrl: thumbnail ?? null,
+        sourceUrl,
+        espnUrl: links.web?.href ?? null,
+      },
+    ];
+  });
+}
+
 function mapLineScore(competitor: RawSummaryCompetitor) {
   return (competitor.linescores ?? []).map((periodScore) =>
     normalizeScore(periodScore.displayValue),
@@ -763,5 +783,6 @@ export function mapGameSummary(summary: RawSummary): GameSummary {
     winProbability: (summary.winprobability ?? []).map(
       ({ playId, homeWinPercentage }) => ({ playId, homeWinPercentage }),
     ),
+    videos: mapVideos(summary.videos),
   };
 }

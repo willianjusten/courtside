@@ -6,6 +6,7 @@ import TeamLogo from "@/app/components/TeamLogo";
 import type { PlayByPlayView, PlayRow } from "@/app/lib/game/game-view";
 import { useIsDesktop } from "@/app/lib/layout/use-is-desktop";
 import { strings } from "@/app/lib/strings";
+import { ChevronIcon } from "./chevron-icon";
 import { Section } from "./sections";
 import { ToggleGroup, type ToggleOption } from "./toggle-group";
 
@@ -110,25 +111,6 @@ function PlayItem({ play }: { play: PlayRow }) {
         {play.score}
       </span>
     </li>
-  );
-}
-
-function ChevronIcon({ isExpanded }: { isExpanded: boolean }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={`transition-transform duration-200 motion-reduce:transition-none ${isExpanded ? "rotate-180" : ""}`}
-    >
-      <path d="M6 9l6 6 6-6" />
-    </svg>
   );
 }
 

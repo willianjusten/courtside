@@ -6,6 +6,7 @@ import type {
 import doubleOvertimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-double-overtime-playoff.json";
 import overtimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-overtime-playoff.json";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
+import finalVideosSummary from "@/app/lib/espn/__fixtures__/summary-final-videos.json";
 import liveSimulatedSummary from "@/app/lib/espn/__fixtures__/summary-live-simulated.json";
 import liveFirstQuarterSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game-tonight.json";
@@ -21,6 +22,7 @@ import {
   type GameSummaryQueryState,
   type GameFlowView,
   type GameTabs,
+  type HighlightsView,
   type LineScoreView,
   type PlayByPlayView,
   type TeamStatsView,
@@ -29,6 +31,7 @@ import {
 const summaryOf = (fixture: unknown) => mapGameSummary(fixture as RawSummary);
 
 const final = summaryOf(finalSummary);
+const finalWithVideos = summaryOf(finalVideosSummary);
 const live = summaryOf(liveSimulatedSummary);
 const liveFirstQuarter = summaryOf(liveFirstQuarterSummary);
 const preGame = summaryOf(preGameSummary);
@@ -114,6 +117,14 @@ function gameFlowFor(summary: GameSummary): GameFlowView | null {
     throw new Error(`Expected a live or final screen, got ${screen.kind}`);
   }
   return screen.gameFlow;
+}
+
+function highlightsFor(summary: GameSummary): HighlightsView | null {
+  const screen = screenFor(summary);
+  if (screen.kind !== "live" && screen.kind !== "final") {
+    throw new Error(`Expected a live or final screen, got ${screen.kind}`);
+  }
+  return screen.highlights;
 }
 
 function requireGameFlow(summary: GameSummary): GameFlowView {
@@ -1313,6 +1324,51 @@ describe("buildGameView", () => {
 
     it("has no game flow until ESPN sends any play", () => {
       expect(gameFlowFor({ ...live, plays: [] })).toBeNull();
+    });
+  });
+
+  describe("highlights", () => {
+    it("lists every video in ESPN order with its title, duration, and sources", () => {
+      const highlights = highlightsFor(finalWithVideos);
+
+      expect(highlights?.countLabel).toBe("11 videos");
+      expect(highlights?.videos).toHaveLength(11);
+      expect(highlights?.videos[0]).toEqual({
+        id: "50262487",
+        title: "New York Knicks vs. Boston Celtics: Game Highlights",
+        durationLabel: "1:12",
+        playLabel: "Play New York Knicks vs. Boston Celtics: Game Highlights",
+        thumbnailUrl: finalWithVideos.videos[0].thumbnailUrl,
+        sourceUrl: finalWithVideos.videos[0].sourceUrl,
+        espnUrl:
+          "https://www.espn.com/video/clip/_/id/50262487/game-highlights",
+      });
+      expect(highlights?.videos[1]).toMatchObject({
+        title: "Karl-Anthony Towns elevates for jam",
+        durationLabel: "0:19",
+      });
+    });
+
+    it("lists the videos of a live game the same way", () => {
+      const liveWithVideos = { ...live, videos: finalWithVideos.videos };
+
+      expect(highlightsFor(liveWithVideos)).toEqual(
+        highlightsFor(finalWithVideos),
+      );
+    });
+
+    it("counts a single video in the singular", () => {
+      const oneVideo = {
+        ...finalWithVideos,
+        videos: finalWithVideos.videos.slice(0, 1),
+      };
+
+      expect(highlightsFor(oneVideo)?.countLabel).toBe("1 video");
+    });
+
+    it("has no highlights when ESPN sends no video", () => {
+      expect(final.videos).toEqual([]);
+      expect(highlightsFor(final)).toBeNull();
     });
   });
 });

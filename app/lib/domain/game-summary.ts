@@ -94,6 +94,17 @@ export type WinProbabilityPoint = {
   homeWinPercentage: number;
 };
 
+export type GameVideo = {
+  id: string;
+  title: string;
+  durationSeconds: number;
+  thumbnailUrl: string | null;
+  // The MP4 HD file, which a native video element plays in the page.
+  sourceUrl: string;
+  // The video's page on ESPN.
+  espnUrl: string | null;
+};
+
 export type GameSide<Value> = {
   home: Value;
   away: Value;
@@ -112,4 +123,6 @@ export type GameSummary = {
   // In game order. Empty before the game starts.
   plays: Play[];
   winProbability: WinProbabilityPoint[];
+  // In ESPN order: short clips of single plays, sometimes with a longer recap among them.
+  videos: GameVideo[];
 };

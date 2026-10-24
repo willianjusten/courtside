@@ -6,15 +6,14 @@ import {
   buildGameView,
   type GameSummaryQueryState,
 } from "@/app/lib/game/game-view";
-import { strings } from "@/app/lib/strings";
 import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import { GameHeader, LineScore } from "./header";
 import { GameSections } from "./game-sections";
 import { BoxScore } from "./box-score";
 import { GameFlow } from "./game-flow";
 import { GameLeaders } from "./game-leaders";
+import { Highlights } from "./highlights";
 import { PlayByPlay } from "./play-by-play";
-import { PendingSection } from "./sections";
 import { TeamStats } from "./team-stats";
 import {
   GameDetailError,
@@ -82,11 +81,7 @@ export default function GameDetail({ gameId }: { gameId: string }) {
               window.history.replaceState(null, "", href)
             }
             highlights={
-              <PendingSection
-                headingId="game-highlights"
-                title={strings.game.highlights.title}
-                note={strings.game.highlights.pending}
-              />
+              screen.highlights && <Highlights highlights={screen.highlights} />
             }
             leaders={<GameLeaders leaders={screen.leaders} />}
             gameFlow={<GameFlow gameFlow={screen.gameFlow} />}

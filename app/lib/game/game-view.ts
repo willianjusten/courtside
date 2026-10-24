@@ -8,6 +8,7 @@ import type {
   BoxScorePlayer,
   BoxScoreStats,
   GameSummary,
+  GameVideo,
   Play,
   TeamStatistics,
 } from "@/app/lib/domain/game-summary";
@@ -257,6 +258,23 @@ export type PlayByPlayView = {
   periods: PlayPeriod[];
 };
 
+export type HighlightVideo = {
+  id: string;
+  title: string;
+  // e.g. "0:19".
+  durationLabel: string;
+  playLabel: string;
+  thumbnailUrl: string | null;
+  sourceUrl: string;
+  espnUrl: string | null;
+};
+
+export type HighlightsView = {
+  countLabel: string;
+  // In ESPN order, never empty.
+  videos: HighlightVideo[];
+};
+
 const GAME_TAB_IDS = ["summary", "box", "stats", "plays"] as const;
 const DEFAULT_GAME_TAB = "summary";
 
@@ -293,6 +311,8 @@ export type GameScreen =
       // Null until ESPN sends any play.
       gameFlow: GameFlowView | null;
       playByPlay: PlayByPlayView;
+      // Null when ESPN has no playable video.
+      highlights: HighlightsView | null;
       tabs: GameTabs;
     }
   | {
@@ -308,6 +328,8 @@ export type GameScreen =
       // Null until ESPN sends any play.
       gameFlow: GameFlowView | null;
       playByPlay: PlayByPlayView;
+      // Null when ESPN has no playable video.
+      highlights: HighlightsView | null;
       tabs: GameTabs;
     };
 
@@ -675,6 +697,34 @@ function playByPlayOf(summary: GameSummary): PlayByPlayView {
   return { plays, periods };
 }
 
+const SECONDS_PER_MINUTE = 60;
+
+function durationLabelOf(durationSeconds: number) {
+  const minutes = Math.floor(durationSeconds / SECONDS_PER_MINUTE);
+  const seconds = durationSeconds % SECONDS_PER_MINUTE;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function highlightVideoOf(video: GameVideo): HighlightVideo {
+  return {
+    id: video.id,
+    title: video.title,
+    durationLabel: durationLabelOf(video.durationSeconds),
+    playLabel: strings.game.highlights.play(video.title),
+    thumbnailUrl: video.thumbnailUrl,
+    sourceUrl: video.sourceUrl,
+    espnUrl: video.espnUrl,
+  };
+}
+
+function highlightsOf({ videos }: GameSummary): HighlightsView | null {
+  if (videos.length === 0) return null;
+  return {
+    countLabel: strings.game.highlights.count(videos.length),
+    videos: videos.map(highlightVideoOf),
+  };
+}
+
 function isGameTabId(tab: string): tab is GameTabId {
   return (GAME_TAB_IDS as readonly string[]).includes(tab);
 }
@@ -718,6 +768,7 @@ function screenOf(
         teamStats: teamStatsOf(summary),
         gameFlow: gameFlowOf(summary),
         playByPlay: playByPlayOf(summary),
+        highlights: highlightsOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
     case "final":
@@ -730,6 +781,7 @@ function screenOf(
         teamStats: teamStatsOf(summary),
         gameFlow: gameFlowOf(summary),
         playByPlay: playByPlayOf(summary),
+        highlights: highlightsOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
   }
