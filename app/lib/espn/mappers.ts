@@ -17,6 +17,7 @@ import type {
   Game,
   GameCompetitor,
   GameStatus,
+  PlayoffGame,
   PlayoffSeries,
   SeasonType,
   Team,
@@ -370,6 +371,21 @@ export function mapScheduleGame(event: RawScheduleEvent): Game {
     // The team schedule sends neither.
     homeWinProbability: null,
     topScorer: null,
+  };
+}
+
+const PLAYOFF_NOTE_PATTERN = /^(.+) - Game (\d+)$/;
+
+export function mapPlayoffScheduleGame(event: RawScheduleEvent): PlayoffGame {
+  const headline = event.competitions[0]?.notes?.find(
+    ({ type }) => type === "event",
+  )?.headline;
+  const [, roundName, gameNumber] = headline?.match(PLAYOFF_NOTE_PATTERN) ?? [];
+
+  return {
+    ...mapScheduleGame(event),
+    roundName: roundName ?? null,
+    gameNumber: gameNumber ? Number(gameNumber) : null,
   };
 }
 

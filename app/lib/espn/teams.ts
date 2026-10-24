@@ -1,4 +1,4 @@
-import type { Game } from "@/app/lib/domain/game";
+import type { Game, PlayoffGame } from "@/app/lib/domain/game";
 import type {
   ListedTeam,
   RosterPlayer,
@@ -7,6 +7,7 @@ import type {
 } from "@/app/lib/domain/team";
 import {
   mapListedTeam,
+  mapPlayoffScheduleGame,
   mapRosterPlayer,
   mapScheduleGame,
   mapTeamDetail,
@@ -19,6 +20,7 @@ import type {
   RawTeamScheduleResponse,
   RawTeamsList,
 } from "./raw-types";
+import { POSTSEASON_TYPE_ID, REGULAR_SEASON_TYPE_ID } from "./config";
 import { espnGet, espnGetRef } from "./transport";
 
 const ATHLETE_ID_IN_REF_PATTERN = /\/athletes\/(\d+)/;
@@ -50,18 +52,39 @@ export async function fetchTeamDetail(teamId: string): Promise<TeamDetail> {
   return mapTeamDetail(team);
 }
 
-// Past and upcoming games of the current season type, in date order.
-export async function fetchTeamSchedule(teamId: string): Promise<Game[]> {
-  const rawSchedule = await espnGet<RawTeamScheduleResponse>("teamSchedule", {
+function fetchRawTeamSchedule(teamId: string, seasonTypeId: string) {
+  return espnGet<RawTeamScheduleResponse>("teamSchedule", {
     pathParams: { teamId },
+    searchParams: new URLSearchParams({ seasontype: seasonTypeId }),
   });
+}
 
-  // A missing events list means ESPN sent something unexpected, which must not read as a team without games.
+// A missing events list means ESPN sent something unexpected, which must not read as a team without games.
+function eventsOf(rawSchedule: RawTeamScheduleResponse, teamId: string) {
   if (!Array.isArray(rawSchedule.events)) {
     throw new Error(`ESPN schedule for team ${teamId} has no events list`);
   }
+  return rawSchedule.events;
+}
 
-  return rawSchedule.events.map(mapScheduleGame);
+// Past and upcoming regular season games, in date order. The season type is explicit because during the
+// postseason ESPN would otherwise answer with the playoff games.
+export async function fetchTeamSchedule(teamId: string): Promise<Game[]> {
+  const rawSchedule = await fetchRawTeamSchedule(
+    teamId,
+    REGULAR_SEASON_TYPE_ID,
+  );
+  return eventsOf(rawSchedule, teamId).map(mapScheduleGame);
+}
+
+// Past and upcoming playoff games, in date order; none outside the postseason, when ESPN still serves the last one.
+export async function fetchTeamPlayoffSchedule(
+  teamId: string,
+): Promise<PlayoffGame[]> {
+  const rawSchedule = await fetchRawTeamSchedule(teamId, POSTSEASON_TYPE_ID);
+  if (String(rawSchedule.season?.type) !== POSTSEASON_TYPE_ID) return [];
+
+  return eventsOf(rawSchedule, teamId).map(mapPlayoffScheduleGame);
 }
 
 // ESPN's report on each injured player, by athlete id. A report that fails to load leaves only that player without one.

@@ -12,6 +12,7 @@ import {
   leadersQueryOptions,
 } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
+import { teamPlayoffScheduleQueryOptions } from "@/app/lib/queries/team";
 import { getQueryClient } from "@/app/lib/query/get-query-client";
 import { strings } from "@/app/lib/strings";
 import HomePage from "./page";
@@ -28,6 +29,7 @@ import headerWeek from "./lib/espn/__fixtures__/scoreboard-header-week.json";
 import teamsList from "./lib/espn/__fixtures__/teams-list.json";
 import lakersDetail from "./lib/espn/__fixtures__/team-detail-lakers.json";
 import lakersSchedule from "./lib/espn/__fixtures__/team-schedule-lakers.json";
+import lakersPostseasonSchedule from "./lib/espn/__fixtures__/team-schedule-lakers-postseason.json";
 import lakersRoster from "./lib/espn/__fixtures__/team-roster-lakers.json";
 import lakersInjuries from "./lib/espn/__fixtures__/team-injuries-lakers.json";
 import lakersInjuryItems from "./lib/espn/__fixtures__/team-injuries-lakers-items.json";
@@ -62,7 +64,10 @@ function espnFixtureFor(url: string) {
   if (url.endsWith(`/summary?event=${LIVE_GAME_ID}`)) return liveSummary;
   if (url.endsWith(`/summary?event=${PRE_GAME_ID}`)) return preGameSummary;
   if (url.includes("/scoreboard/header?")) return headerWeek;
-  if (url.endsWith("/teams/13/schedule")) return lakersSchedule;
+  if (url.endsWith("/teams/13/schedule?seasontype=2")) return lakersSchedule;
+  // While the season under way is still in its regular season, its postseason schedule has no games.
+  if (url.endsWith("/teams/13/schedule?seasontype=3"))
+    return { ...lakersSchedule, events: [] };
   if (url.endsWith("/teams/13/roster")) return lakersRoster;
   if (url.endsWith("/teams/13/injuries")) return lakersInjuries;
   const injuryId = url.match(INJURY_URL_PATTERN)?.[1];
@@ -108,6 +113,10 @@ describe("routes", () => {
     });
     // The team page test answers the scoreboard with a live Lakers game, which would otherwise keep polling.
     getQueryClient().removeQueries({ queryKey: ["scoreboard"] });
+    // The playoffs test answers the postseason schedule with the Lakers' playoff run.
+    getQueryClient().removeQueries({
+      queryKey: teamPlayoffScheduleQueryOptions(LAKERS_TEAM_ID).queryKey,
+    });
     favoritesStore().remove(LAKERS_TEAM_ID);
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
@@ -689,6 +698,49 @@ describe("routes", () => {
     );
     expect(
       upNext.querySelector("[aria-live], [role=status], [role=alert]"),
+    ).toBeNull();
+  });
+
+  it("shows the playoff series above the regular season during the postseason", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        url.endsWith("/teams/13/schedule?seasontype=3")
+          ? new Response(JSON.stringify(lakersPostseasonSchedule))
+          : responseFor(url),
+      ),
+    );
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const playoffs = await screen.findByRole("region", {
+      name: strings.team.playoffs.title,
+    });
+    const upNext = screen.getByRole("region", {
+      name: strings.team.schedule.upNext,
+    });
+    expect(
+      playoffs.compareDocumentPosition(upNext) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      within(playoffs)
+        .getAllByRole("heading", { level: 3 })
+        .map(({ textContent }) => textContent),
+    ).toEqual([
+      expect.stringContaining("Oklahoma City Thunder"),
+      expect.stringContaining("Houston Rockets"),
+    ]);
+    expect(within(playoffs).getByText("OKC wins 4-0")).toBeDefined();
+    expect(within(playoffs).getByText("LAL wins 4-2")).toBeDefined();
+    expect(within(playoffs).getAllByRole("link")).toHaveLength(10);
+  });
+
+  it("leaves the playoffs out in the regular season", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    await screen.findByRole("region", { name: strings.team.schedule.upNext });
+    expect(
+      screen.queryByRole("region", { name: strings.team.playoffs.title }),
     ).toBeNull();
   });
 

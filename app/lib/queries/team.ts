@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
   fetchTeamDetail,
+  fetchTeamPlayoffSchedule,
   fetchTeamRoster,
   fetchTeamSchedule,
 } from "@/app/lib/espn";
@@ -21,6 +22,14 @@ export function teamScheduleQueryOptions(teamId: string) {
   return queryOptions({
     queryKey: ["team-schedule", teamId],
     queryFn: () => fetchTeamSchedule(teamId),
+    staleTime: TEAM_SCHEDULE_STALE_MILLISECONDS,
+  });
+}
+
+export function teamPlayoffScheduleQueryOptions(teamId: string) {
+  return queryOptions({
+    queryKey: ["team-playoff-schedule", teamId],
+    queryFn: () => fetchTeamPlayoffSchedule(teamId),
     staleTime: TEAM_SCHEDULE_STALE_MILLISECONDS,
   });
 }

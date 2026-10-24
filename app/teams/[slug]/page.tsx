@@ -5,6 +5,7 @@ import { fetchTeams } from "@/app/lib/espn";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import {
   teamDetailQueryOptions,
+  teamPlayoffScheduleQueryOptions,
   teamRosterQueryOptions,
   teamScheduleQueryOptions,
 } from "@/app/lib/queries/team";
@@ -36,6 +37,7 @@ export default async function TeamRoute({ params }: TeamPageProps) {
   await Promise.all([
     queryClient.prefetchQuery(teamDetailQueryOptions(team.id)),
     queryClient.prefetchQuery(teamScheduleQueryOptions(team.id)),
+    queryClient.prefetchQuery(teamPlayoffScheduleQueryOptions(team.id)),
     queryClient.prefetchQuery(teamRosterQueryOptions(team.id)),
     queryClient.prefetchQuery(standingsQueryOptions()),
   ]);

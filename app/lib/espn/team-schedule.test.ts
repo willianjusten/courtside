@@ -1,6 +1,11 @@
-import { fetchScoreboard, fetchTeamSchedule } from "@/app/lib/espn";
+import {
+  fetchScoreboard,
+  fetchTeamPlayoffSchedule,
+  fetchTeamSchedule,
+} from "@/app/lib/espn";
 import { parseNbaDate } from "@/app/lib/time/nba-date";
 import lakersSchedule from "./__fixtures__/team-schedule-lakers.json";
+import lakersPostseasonSchedule from "./__fixtures__/team-schedule-lakers-postseason.json";
 import lakersFinalScoreboard from "./__fixtures__/scoreboard-lakers-final.json";
 
 const fetchMock = vi.fn();
@@ -21,13 +26,13 @@ afterEach(() => {
 });
 
 describe("fetchTeamSchedule", () => {
-  it("requests the team schedule directly from ESPN", async () => {
+  it("requests the regular season schedule directly from ESPN", async () => {
     respondWith(lakersSchedule);
 
     await fetchTeamSchedule("13");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/schedule",
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/schedule?seasontype=2",
       expect.anything(),
     );
   });
@@ -146,5 +151,77 @@ describe("fetchTeamSchedule", () => {
     respondWith({ team: {} });
 
     await expect(fetchTeamSchedule("13")).rejects.toThrow();
+  });
+});
+
+describe("fetchTeamPlayoffSchedule", () => {
+  it("requests the postseason schedule directly from ESPN", async () => {
+    respondWith(lakersPostseasonSchedule);
+
+    await fetchTeamPlayoffSchedule("13");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/schedule?seasontype=3",
+      expect.anything(),
+    );
+  });
+
+  it("maps each playoff game with its round and game number", async () => {
+    respondWith(lakersPostseasonSchedule);
+
+    const games = await fetchTeamPlayoffSchedule("13");
+
+    expect(
+      games.map((game) => [
+        game.id,
+        game.seasonType,
+        game.roundName,
+        game.gameNumber,
+      ]),
+    ).toEqual([
+      ["401869190", "postseason", "West 1st Round", 1],
+      ["401869397", "postseason", "West 1st Round", 2],
+      ["401869400", "postseason", "West 1st Round", 3],
+      ["401869405", "postseason", "West 1st Round", 4],
+      ["401869407", "postseason", "West 1st Round", 5],
+      ["401869409", "postseason", "West 1st Round", 6],
+      ["401871326", "postseason", "West Semifinals", 1],
+      ["401871327", "postseason", "West Semifinals", 2],
+      ["401871328", "postseason", "West Semifinals", 3],
+      ["401871329", "postseason", "West Semifinals", 4],
+    ]);
+  });
+
+  it("leaves the round and game number out when ESPN sends no note", async () => {
+    const [event] = lakersPostseasonSchedule.events;
+    respondWith({
+      ...lakersPostseasonSchedule,
+      events: [
+        {
+          ...event,
+          competitions: [{ ...event.competitions[0], notes: [] }],
+        },
+      ],
+    });
+
+    const [game] = await fetchTeamPlayoffSchedule("13");
+
+    expect(game).toMatchObject({ roundName: null, gameNumber: null });
+  });
+
+  it("reports no playoff games outside the postseason", async () => {
+    // ESPN keeps serving the last postseason once it ends, under the current season type.
+    respondWith({
+      ...lakersPostseasonSchedule,
+      season: { year: 2026, type: 4, name: "Off Season" },
+    });
+
+    await expect(fetchTeamPlayoffSchedule("13")).resolves.toEqual([]);
+  });
+
+  it("throws instead of reporting no games when the response has no events list", async () => {
+    respondWith({ season: { year: 2026, type: 3 } });
+
+    await expect(fetchTeamPlayoffSchedule("13")).rejects.toThrow();
   });
 });

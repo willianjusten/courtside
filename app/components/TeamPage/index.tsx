@@ -14,6 +14,7 @@ import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import { useTeamScoreboard } from "@/app/lib/queries/use-team-scoreboard";
 import {
   teamDetailQueryOptions,
+  teamPlayoffScheduleQueryOptions,
   teamRosterQueryOptions,
   teamScheduleQueryOptions,
 } from "@/app/lib/queries/team";
@@ -48,7 +49,14 @@ export function TeamPageContent({
     isRefetchError: isStandingsRefetchError,
   } = useQuery(standingsQueryOptions());
   const { data: games } = useQuery(teamScheduleQueryOptions(teamId));
-  const scoreboardGames = useTeamScoreboard(teamId, games ?? null);
+  const { data: playoffGames } = useQuery(
+    teamPlayoffScheduleQueryOptions(teamId),
+  );
+  // A playoff game day reads the scoreboard as well, so the live playoff game updates in place.
+  const scoreboardGames = useTeamScoreboard(
+    teamId,
+    games ? [...games, ...(playoffGames ?? [])] : null,
+  );
   const { data: players } = useQuery(teamRosterQueryOptions(teamId));
   const favoriteTeamIds = useFavoriteTeamIds();
   const timeZone = useBrowserTimeZone();
@@ -75,6 +83,7 @@ export function TeamPageContent({
     query,
     standingsQuery,
     games: games ?? null,
+    playoffGames: playoffGames ?? null,
     scoreboardGames,
     players: players ?? null,
     timeZone,

@@ -6,6 +6,7 @@ export { fetchStandings } from "./standings";
 export {
   fetchTeamDetail,
   fetchTeamIdBySlug,
+  fetchTeamPlayoffSchedule,
   fetchTeamRoster,
   fetchTeamSchedule,
   fetchTeams,

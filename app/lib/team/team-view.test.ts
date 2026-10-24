@@ -1,4 +1,4 @@
-import type { Game } from "@/app/lib/domain/game";
+import type { Game, PlayoffGame } from "@/app/lib/domain/game";
 import type { NbaDate } from "@/app/lib/domain/nba-date";
 import type { Standings } from "@/app/lib/domain/standings";
 import type { RosterPlayer, TeamDetail } from "@/app/lib/domain/team";
@@ -6,12 +6,14 @@ import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-seas
 import lakersDetailFixture from "@/app/lib/espn/__fixtures__/team-detail-lakers.json";
 import lakersRosterFixture from "@/app/lib/espn/__fixtures__/team-roster-lakers.json";
 import lakersScheduleFixture from "@/app/lib/espn/__fixtures__/team-schedule-lakers.json";
+import lakersPostseasonScheduleFixture from "@/app/lib/espn/__fixtures__/team-schedule-lakers-postseason.json";
 import lakersLiveScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-lakers-live-simulated.json";
 import lakersFinalScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-lakers-final.json";
 import liveDayScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-live-day-simulated.json";
 import {
   mapConferenceStandings,
   mapGame,
+  mapPlayoffScheduleGame,
   mapRosterPlayer,
   mapScheduleGame,
   mapSeason,
@@ -72,6 +74,25 @@ const lakersGames = [
   clippersAway,
 ];
 
+// The fixture's Lakers beat the Rockets 4-2 in the West 1st Round, then lost 4-0 to the Thunder in the West Semifinals.
+const lakersPlayoffGames = (
+  (lakersPostseasonScheduleFixture as unknown as RawTeamScheduleResponse)
+    .events ?? []
+).map(mapPlayoffScheduleGame);
+const firstRoundGames = lakersPlayoffGames.slice(0, 6);
+const [rocketsGameOne, rocketsGameTwo, rocketsGameThree, rocketsGameFour] =
+  firstRoundGames;
+
+// A playoff game as the schedule lists it before tip-off.
+function playoffGameBeforeTipOff(game: PlayoffGame): PlayoffGame {
+  return {
+    ...game,
+    status: { kind: "scheduled" },
+    home: { ...game.home, score: 0, winner: false },
+    away: { ...game.away, score: 0, winner: false },
+  };
+}
+
 function scoreboardGamesOf(fixture: unknown): Game[] {
   return ((fixture as RawScoreboard).events ?? []).map(mapGame);
 }
@@ -119,6 +140,7 @@ function viewFor({
   query = { status: "success", team },
   standingsQuery = loadedStandings,
   games = lakersGames,
+  playoffGames = null,
   scoreboardGames = null,
   players = lakersPlayers,
   timeZone = "America/Los_Angeles",
@@ -130,6 +152,7 @@ function viewFor({
   query?: TeamQueryState;
   standingsQuery?: StandingsQueryState;
   games?: Game[] | null;
+  playoffGames?: PlayoffGame[] | null;
   scoreboardGames?: Game[] | null;
   players?: RosterPlayer[] | null;
   timeZone?: string | null;
@@ -142,6 +165,7 @@ function viewFor({
     query,
     standingsQuery,
     games,
+    playoffGames,
     scoreboardGames,
     players,
     timeZone,
@@ -677,6 +701,164 @@ describe("buildTeamView", () => {
 
     it("leaves the offseason message out while games are left", () => {
       expect(scheduleOf().emptyUpcomingMessage).toBeNull();
+    });
+
+    describe("playoffs", () => {
+      it("lists each playoff series newest first with its round, opponent, and result", () => {
+        const { playoffs } = scheduleOf({ playoffGames: lakersPlayoffGames });
+
+        expect(playoffs).toEqual([
+          expect.objectContaining({
+            roundName: "West Semifinals",
+            opponent: expect.objectContaining({
+              name: "Thunder",
+              displayName: "Oklahoma City Thunder",
+            }),
+            statusLabel: "OKC wins 4-0",
+          }),
+          expect.objectContaining({
+            roundName: "West 1st Round",
+            opponent: expect.objectContaining({ name: "Rockets" }),
+            statusLabel: "LAL wins 4-2",
+          }),
+        ]);
+      });
+
+      it("lists a series' games from Game 1 with W/L, score, and side", () => {
+        const [, rocketsSeries] =
+          scheduleOf({ playoffGames: lakersPlayoffGames }).playoffs ?? [];
+
+        expect(
+          rocketsSeries.games.map((game) => [
+            game.kind,
+            game.gameLabel,
+            game.sideLabel,
+            game.kind === "result" ? game.outcomeLabel : null,
+            game.kind === "result" ? game.score : null,
+          ]),
+        ).toEqual([
+          ["result", "Game 1", "vs", "W", "107-98"],
+          ["result", "Game 2", "vs", "W", "101-94"],
+          ["result", "Game 3", "@", "W", "112-108"],
+          ["result", "Game 4", "@", "L", "96-115"],
+          ["result", "Game 5", "vs", "L", "93-99"],
+          ["result", "Game 6", "@", "W", "98-78"],
+        ]);
+        expect(rocketsSeries.games[0]).toMatchObject({
+          id: rocketsGameOne.id,
+          outcomeAccessibleLabel: "Win",
+          href: `/game/${rocketsGameOne.id}`,
+        });
+      });
+
+      it("shows the series leader while the series is under way", () => {
+        const [series] =
+          scheduleOf({
+            playoffGames: [rocketsGameOne, rocketsGameTwo, rocketsGameThree],
+          }).playoffs ?? [];
+
+        expect(series.statusLabel).toBe("LAL leads 3-0");
+      });
+
+      it("shows a tied series", () => {
+        const [series] =
+          scheduleOf({ playoffGames: [rocketsGameOne, rocketsGameFour] })
+            .playoffs ?? [];
+
+        expect(series.statusLabel).toBe("Series tied 1-1");
+      });
+
+      it("shows an upcoming playoff game with its local time and channel, flagged as next", () => {
+        const [series] =
+          scheduleOf({
+            playoffGames: [
+              rocketsGameOne,
+              rocketsGameTwo,
+              playoffGameBeforeTipOff(rocketsGameThree),
+              playoffGameBeforeTipOff(rocketsGameFour),
+            ],
+          }).playoffs ?? [];
+
+        expect(series.statusLabel).toBe("LAL leads 2-0");
+        expect(series.games.slice(2)).toEqual([
+          expect.objectContaining({
+            kind: "upcoming",
+            gameLabel: "Game 3",
+            weekdayLabel: "Fri",
+            dateLabel: "Apr 24",
+            timeLabel: "5:00 PM",
+            channelLabel: "Prime Video",
+            isNext: true,
+          }),
+          expect.objectContaining({ kind: "upcoming", isNext: false }),
+        ]);
+      });
+
+      it("shows a live playoff game from the scoreboard in its series, not in Up next", () => {
+        const rocketsGameThreeLive: Game = {
+          ...rocketsGameThree,
+          status: { kind: "live", period: 3, clock: "4:21" },
+          home: { ...rocketsGameThree.home, score: 70 },
+          away: { ...rocketsGameThree.away, score: 75 },
+        };
+
+        const schedule = scheduleOf({
+          playoffGames: [
+            rocketsGameOne,
+            rocketsGameTwo,
+            playoffGameBeforeTipOff(rocketsGameThree),
+          ],
+          scoreboardGames: [rocketsGameThreeLive],
+        });
+        const [series] = schedule.playoffs ?? [];
+
+        expect(series.games[2]).toMatchObject({
+          kind: "live",
+          gameLabel: "Game 3",
+          statusLabel: "Q3 4:21",
+          score: "75-70",
+        });
+        expect(schedule.live).toBeNull();
+      });
+
+      it("labels a playoff game without ESPN's note by its date alone", () => {
+        const [series] =
+          scheduleOf({
+            playoffGames: [
+              { ...rocketsGameOne, roundName: null, gameNumber: null },
+            ],
+          }).playoffs ?? [];
+
+        expect(series).toMatchObject({ roundName: null });
+        expect(series.games[0].gameLabel).toBeNull();
+      });
+
+      it("keeps the regular season lists to the regular season", () => {
+        const schedule = scheduleOf({ playoffGames: lakersPlayoffGames });
+
+        expect(schedule.results.items.map(({ id }) => id)).toEqual([
+          warriorsAtHome.id,
+        ]);
+        expect(schedule.upcoming.items).toHaveLength(4);
+      });
+
+      it("replaces the offseason message once the regular season is over", () => {
+        const schedule = scheduleOf({
+          games: [warriorsAtHome],
+          playoffGames: lakersPlayoffGames,
+        });
+
+        expect(schedule.upcoming.items).toEqual([]);
+        expect(schedule.emptyUpcomingMessage).toBeNull();
+      });
+
+      it("leaves the playoffs out outside the postseason", () => {
+        expect(scheduleOf({ playoffGames: [] }).playoffs).toBeNull();
+      });
+
+      it("leaves the playoffs out until the playoff schedule loads", () => {
+        expect(scheduleOf({ playoffGames: null }).playoffs).toBeNull();
+      });
     });
 
     describe("show more", () => {

@@ -97,6 +97,8 @@ export type RawCompetitorLeaderCategory = {
 };
 
 export type RawTeamScheduleResponse = {
+  // The season under way, whatever season type was requested.
+  season?: Pick<RawSeason, "year" | "type">;
   events?: RawScheduleEvent[];
 };
 
@@ -116,6 +118,8 @@ export type RawScheduleCompetition = {
   broadcasts?: RawGeoBroadcast[];
   series?: RawSeries;
   venue?: RawVenue;
+  // A playoff game's note, e.g. { type: "event", headline: "West 1st Round - Game 1" }.
+  notes?: { type: string; headline: string }[];
 };
 
 export type RawScheduleCompetitor = {

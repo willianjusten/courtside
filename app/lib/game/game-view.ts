@@ -1,3 +1,4 @@
+import { seriesLabelOf } from "@/app/lib/game/series";
 import type {
   Game,
   GameCompetitor,
@@ -389,23 +390,17 @@ function venueLabelOf(venue: string | null, city: string | null) {
   return city ? [venue, city].join(SEPARATOR) : venue;
 }
 
-function seriesLabelOf(
+function gameSeriesLabelOf(
   series: PlayoffSeries | null,
   { home, away }: Game,
 ): string | null {
   if (!series) return null;
 
-  const { homeWins, awayWins } = series;
-  if (homeWins === awayWins) return strings.game.header.seriesTied(homeWins);
-
-  const [leader, leaderWins, trailerWins] =
-    homeWins > awayWins
-      ? [home, homeWins, awayWins]
-      : [away, awayWins, homeWins];
-  const label = series.completed
-    ? strings.game.header.seriesWon
-    : strings.game.header.seriesLeads;
-  return label(leader.team.abbreviation, leaderWins, trailerWins);
+  return seriesLabelOf(
+    { abbreviation: home.team.abbreviation, wins: series.homeWins },
+    { abbreviation: away.team.abbreviation, wins: series.awayWins },
+    series.completed,
+  );
 }
 
 function headerOf(summary: GameSummary, timeZone: string | null): GameHeader {
@@ -430,7 +425,7 @@ function headerOf(summary: GameSummary, timeZone: string | null): GameHeader {
     leadingSide,
     channelLabel: channelLabelOf(game),
     venueLabel: venueLabelOf(game.venue, summary.venueCity),
-    seriesLabel: seriesLabelOf(game.series, game),
+    seriesLabel: gameSeriesLabelOf(game.series, game),
   };
 }
 

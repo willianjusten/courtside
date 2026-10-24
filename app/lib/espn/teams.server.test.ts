@@ -48,7 +48,7 @@ describe("teams on the server", () => {
     await fetchTeamSchedule("13");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/schedule",
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/schedule?seasontype=2",
       expect.objectContaining({
         next: { revalidate: FIVE_MINUTES_IN_SECONDS },
       }),

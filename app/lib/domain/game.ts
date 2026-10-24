@@ -71,6 +71,12 @@ export type Game = {
   topScorer: TopScorer | null;
 };
 
+export type PlayoffGame = Game & {
+  // e.g. "West 1st Round"; both fields are null when ESPN sends no note for the game.
+  roundName: string | null;
+  gameNumber: number | null;
+};
+
 export type Scoreboard = {
   nbaDate: NbaDate;
   games: Game[];

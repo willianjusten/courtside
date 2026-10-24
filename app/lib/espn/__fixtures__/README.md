@@ -25,3 +25,5 @@ Files ending in `-simulated` are derived from `scoreboard-scheduled-day.json` by
 `standings-season-end.json` is the real regular season standings of the 2025-26 season (`season=2026`), captured on 2026-10-24 after the season ended, without the response's `links`. Every team carries ESPN's clincher stat, covering each code: `*`, `z`, `y`, `x`, `xp`, `pb`, and `e`.
 
 `team-injuries-lakers.json` is the real core API injuries list of the Lakers, captured on 2026-10-24, and `team-injuries-lakers-items.json` maps each of its injury IDs to that injury's real core API report. It was captured after `team-roster-lakers.json`, so Collin Sexton is Day-To-Day in the roster but has no report.
+
+`team-schedule-lakers-postseason.json` is the real Lakers schedule of the 2025-26 postseason (`seasontype=3&season=2026`), captured on 2026-10-24: a 4-2 West 1st Round win over the Rockets, then a 4-0 West Semifinals loss to the Thunder. Since it was captured in the regular season, its top-level `season` (ESPN's season under way, not the one requested) is set to the postseason, as ESPN reports it during the playoffs.

@@ -34,6 +34,7 @@ export type EspnEndpoint = {
 };
 
 export const REGULAR_SEASON_TYPE_ID = "2";
+export const POSTSEASON_TYPE_ID = "3";
 
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 const ONE_HOUR_IN_SECONDS = 60 * 60;

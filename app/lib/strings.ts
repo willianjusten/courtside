@@ -436,6 +436,10 @@ export const strings = {
         `${teamScore}-${opponentScore}`,
       showMore: "Show more",
     },
+    playoffs: {
+      title: "Playoffs",
+      game: (gameNumber: number) => `Game ${gameNumber}`,
+    },
     roster: {
       title: "Roster",
       jersey: "#",

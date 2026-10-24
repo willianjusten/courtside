@@ -1,4 +1,4 @@
-import type { Game, GameCompetitor } from "@/app/lib/domain/game";
+import type { Game, GameCompetitor, PlayoffGame } from "@/app/lib/domain/game";
 import type { NbaDate } from "@/app/lib/domain/nba-date";
 import type {
   ConferenceStandings,
@@ -19,6 +19,7 @@ import {
   overtimeLabelOf,
   type InProgressStatus,
 } from "@/app/lib/game/status";
+import { seriesLabelOf } from "@/app/lib/game/series";
 import { strings } from "@/app/lib/strings";
 import { currentNbaDate } from "@/app/lib/time/nba-date";
 import { formatLocalTime, formatTipOffDay } from "@/app/lib/time/tip-off";
@@ -31,6 +32,8 @@ const GAME_PATH_PREFIX = "/game/";
 // Each schedule list opens on this many games, as in the TeamPageDesktop artboard, then grows by a page per expansion.
 const SCHEDULE_INITIAL_COUNT = 4;
 const SCHEDULE_PAGE_SIZE = 5;
+// Every round is a best of seven.
+const SERIES_WINS_NEEDED = 4;
 // Guards, forwards, then centers; a player without a known position goes last.
 const POSITION_GROUP_ORDER = ["G", "F", "C"];
 
@@ -45,8 +48,10 @@ export type TeamViewInput = {
   slug: TeamSlug;
   query: TeamQueryState;
   standingsQuery: StandingsQueryState;
-  // Null until the schedule loads.
+  // The regular season; null until the schedule loads.
   games: Game[] | null;
+  // Empty outside the postseason; null until the playoff schedule loads.
+  playoffGames: PlayoffGame[] | null;
   // The scoreboard of the team's game day, which overrides the cached schedule; null until it loads or without a game that day.
   scoreboardGames: Game[] | null;
   // Null until the roster loads.
@@ -155,6 +160,27 @@ export type TeamResult = TeamScheduleGame & {
   overtimeLabel: string | null;
 };
 
+export type TeamPlayoffGame = {
+  // e.g. "Game 3"; null when ESPN sends no note for the game.
+  gameLabel: string | null;
+} & (
+  | ({ kind: "live" } & TeamLiveGame)
+  | ({ kind: "upcoming" } & TeamUpcomingGame)
+  | ({ kind: "result" } & TeamResult)
+);
+
+export type TeamPlayoffSeries = {
+  // The opponent's team id, since a team meets an opponent at most once per postseason.
+  id: string;
+  // e.g. "West 1st Round"; null when ESPN sends no note for the games.
+  roundName: string | null;
+  opponent: TeamOpponent;
+  // e.g. "LAL leads 3-1", "LAL wins 4-2", or "Series tied 2-2".
+  statusLabel: string;
+  // From Game 1.
+  games: TeamPlayoffGame[];
+};
+
 export type TeamScheduleListId = "upcoming" | "results";
 
 export type TeamScheduleExpansions = Record<TeamScheduleListId, number>;
@@ -167,13 +193,15 @@ export type TeamScheduleList<Item> = {
 };
 
 export type TeamSchedule = {
-  // Above the upcoming games; null while the team is not playing.
+  // Above the regular season, newest series first; null outside the postseason.
+  playoffs: TeamPlayoffSeries[] | null;
+  // Above the upcoming games; null while the team is not playing a regular season game.
   live: TeamLiveGame | null;
   // Soonest first.
   upcoming: TeamScheduleList<TeamUpcomingGame>;
   // Newest first.
   results: TeamScheduleList<TeamResult>;
-  // Replaces the empty upcoming list once the season's games are all played.
+  // Replaces the empty upcoming list once the season's games are all played, outside the postseason.
   emptyUpcomingMessage: string | null;
 };
 
@@ -371,13 +399,10 @@ function isInProgressGame(game: Game): game is InProgressGame {
 }
 
 function liveGameOf(
-  games: Game[],
+  game: InProgressGame,
   teamId: string,
   timeZone: string | null,
-): TeamLiveGame | null {
-  const game = games.find(isInProgressGame);
-  if (!game) return null;
-
+): TeamLiveGame {
   const scheduleGame = scheduleGameOf(game, teamId, timeZone);
   const statusLabel = inProgressLabelOf(game.status);
   const channelLabel = channelLabelOf(game);
@@ -395,34 +420,73 @@ function byStartTime(first: Game, second: Game) {
   return Date.parse(first.startTime) - Date.parse(second.startTime);
 }
 
+function isUpcoming({ status }: Game) {
+  return status.kind === "scheduled" || status.kind === "postponed";
+}
+
+function nextGameOf(games: Game[]) {
+  return games
+    .filter(({ status }) => status.kind === "scheduled")
+    .toSorted(byStartTime)[0];
+}
+
+function upcomingGameOf(
+  game: Game,
+  teamId: string,
+  timeZone: string | null,
+  isNext: boolean,
+): TeamUpcomingGame {
+  return {
+    ...scheduleGameOf(game, teamId, timeZone),
+    timeLabel: timeZone ? formatLocalTime(game.startTime, timeZone) : null,
+    channelLabel: channelLabelOf(game),
+    isPostponed: game.status.kind === "postponed",
+    isNext,
+  };
+}
+
 function upcomingGamesOf(
   games: Game[],
   teamId: string,
   timeZone: string | null,
 ): TeamUpcomingGame[] {
-  const upcomingGames = games
-    .filter(
-      ({ status }) =>
-        status.kind === "scheduled" || status.kind === "postponed",
-    )
-    .toSorted(byStartTime);
-  const nextGame = upcomingGames.find(
-    ({ status }) => status.kind === "scheduled",
-  );
+  const upcomingGames = games.filter(isUpcoming).toSorted(byStartTime);
+  const nextGame = nextGameOf(upcomingGames);
 
-  return upcomingGames.map((game) => ({
-    ...scheduleGameOf(game, teamId, timeZone),
-    timeLabel: timeZone ? formatLocalTime(game.startTime, timeZone) : null,
-    channelLabel: channelLabelOf(game),
-    isPostponed: game.status.kind === "postponed",
-    isNext: game === nextGame,
-  }));
+  return upcomingGames.map((game) =>
+    upcomingGameOf(game, teamId, timeZone, game === nextGame),
+  );
 }
 
 type FinalGame = Game & { status: { kind: "final"; period: number } };
 
 function isFinal(game: Game): game is FinalGame {
   return game.status.kind === "final";
+}
+
+// Derived from the scores, since ESPN can leave the winner flag out of a final game.
+function outcomeOf(game: FinalGame, teamId: string): TeamResultOutcome {
+  const { team, opponent } = sidesOf(game, game.home.team.id === teamId);
+  return team.score > opponent.score ? "win" : "loss";
+}
+
+function resultOf(
+  game: FinalGame,
+  teamId: string,
+  timeZone: string | null,
+): TeamResult {
+  const scheduleGame = scheduleGameOf(game, teamId, timeZone);
+  const { team, opponent } = sidesOf(game, scheduleGame.isHome);
+  const outcome = outcomeOf(game, teamId);
+  const { label, accessibleLabel } = strings.team.schedule.outcomes[outcome];
+  return {
+    ...scheduleGame,
+    outcome,
+    outcomeLabel: label,
+    outcomeAccessibleLabel: accessibleLabel,
+    score: strings.team.schedule.score(team.score, opponent.score),
+    overtimeLabel: overtimeLabelOf(game.status.period),
+  };
 }
 
 function resultsOf(
@@ -433,23 +497,94 @@ function resultsOf(
   return games
     .filter(isFinal)
     .toSorted((first, second) => byStartTime(second, first))
-    .map((game) => {
-      const scheduleGame = scheduleGameOf(game, teamId, timeZone);
-      const { team, opponent } = sidesOf(game, scheduleGame.isHome);
-      // Derived from the scores, since ESPN can leave the winner flag out of a final game.
-      const outcome: TeamResultOutcome =
-        team.score > opponent.score ? "win" : "loss";
-      const { label, accessibleLabel } =
-        strings.team.schedule.outcomes[outcome];
+    .map((game) => resultOf(game, teamId, timeZone));
+}
+
+function playoffGameOf(
+  game: PlayoffGame,
+  teamId: string,
+  timeZone: string | null,
+  isNext: boolean,
+): TeamPlayoffGame | null {
+  const gameLabel =
+    game.gameNumber === null
+      ? null
+      : strings.team.playoffs.game(game.gameNumber);
+  if (isInProgressGame(game)) {
+    return { kind: "live", gameLabel, ...liveGameOf(game, teamId, timeZone) };
+  }
+  if (isUpcoming(game)) {
+    return {
+      kind: "upcoming",
+      gameLabel,
+      ...upcomingGameOf(game, teamId, timeZone, isNext),
+    };
+  }
+  if (isFinal(game)) {
+    return { kind: "result", gameLabel, ...resultOf(game, teamId, timeZone) };
+  }
+  // A canceled game is left out, as in the regular season lists.
+  return null;
+}
+
+// The team schedule sends no series record, so it is counted from the series' final games.
+function seriesStatusLabelOf(
+  team: GameCompetitor["team"],
+  opponent: GameCompetitor["team"],
+  games: Game[],
+  teamId: string,
+) {
+  const outcomes = games.filter(isFinal).map((game) => outcomeOf(game, teamId));
+  const wins = outcomes.filter((outcome) => outcome === "win").length;
+  const losses = outcomes.length - wins;
+  return seriesLabelOf(
+    { abbreviation: team.abbreviation, wins },
+    { abbreviation: opponent.abbreviation, wins: losses },
+    Math.max(wins, losses) >= SERIES_WINS_NEEDED,
+  );
+}
+
+function playoffsOf(
+  playoffGames: PlayoffGame[] | null,
+  teamId: string,
+  timeZone: string | null,
+): TeamPlayoffSeries[] | null {
+  if (!playoffGames || playoffGames.length === 0) return null;
+
+  const nextGame = nextGameOf(playoffGames);
+  const gamesByOpponentId = new Map<string, PlayoffGame[]>();
+  for (const game of playoffGames.toSorted(byStartTime)) {
+    const opponentId = sidesOf(game, game.home.team.id === teamId).opponent.team
+      .id;
+    gamesByOpponentId.set(opponentId, [
+      ...(gamesByOpponentId.get(opponentId) ?? []),
+      game,
+    ]);
+  }
+  return [...gamesByOpponentId]
+    .map(([opponentId, games]) => {
+      const [firstGame] = games;
+      const { team, opponent } = sidesOf(
+        firstGame,
+        firstGame.home.team.id === teamId,
+      );
       return {
-        ...scheduleGame,
-        outcome,
-        outcomeLabel: label,
-        outcomeAccessibleLabel: accessibleLabel,
-        score: strings.team.schedule.score(team.score, opponent.score),
-        overtimeLabel: overtimeLabelOf(game.status.period),
+        id: opponentId,
+        roundName: firstGame.roundName,
+        opponent: opponentOf(opponent),
+        statusLabel: seriesStatusLabelOf(
+          team.team,
+          opponent.team,
+          games,
+          teamId,
+        ),
+        games: games.flatMap(
+          (game) =>
+            playoffGameOf(game, teamId, timeZone, game === nextGame) ?? [],
+        ),
       };
-    });
+    })
+    .toReversed();
 }
 
 function scheduleListOf<Item>(
@@ -465,32 +600,48 @@ function scheduleListOf<Item>(
 }
 
 // The scoreboard refreshes every few seconds while the schedule is cached for minutes, so its copy of a game wins.
-function withScoreboard(games: Game[], scoreboardGames: Game[] | null) {
+function withScoreboard<ScheduledGame extends Game>(
+  games: ScheduledGame[],
+  scoreboardGames: Game[] | null,
+): ScheduledGame[] {
   if (!scoreboardGames) return games;
   const scoreboardGamesById = new Map(
     scoreboardGames.map((game) => [game.id, game]),
   );
-  return games.map((game) => scoreboardGamesById.get(game.id) ?? game);
+  return games.map((game) => {
+    const scoreboardGame = scoreboardGamesById.get(game.id);
+    return scoreboardGame ? { ...game, ...scoreboardGame } : game;
+  });
 }
 
 function scheduleOf(
   cachedGames: Game[],
+  cachedPlayoffGames: PlayoffGame[] | null,
   scoreboardGames: Game[] | null,
   teamId: string,
   timeZone: string | null,
   expansions: TeamScheduleExpansions,
 ): TeamSchedule {
   const games = withScoreboard(cachedGames, scoreboardGames);
+  const playoffs = playoffsOf(
+    cachedPlayoffGames && withScoreboard(cachedPlayoffGames, scoreboardGames),
+    teamId,
+    timeZone,
+  );
   const upcoming = upcomingGamesOf(games, teamId, timeZone);
+  const liveGame = games.find(isInProgressGame);
   return {
-    live: liveGameOf(games, teamId, timeZone),
+    playoffs,
+    live: liveGame ? liveGameOf(liveGame, teamId, timeZone) : null,
     upcoming: scheduleListOf(upcoming, expansions.upcoming),
     results: scheduleListOf(
       resultsOf(games, teamId, timeZone),
       expansions.results,
     ),
     emptyUpcomingMessage:
-      upcoming.length === 0 ? strings.team.schedule.offseason : null,
+      upcoming.length === 0 && !playoffs
+        ? strings.team.schedule.offseason
+        : null,
   };
 }
 
@@ -535,7 +686,11 @@ function screenOf(
   standingsQuery: StandingsQueryState,
   schedule: Pick<
     TeamViewInput,
-    "games" | "scoreboardGames" | "timeZone" | "scheduleExpansions"
+    | "games"
+    | "playoffGames"
+    | "scoreboardGames"
+    | "timeZone"
+    | "scheduleExpansions"
   >,
   players: RosterPlayer[] | null,
   favoriteTeamIds: string[],
@@ -557,6 +712,7 @@ function screenOf(
       schedule.games &&
       scheduleOf(
         schedule.games,
+        schedule.playoffGames,
         schedule.scoreboardGames,
         query.team.id,
         schedule.timeZone,
@@ -589,6 +745,7 @@ export function buildTeamView({
   query,
   standingsQuery,
   games,
+  playoffGames,
   scoreboardGames,
   players,
   timeZone,
@@ -600,7 +757,7 @@ export function buildTeamView({
     screen: screenOf(
       query,
       standingsQuery,
-      { games, scoreboardGames, timeZone, scheduleExpansions },
+      { games, playoffGames, scoreboardGames, timeZone, scheduleExpansions },
       players,
       favoriteTeamIds,
     ),
