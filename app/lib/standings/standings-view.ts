@@ -35,7 +35,9 @@ export type StandingsQueryState =
 export type LeadersQueryState =
   | { status: "loading" }
   | { status: "error" }
-  | { status: "success"; categories: LeaderCategory[] };
+  | { status: "success"; categories: LeaderCategory[] }
+  // A refetch failed, so the last leaders are kept.
+  | { status: "stale"; categories: LeaderCategory[] };
 
 export type StandingsViewInput = {
   query: StandingsQueryState;
@@ -112,11 +114,15 @@ export type StandingsReadyScreen = {
   rows: StandingsTableRow[];
   legend: StandingsLegendEntry[];
   clincherLegend: ClincherMarker[];
+  // Warns that the standings shown are the last ones loaded; null while they are fresh.
+  staleNotice: string | null;
 };
 
 export type StandingsScreen =
   | { kind: "loading" }
   | { kind: "error" }
+  // The preseason, before any regular season game.
+  | { kind: "empty"; message: string }
   | StandingsReadyScreen;
 
 export type StandingsViewId = "standings" | "leaders";
@@ -150,11 +156,14 @@ export type LeaderCategoryView = { stat: LeaderStat; title: string } & (
 export type StandingsLeaders =
   | { kind: "loading" }
   | { kind: "error" }
+  | { kind: "empty"; message: string }
   | {
       kind: "ready";
       categories: LeaderCategoryView[];
       // Explains the hidden percentage categories; null once they show.
       percentagesNote: string | null;
+      // Warns that the leaders shown are the last ones loaded; null while they are fresh.
+      staleNotice: string | null;
     };
 
 export type StandingsView = {
@@ -251,10 +260,32 @@ function tableRowOf(
   };
 }
 
+function gamesPlayedOf(standings: Standings) {
+  return standings.conferences.flatMap((conference) =>
+    conference.rows.map((row) => row.wins + row.losses),
+  );
+}
+
+// Before the regular season every team is 0-0, a table with nothing to rank yet.
+function isBeforeRegularSeason(standings: Standings) {
+  return (
+    standings.season.currentPhase === "preseason" &&
+    gamesPlayedOf(standings).every((gamesPlayed) => gamesPlayed === 0)
+  );
+}
+
+// null while the standings are loading or failed to load.
+function loadedStandingsOf(query: StandingsQueryState) {
+  return query.status === "success" || query.status === "stale"
+    ? query.standings
+    : null;
+}
+
 function readyScreenOf(
   standings: Standings,
   favoriteTeamIds: string[],
   conferenceParam: string | null,
+  staleNotice: string | null,
 ): StandingsScreen {
   const selected = selectedConferenceOf(
     standings.conferences,
@@ -284,6 +315,7 @@ function readyScreenOf(
     clincherLegend: rows.some((row) => row.clincher)
       ? CLINCHERS.map(clincherMarkerOf)
       : [],
+    staleNotice,
   };
 }
 
@@ -292,15 +324,18 @@ function screenOf(
   favoriteTeamIds: string[],
   conferenceParam: string | null,
 ): StandingsScreen {
-  switch (query.status) {
-    case "loading":
-      return { kind: "loading" };
-    case "error":
-      return { kind: "error" };
-    case "success":
-    case "stale":
-      return readyScreenOf(query.standings, favoriteTeamIds, conferenceParam);
+  if (query.status === "loading" || query.status === "error") {
+    return { kind: query.status };
   }
+  if (isBeforeRegularSeason(query.standings)) {
+    return { kind: "empty", message: strings.standings.preseason };
+  }
+  return readyScreenOf(
+    query.standings,
+    favoriteTeamIds,
+    conferenceParam,
+    query.status === "stale" ? strings.standings.stale : null,
+  );
 }
 
 function selectedViewOf(viewParam: string | null): StandingsViewId {
@@ -326,11 +361,9 @@ function medianOf(values: number[]) {
 }
 
 // null while the standings are unknown, which hides the percentages without claiming too few games were played.
-function arePercentagesMeaningful(query: StandingsQueryState) {
-  if (query.status !== "success" && query.status !== "stale") return null;
-  const gamesPlayed = query.standings.conferences.flatMap((conference) =>
-    conference.rows.map((row) => row.wins + row.losses),
-  );
+function arePercentagesMeaningful(standings: Standings | null) {
+  if (!standings) return null;
+  const gamesPlayed = gamesPlayedOf(standings);
   return (
     gamesPlayed.length > 0 &&
     medianOf(gamesPlayed) >= MIN_MEDIAN_GAMES_FOR_PERCENTAGES
@@ -390,9 +423,16 @@ function leadersOf(
   query: StandingsQueryState,
   favoriteTeamIds: string[],
 ): StandingsLeaders {
-  if (leadersQuery.status !== "success") return { kind: leadersQuery.status };
+  const standings = loadedStandingsOf(query);
+  // Checked first: before the regular season there are no leaders to load or retry.
+  if (standings && isBeforeRegularSeason(standings)) {
+    return { kind: "empty", message: strings.standings.leaders.preseason };
+  }
+  if (leadersQuery.status === "loading" || leadersQuery.status === "error") {
+    return { kind: leadersQuery.status };
+  }
 
-  const showsPercentages = arePercentagesMeaningful(query);
+  const showsPercentages = arePercentagesMeaningful(standings);
   const shownStats = showsPercentages
     ? LEADER_STATS
     : LEADER_STATS.filter((stat) => !PERCENTAGE_STATS.includes(stat));
@@ -410,6 +450,8 @@ function leadersOf(
       showsPercentages === false
         ? strings.standings.leaders.percentagesHidden
         : null,
+    staleNotice:
+      leadersQuery.status === "stale" ? strings.standings.leaders.stale : null,
   };
 }
 

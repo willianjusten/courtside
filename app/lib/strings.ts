@@ -8,6 +8,8 @@ export const strings = {
   },
   common: {
     comingSoon: "Coming soon.",
+    retry: "Try again",
+    retrying: "Trying again...",
   },
   shell: {
     logoLabel: "NBA home",
@@ -331,7 +333,10 @@ export const strings = {
       eliminated: { symbol: "e", label: "Eliminated" },
     },
     loading: "Loading standings...",
-    error: "We couldn't load the standings right now.",
+    error: "Couldn't load the standings",
+    errorDetail: "The data source didn't respond.",
+    stale: "Can't reach the data source. Showing the last standings loaded.",
+    preseason: "Standings start with the regular season",
     columns: {
       seed: "#",
       team: "TEAM",
@@ -368,6 +373,8 @@ export const strings = {
       percentagesHidden:
         "Field goal % and free throw % appear once teams have played 10 games, so tiny samples don't top the list.",
       loading: "Loading league leaders...",
+      stale: "Can't reach the data source. Showing the last leaders loaded.",
+      preseason: "League leaders start with the regular season",
     },
   },
   leaders: {

@@ -10,6 +10,7 @@ import {
   LEADERS_API_PATH,
   leadersQueryOptions,
 } from "@/app/lib/queries/leaders";
+import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import { getQueryClient } from "@/app/lib/query/get-query-client";
 import { strings } from "@/app/lib/strings";
 import HomePage from "./page";
@@ -86,9 +87,12 @@ describe("routes", () => {
   });
 
   afterEach(() => {
-    // The browser keeps one query client for the session, and the leaders tests each answer the leaders differently.
+    // The browser keeps one query client for the session, and the standings tests each answer ESPN differently.
     getQueryClient().removeQueries({
       queryKey: leadersQueryOptions().queryKey,
+    });
+    getQueryClient().removeQueries({
+      queryKey: standingsQueryOptions().queryKey,
     });
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
@@ -499,6 +503,39 @@ describe("routes", () => {
         name: strings.standings.conferenceTable("Western Conference"),
       }),
     ).toBeDefined();
+  });
+
+  it("loads the standings again from the error state's Try again", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    let isEspnDown = true;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        isEspnDown && url.endsWith("/standings?seasontype=2")
+          ? new Response(null, { status: 500 })
+          : responseFor(url),
+      ),
+    );
+
+    render(await StandingsPage());
+
+    const tryAgain = await screen.findByRole(
+      "button",
+      { name: strings.common.retry },
+      // The client retries the failed standings once, a second later.
+      { timeout: 3000 },
+    );
+    expect(screen.getByText(strings.standings.error)).toBeDefined();
+
+    isEspnDown = false;
+    fireEvent.click(tryAgain);
+
+    expect(
+      await screen.findByRole("region", {
+        name: strings.standings.conferenceTable("Western Conference"),
+      }),
+    ).toBeDefined();
+    expect(screen.queryByText(strings.standings.error)).toBeNull();
   });
 
   it("renders the team page for the requested slug", async () => {

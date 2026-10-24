@@ -141,6 +141,18 @@ function withGamesPlayed(source: Standings, gamesPlayed: number): Standings {
   };
 }
 
+function inPreseason(source: Standings): Standings {
+  return {
+    ...source,
+    season: { ...source.season, currentPhase: "preseason" },
+  };
+}
+
+const preseasonQuery = {
+  status: "success",
+  standings: inPreseason(withGamesPlayed(standings, 0)),
+} satisfies StandingsQueryState;
+
 function readyScreenFor(
   options: Parameters<typeof screenFor>[0] = {},
 ): StandingsReadyScreen {
@@ -432,10 +444,50 @@ describe("buildStandingsView", () => {
     ).toBe("Eastern Conference");
   });
 
-  it("keeps showing the last standings when a refetch fails", () => {
-    expect(screenFor({ query: { status: "stale", standings } }).kind).toBe(
-      "ready",
-    );
+  it("keeps showing the last standings with a stale warning when a refetch fails", () => {
+    const screen = readyScreenFor({ query: { status: "stale", standings } });
+
+    expect(screen.rows).toHaveLength(15);
+    expect(screen.staleNotice).toBe(strings.standings.stale);
+  });
+
+  it("shows no stale warning on fresh standings", () => {
+    expect(readyScreenFor().staleNotice).toBeNull();
+  });
+
+  it("shows the preseason empty state before the first regular season game", () => {
+    expect(screenFor({ query: preseasonQuery })).toEqual({
+      kind: "empty",
+      message: strings.standings.preseason,
+    });
+  });
+
+  it("shows the table once the regular season starts, even before a game is played", () => {
+    expect(
+      screenFor({
+        query: {
+          status: "success",
+          standings: withGamesPlayed(standings, 0),
+        },
+      }).kind,
+    ).toBe("ready");
+  });
+
+  it("shows the table in the preseason once a team has played a regular season game", () => {
+    expect(
+      screenFor({
+        query: {
+          status: "success",
+          standings: inPreseason(withGamesPlayed(standings, 1)),
+        },
+      }).kind,
+    ).toBe("ready");
+  });
+
+  it("keeps the preseason empty state when a refetch fails", () => {
+    expect(
+      screenFor({ query: { ...preseasonQuery, status: "stale" } }).kind,
+    ).toBe("empty");
   });
 
   it.each(["loading", "error"] as const)(
@@ -652,6 +704,42 @@ describe("buildStandingsView leaders", () => {
       title: "Rebounds per game",
       status: "error",
     });
+  });
+
+  it("keeps the last leaders with a stale warning when a refetch fails", () => {
+    const leaders = readyLeadersFor({
+      leadersQuery: { status: "stale", categories: leaderCategories },
+    });
+
+    expect(leaders.categories).toHaveLength(6);
+    expect(leaders.staleNotice).toBe(strings.standings.leaders.stale);
+  });
+
+  it("shows no stale warning on fresh leaders", () => {
+    expect(readyLeadersFor().staleNotice).toBeNull();
+  });
+
+  it("shows the preseason empty state before the first regular season game", () => {
+    expect(viewFor({ query: preseasonQuery }).leaders).toEqual({
+      kind: "empty",
+      message: strings.standings.leaders.preseason,
+    });
+  });
+
+  it.each(["loading", "error"] as const)(
+    "shows the preseason empty state even while the leaders are %s",
+    (status) => {
+      expect(
+        viewFor({ query: preseasonQuery, leadersQuery: { status } }).leaders
+          .kind,
+      ).toBe("empty");
+    },
+  );
+
+  it("keeps showing the leaders when the standings go stale", () => {
+    expect(
+      readyLeadersFor({ query: { status: "stale", standings } }).categories,
+    ).toHaveLength(6);
   });
 
   it.each(["loading", "error"] as const)(

@@ -1,3 +1,8 @@
+import {
+  EmptyState,
+  RetryableError,
+  StaleNotice,
+} from "@/app/components/DataStates";
 import TeamLogo from "@/app/components/TeamLogo";
 import { resizedImageUrl } from "@/app/lib/espn";
 import type {
@@ -14,6 +19,13 @@ const HEADSHOT_HEIGHT = 41;
 const HEADSHOT_REQUEST_SCALE = 2;
 const TEAM_LOGO_SIZE = 14;
 const HEADING_ID = "league-leaders";
+// The categories shown before the percentages unlock, so the skeleton matches the early-season grid.
+const SKELETON_CATEGORY_COUNT = 6;
+const SKELETON_LEADER_COUNT = 5;
+const CATEGORY_CARD_CLASS_NAME =
+  "flex flex-col gap-1 rounded-card border border-white/10 bg-white/4.5 p-3.5 md:gap-1.5 md:p-4";
+const CATEGORY_GRID_CLASS_NAME =
+  "grid items-start gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3";
 
 // The leader of each category gets a larger photo and value than the runners-up, as in the artboards.
 const HEADSHOT_CLASS_NAME = {
@@ -98,10 +110,7 @@ function LeaderCategoryCard({ category }: { category: LeaderCategoryView }) {
   const headingId = `${HEADING_ID}-${category.stat}`;
 
   return (
-    <section
-      aria-labelledby={headingId}
-      className="flex flex-col gap-1 rounded-card border border-white/10 bg-white/4.5 p-3.5 md:gap-1.5 md:p-4"
-    >
+    <section aria-labelledby={headingId} className={CATEGORY_CARD_CLASS_NAME}>
       <h3
         id={headingId}
         className="mb-1 font-display text-[15px] tracking-[0.14em] text-muted md:text-base"
@@ -125,11 +134,58 @@ function LeaderCategoryCard({ category }: { category: LeaderCategoryView }) {
   );
 }
 
+function SkeletonLeaderRow({ isLeader }: { isLeader: boolean }) {
+  const tier = isLeader ? "leader" : "runnerUp";
+
+  return (
+    <div className="flex min-h-9 items-center gap-2.5 py-0.75 md:py-1.25">
+      <div className="h-2.5 w-3 shrink-0 rounded-sm bg-white/10 md:w-3.5" />
+      <div
+        className={`shrink-0 rounded-lg bg-white/10 ${HEADSHOT_CLASS_NAME[tier]}`}
+      />
+      <div className="h-3.5 grow rounded-md bg-white/10" />
+      <div
+        className={`shrink-0 rounded-md bg-white/10 ${isLeader ? "h-6.5 w-11" : "h-4.5 w-8"}`}
+      />
+    </div>
+  );
+}
+
+function LeagueLeadersLoading() {
+  return (
+    <div role="status" aria-busy="true">
+      <span className="sr-only">{strings.standings.leaders.loading}</span>
+      <div aria-hidden="true" className={CATEGORY_GRID_CLASS_NAME}>
+        {Array.from({ length: SKELETON_CATEGORY_COUNT }, (_, categoryIndex) => (
+          <div
+            key={categoryIndex}
+            className={`animate-shimmer ${CATEGORY_CARD_CLASS_NAME}`}
+          >
+            <div className="mb-1 h-4 w-32 rounded-md bg-white/10" />
+            {Array.from({ length: SKELETON_LEADER_COUNT }, (_, leaderIndex) => (
+              <SkeletonLeaderRow
+                key={leaderIndex}
+                isLeader={leaderIndex === 0}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type LeagueLeadersProps = {
+  leaders: StandingsLeaders;
+  onRetry: () => void;
+  isRetrying: boolean;
+};
+
 export default function LeagueLeaders({
   leaders,
-}: {
-  leaders: StandingsLeaders;
-}) {
+  onRetry,
+  isRetrying,
+}: LeagueLeadersProps) {
   return (
     <section
       aria-labelledby={HEADING_ID}
@@ -147,19 +203,19 @@ export default function LeagueLeaders({
           {strings.standings.leaders.topFive}
         </span>
       </div>
-      {leaders.kind === "loading" && (
-        <p role="status" className="text-sm text-muted">
-          {strings.standings.leaders.loading}
-        </p>
-      )}
+      {leaders.kind === "loading" && <LeagueLeadersLoading />}
       {leaders.kind === "error" && (
-        <p role="alert" className="text-sm text-secondary">
-          {strings.leaders.error}
-        </p>
+        <RetryableError
+          message={strings.leaders.error}
+          onRetry={onRetry}
+          isRetrying={isRetrying}
+        />
       )}
+      {leaders.kind === "empty" && <EmptyState message={leaders.message} />}
       {leaders.kind === "ready" && (
         <>
-          <div className="grid items-start gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3">
+          {leaders.staleNotice && <StaleNotice message={leaders.staleNotice} />}
+          <div className={CATEGORY_GRID_CLASS_NAME}>
             {leaders.categories.map((category) => (
               <LeaderCategoryCard key={category.stat} category={category} />
             ))}
