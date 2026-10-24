@@ -1,6 +1,7 @@
 import { fetchGameSummary } from "@/app/lib/espn";
 import finalSummary from "./__fixtures__/summary-final.json";
 import finalVideosSummary from "./__fixtures__/summary-final-videos.json";
+import liveVideosSummary from "./__fixtures__/summary-live-videos-simulated.json";
 import liveSummary from "./__fixtures__/summary-live.json";
 import preGameSummary from "./__fixtures__/summary-pre-game.json";
 
@@ -405,6 +406,23 @@ describe("fetchGameSummary", () => {
         "50261477",
         "50261964",
       ]);
+    });
+
+    it("maps the clips ESPN has published so far during a live game", async () => {
+      respondWith(liveVideosSummary);
+
+      const { game, videos } = await fetchGameSummary("401909095");
+
+      expect(game.status).toEqual({ kind: "halftime", period: 2 });
+      expect(videos).toHaveLength(9);
+      expect(videos[0]).toMatchObject({
+        id: "50261477",
+        title: "Karl-Anthony Towns elevates for jam",
+        durationSeconds: 19,
+      });
+      expect(videos.at(-1)?.title).toBe(
+        "PG knocks down a halftime buzzer-beater for Boston",
+      );
     });
 
     it("drops the videos without an MP4 HD source", async () => {

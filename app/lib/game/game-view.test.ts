@@ -8,6 +8,7 @@ import overtimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-ov
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
 import finalVideosSummary from "@/app/lib/espn/__fixtures__/summary-final-videos.json";
 import liveSimulatedSummary from "@/app/lib/espn/__fixtures__/summary-live-simulated.json";
+import liveVideosSummary from "@/app/lib/espn/__fixtures__/summary-live-videos-simulated.json";
 import liveFirstQuarterSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game-tonight.json";
 import { mapGameSummary } from "@/app/lib/espn/mappers";
@@ -32,6 +33,7 @@ const summaryOf = (fixture: unknown) => mapGameSummary(fixture as RawSummary);
 
 const final = summaryOf(finalSummary);
 const finalWithVideos = summaryOf(finalVideosSummary);
+const liveWithVideos = summaryOf(liveVideosSummary);
 const live = summaryOf(liveSimulatedSummary);
 const liveFirstQuarter = summaryOf(liveFirstQuarterSummary);
 const preGame = summaryOf(preGameSummary);
@@ -1349,12 +1351,18 @@ describe("buildGameView", () => {
       });
     });
 
-    it("lists the videos of a live game the same way", () => {
-      const liveWithVideos = { ...live, videos: finalWithVideos.videos };
+    it("lists the clips of a live game in ESPN order", () => {
+      const highlights = highlightsFor(liveWithVideos);
 
-      expect(highlightsFor(liveWithVideos)).toEqual(
-        highlightsFor(finalWithVideos),
+      expect(liveWithVideos.game.status.kind).toBe("halftime");
+      expect(highlights?.countLabel).toBe("9 videos");
+      expect(highlights?.videos.map(({ title }) => title)).toEqual(
+        finalWithVideos.videos.slice(1, 10).map(({ title }) => title),
       );
+      expect(highlights?.videos[0]).toMatchObject({
+        title: "Karl-Anthony Towns elevates for jam",
+        durationLabel: "0:19",
+      });
     });
 
     it("counts a single video in the singular", () => {

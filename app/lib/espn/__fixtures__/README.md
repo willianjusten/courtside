@@ -12,7 +12,9 @@ Files ending in `-simulated` are derived from `scoreboard-scheduled-day.json` by
 
 `summary-live-simulated.json` stands in for a live capture, since no game was live when the others were captured. It is `summary-final-overtime-playoff.json` cut at the last play of 4:10 in the 3rd quarter: the plays and win probability points after it are dropped, the status is ESPN's `STATUS_IN_PROGRESS` shape, the scores and line score are rebuilt from the plays, and the playoff series is set back to before the game (LAL 2-0). The box score and leaders are removed, since they hold the final totals. It should be replaced by a real live capture.
 
-`summary-final-videos.json` (NY at BOS, captured on 2026-10-24 the morning after the game) is a real game summary trimmed to the header, the game info, and the videos, each video trimmed to its id, headline, description, dates, duration, thumbnail, and its source and web links. It holds the recap followed by the play clips, in ESPN order. No game was live when it was captured, so a live summary with clips is still to be captured.
+`summary-final-videos.json` (NY at BOS, captured on 2026-10-24 the morning after the game) is a real game summary trimmed to the header, the game info, and the videos, each video trimmed to its id, headline, description, dates, duration, thumbnail, and its source and web links. It holds the recap followed by the play clips, in ESPN order.
+
+`summary-live-videos-simulated.json` stands in for a live capture with clips, since no game was live when the videos were captured. It is `summary-final-videos.json` set back to halftime: the status is ESPN's `STATUS_HALFTIME` shape, the line score keeps the first two periods, the scores are their sums, and the winner flag is removed. The videos are the clips ESPN had published by the halftime buzzer-beater clip (01:42:56Z), without the recap, which ESPN publishes after the game. It should be replaced by a real live capture.
 
 `scoreboard-international-exhibition.json` is the real 2026-10-12 scoreboard trimmed to the London Lions exhibition, whose competitor has no logo.
 
