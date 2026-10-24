@@ -309,20 +309,31 @@ export const strings = {
   },
   standings: {
     title: "Standings",
-    regularSeason: (seasonName: string) => `${seasonName} Regular Season`,
+    // ESPN names the season with a hyphen, e.g. "2026-27"; the design prints it with an en dash.
+    season: (seasonName: string) => `SEASON ${seasonName.replace("-", "–")}`,
+    conferenceSwitch: "Conference",
+    conferenceTable: (conferenceName: string) => `${conferenceName} standings`,
+    favorite: "Favorite",
+    rowHint: "Select a team to open its page.",
+    zones: {
+      playoff: {
+        legend: "Playoff berth · seeds 1–6",
+        rowLabel: "Playoff zone",
+      },
+      "play-in": {
+        legend: "Play-in tournament · seeds 7–10",
+        rowLabel: "Play-in zone",
+      },
+    },
+    loading: "Loading standings...",
+    error: "We couldn't load the standings right now.",
     columns: {
       seed: "#",
-      team: "Team",
-      wins: "W",
-      losses: "L",
+      team: "TEAM",
+      record: "W–L",
       winPercent: "PCT",
-      gamesBehind: "GB",
-      home: "Home",
-      road: "Away",
-      lastTen: "L10",
-      streak: "Strk",
+      streak: "STRK",
     },
-    leaderGamesBehind: "-",
     noStreak: "-",
   },
   leaders: {

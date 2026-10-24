@@ -1,16 +1,17 @@
-import ConferenceStandings from "@/app/components/ConferenceStandings";
 import LeagueLeaders from "@/app/components/LeagueLeaders";
-import { fetchStandings } from "@/app/lib/espn";
+import Standings from "@/app/components/Standings";
 // Not in the @/app/lib/espn barrel: the leaders module is server-only and the barrel is also imported by client code.
 import { fetchLeaders } from "@/app/lib/espn/leaders";
-import { strings } from "@/app/lib/strings";
+import { standingsQueryOptions } from "@/app/lib/queries/standings";
+import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
 
 // Standings change after every game, so the page cannot be prerendered at build time.
 export const dynamic = "force-dynamic";
 
 export default async function StandingsPage() {
-  const [{ season, conferences }, leaderCategories] = await Promise.all([
-    fetchStandings(),
+  const [, leaderCategories] = await Promise.all([
+    // A failed prefetch is left to the client, which fetches the standings again.
+    getServerQueryClient().prefetchQuery(standingsQueryOptions()),
     // Leaders are secondary, so a failure there must not take the standings down with it.
     fetchLeaders().catch((error: unknown) => {
       console.error("Failed to load league leaders", error);
@@ -19,19 +20,12 @@ export default async function StandingsPage() {
   ]);
 
   return (
-    <section className="flex flex-col gap-8 py-8">
-      <header className="flex flex-col gap-1">
-        <h1 className="font-display text-5xl leading-none tracking-[0.01em]">
-          {strings.standings.title}
-        </h1>
-        <p className="text-secondary">
-          {strings.standings.regularSeason(season.displayName)}
-        </p>
-      </header>
-      {conferences.map((conference) => (
-        <ConferenceStandings key={conference.id} conference={conference} />
-      ))}
-      <LeagueLeaders categories={leaderCategories} />
-    </section>
+    <Hydrate>
+      <section className="py-6 md:py-8">
+        <Standings
+          sideColumn={<LeagueLeaders categories={leaderCategories} />}
+        />
+      </section>
+    </Hydrate>
   );
 }

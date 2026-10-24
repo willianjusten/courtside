@@ -8,8 +8,8 @@ import { useFavoriteTeamIds } from "@/app/lib/favorites/use-favorite-team-ids";
 import {
   buildSidebarStandings,
   type SidebarStandingsRow,
-  type StreakKind,
 } from "@/app/lib/home/sidebar";
+import type { StreakKind } from "@/app/lib/standings/streak";
 import { strings } from "@/app/lib/strings";
 import { PANEL_HEADING_CLASS_NAME, PANEL_SURFACE_CLASS_NAME } from "./styles";
 

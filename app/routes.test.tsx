@@ -39,6 +39,7 @@ vi.mock("./components/HomeSidebar", () => ({ default: () => null }));
 vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/navigation")>()),
   usePathname: () => window.location.pathname,
+  useSearchParams: () => new URLSearchParams(window.location.search),
 }));
 
 function espnFixtureFor(url: string) {
@@ -293,57 +294,58 @@ describe("routes", () => {
     expect(
       screen.getByRole("heading", { name: strings.standings.title }),
     ).toBeDefined();
+    expect(await screen.findByText("SEASON 2026–27")).toBeDefined();
+  });
+
+  it("opens on the Western Conference standings in seed order", async () => {
+    render(await StandingsPage());
+
+    const west = await screen.findByRole("region", {
+      name: strings.standings.conferenceTable("Western Conference"),
+    });
+    const [, leaderRow] = within(west).getAllByRole("row");
+    expect(within(west).getAllByRole("row")).toHaveLength(16);
     expect(
-      screen.getByText(strings.standings.regularSeason("2026-27")),
+      within(leaderRow).getByRole("link", { name: /Minnesota Timberwolves/ }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "West" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+  });
+
+  it("restores the conference kept in the URL", async () => {
+    window.history.replaceState(null, "", "/standings?conf=east");
+    render(await StandingsPage());
+
+    expect(
+      await screen.findByRole("region", {
+        name: strings.standings.conferenceTable("Eastern Conference"),
+      }),
     ).toBeDefined();
   });
 
-  it.each([
-    ["Eastern Conference", "Indiana Pacers"],
-    ["Western Conference", "Minnesota Timberwolves"],
-  ])(
-    "lists the %s standings in seed order",
-    async (conferenceName, leaderName) => {
-      render(await StandingsPage());
-
-      const conference = screen.getByRole("region", { name: conferenceName });
-      const [, leaderRow] = within(conference).getAllByRole("row");
-      expect(within(conference).getAllByRole("row")).toHaveLength(16);
-      expect(
-        within(leaderRow).getByRole("link", { name: leaderName }),
-      ).toBeDefined();
-    },
-  );
-
-  it("shows each team's record in the standings", async () => {
+  it("shows each team's seed, record, percentage, and streak in the standings", async () => {
     render(await StandingsPage());
 
-    const east = screen.getByRole("region", { name: "Eastern Conference" });
-    const leaderRow = within(east).getByRole("row", { name: /Indiana Pacers/ });
+    const leaderRow = await screen.findByRole("row", {
+      name: /Minnesota Timberwolves/,
+    });
     expect(
       within(leaderRow)
         .getAllByRole("cell")
         .map((cell) => cell.textContent),
-    ).toEqual([
-      "1",
-      "Indiana Pacers",
-      "1",
-      "0",
-      "1.000",
-      "-",
-      "0-0",
-      "1-0",
-      "1-0",
-      "W1",
-    ]);
+    ).toEqual(["1", "1-0", "1.000", "W1"]);
+    expect(within(leaderRow).getByText(/Playoff zone/)).toBeDefined();
   });
 
   it("links each standings team to its team page", async () => {
     render(await StandingsPage());
 
     expect(
-      screen.getByRole("link", { name: "Indiana Pacers" }).getAttribute("href"),
-    ).toBe("/teams/pacers");
+      (
+        await screen.findByRole("link", { name: /Minnesota Timberwolves/ })
+      ).getAttribute("href"),
+    ).toBe("/teams/timberwolves");
   });
 
   it.each([
@@ -428,7 +430,9 @@ describe("routes", () => {
 
     expect(screen.getByText(strings.leaders.error)).toBeDefined();
     expect(
-      screen.getByRole("region", { name: "Eastern Conference" }),
+      await screen.findByRole("region", {
+        name: strings.standings.conferenceTable("Western Conference"),
+      }),
     ).toBeDefined();
   });
 

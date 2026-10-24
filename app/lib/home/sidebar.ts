@@ -4,15 +4,14 @@ import type {
   LeaderStat,
 } from "@/app/lib/domain/leaders";
 import type { ConferenceStandings } from "@/app/lib/domain/standings";
+import { defaultConferenceOf } from "@/app/lib/standings/favorite-conference";
+import { streakKindOf, type StreakKind } from "@/app/lib/standings/streak";
 
 const TOP_TEAMS_COUNT = 5;
 const RUNNERS_UP_COUNT = 2;
-const DEFAULT_CONFERENCE_ABBREVIATION = "West";
 const TEAMS_PATH_PREFIX = "/teams/";
 // The leader holds rank 1.
 const FIRST_RUNNER_UP_RANK = 2;
-
-export type StreakKind = "win" | "loss";
 
 export type SidebarStandingsRow = {
   teamId: string;
@@ -47,34 +46,11 @@ export type SidebarLeaderCategory =
     }
   | { status: "empty" | "error"; stat: LeaderStat };
 
-function conferenceOfFavorites(
-  conferences: ConferenceStandings[],
-  favoriteTeamIds: string[],
-) {
-  for (const teamId of favoriteTeamIds) {
-    const conference = conferences.find((candidate) =>
-      candidate.rows.some((row) => row.team.id === teamId),
-    );
-    if (conference) return conference;
-  }
-  return null;
-}
-
-function streakKindOf(streak: string | null): StreakKind | null {
-  if (!streak) return null;
-  return streak.startsWith("W") ? "win" : "loss";
-}
-
 export function buildSidebarStandings(
   conferences: ConferenceStandings[],
   favoriteTeamIds: string[],
 ): SidebarStandings | null {
-  const conference =
-    conferenceOfFavorites(conferences, favoriteTeamIds) ??
-    conferences.find(
-      (candidate) => candidate.abbreviation === DEFAULT_CONFERENCE_ABBREVIATION,
-    ) ??
-    conferences[0];
+  const conference = defaultConferenceOf(conferences, favoriteTeamIds);
   if (!conference) return null;
 
   return {
