@@ -1,3 +1,9 @@
+import {
+  LEADER_STATS,
+  type LeaderCategory,
+  type LeaderStat,
+  type LeagueLeader,
+} from "@/app/lib/domain/leaders";
 import type {
   Clincher,
   ConferenceStandings,
@@ -13,6 +19,11 @@ const TEAMS_PATH_PREFIX = "/teams/";
 // The top 6 seeds go straight to the playoffs; seeds 7 to 10 play the play-in tournament.
 const LAST_PLAYOFF_SEED = 6;
 const LAST_PLAY_IN_SEED = 10;
+const LEADERS_PER_CATEGORY = 5;
+// Percentage leaders reflect tiny samples early in the season (e.g. 100% from the line on two attempts).
+const MIN_MEDIAN_GAMES_FOR_PERCENTAGES = 10;
+const VIEW_PARAM = "view";
+const CONFERENCE_PARAM = "conf";
 
 export type StandingsQueryState =
   | { status: "loading" }
@@ -21,11 +32,19 @@ export type StandingsQueryState =
   // A refetch failed, so the last standings are kept.
   | { status: "stale"; standings: Standings };
 
+export type LeadersQueryState =
+  | { status: "loading" }
+  | { status: "error" }
+  | { status: "success"; categories: LeaderCategory[] };
+
 export type StandingsViewInput = {
   query: StandingsQueryState;
+  leadersQuery: LeadersQueryState;
   favoriteTeamIds: string[];
   // The raw `?conf=` value, e.g. "east".
   conferenceParam: string | null;
+  // The raw `?view=` value, e.g. "leaders". Only mobile reads it; desktop shows both.
+  viewParam: string | null;
 };
 
 export type StandingsZone = "playoff" | "play-in" | "none";
@@ -100,12 +119,58 @@ export type StandingsScreen =
   | { kind: "error" }
   | StandingsReadyScreen;
 
+export type StandingsViewId = "standings" | "leaders";
+
+export type StandingsViewOption = {
+  id: StandingsViewId;
+  label: string;
+  href: string;
+  selected: boolean;
+};
+
+export type LeaderRow = {
+  athleteId: string;
+  rank: number;
+  name: string;
+  headshotUrl: string | null;
+  // null when the leader's team is unknown.
+  teamAbbreviation: string | null;
+  teamLogoUrl: string | null;
+  // e.g. "31.4" for an average or "52.3%" for a percentage.
+  value: string;
+  isFavorite: boolean;
+};
+
+export type LeaderCategoryView = { stat: LeaderStat; title: string } & (
+  | { status: "ready"; leaders: LeaderRow[] }
+  // Empty before the first regular season game; error when ESPN's athletes could not be loaded.
+  | { status: "empty" | "error" }
+);
+
+export type StandingsLeaders =
+  | { kind: "loading" }
+  | { kind: "error" }
+  | {
+      kind: "ready";
+      categories: LeaderCategoryView[];
+      // Explains the hidden percentage categories; null once they show.
+      percentagesNote: string | null;
+    };
+
 export type StandingsView = {
   screen: StandingsScreen;
+  selectedView: StandingsViewId;
+  viewOptions: StandingsViewOption[];
+  leaders: StandingsLeaders;
 };
 
 const MARKED_ZONES: MarkedZone[] = ["playoff", "play-in"];
 const CLINCHERS: Clincher[] = ["playoffs", "play-in", "eliminated"];
+const VIEW_IDS: StandingsViewId[] = ["standings", "leaders"];
+const PERCENTAGE_STATS: LeaderStat[] = [
+  "fieldGoalPercentage",
+  "freeThrowPercentage",
+];
 
 function conferenceIdOf(conference: ConferenceStandings) {
   return conference.abbreviation.toLowerCase();
@@ -207,7 +272,7 @@ function readyScreenOf(
     conferenceOptions: standings.conferences.map((conference) => ({
       id: conferenceIdOf(conference),
       label: conference.abbreviation,
-      href: `${STANDINGS_PATH}?conf=${conferenceIdOf(conference)}`,
+      href: `${STANDINGS_PATH}?${CONFERENCE_PARAM}=${conferenceIdOf(conference)}`,
       selected: conference === selected,
     })),
     conferenceLabel: selected?.name ?? "",
@@ -222,24 +287,150 @@ function readyScreenOf(
   };
 }
 
-export function buildStandingsView({
-  query,
-  favoriteTeamIds,
-  conferenceParam,
-}: StandingsViewInput): StandingsView {
+function screenOf(
+  query: StandingsQueryState,
+  favoriteTeamIds: string[],
+  conferenceParam: string | null,
+): StandingsScreen {
   switch (query.status) {
     case "loading":
-      return { screen: { kind: "loading" } };
+      return { kind: "loading" };
     case "error":
-      return { screen: { kind: "error" } };
+      return { kind: "error" };
     case "success":
     case "stale":
-      return {
-        screen: readyScreenOf(
-          query.standings,
-          favoriteTeamIds,
-          conferenceParam,
-        ),
-      };
+      return readyScreenOf(query.standings, favoriteTeamIds, conferenceParam);
   }
+}
+
+function selectedViewOf(viewParam: string | null): StandingsViewId {
+  return VIEW_IDS.find((id) => id === viewParam) ?? "standings";
+}
+
+// The conference in the URL rides along, so switching back to the standings keeps it.
+function viewHrefOf(id: StandingsViewId, conferenceParam: string | null) {
+  const searchParams = new URLSearchParams();
+  if (id !== "standings") searchParams.set(VIEW_PARAM, id);
+  if (conferenceParam) searchParams.set(CONFERENCE_PARAM, conferenceParam);
+  return searchParams.size > 0
+    ? `${STANDINGS_PATH}?${searchParams}`
+    : STANDINGS_PATH;
+}
+
+function medianOf(values: number[]) {
+  const sorted = [...values].sort((first, second) => first - second);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1
+    ? sorted[middle]
+    : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+// null while the standings are unknown, which hides the percentages without claiming too few games were played.
+function arePercentagesMeaningful(query: StandingsQueryState) {
+  if (query.status !== "success" && query.status !== "stale") return null;
+  const gamesPlayed = query.standings.conferences.flatMap((conference) =>
+    conference.rows.map((row) => row.wins + row.losses),
+  );
+  return (
+    gamesPlayed.length > 0 &&
+    medianOf(gamesPlayed) >= MIN_MEDIAN_GAMES_FOR_PERCENTAGES
+  );
+}
+
+function formatLeaderValue(stat: LeaderStat, value: number) {
+  return PERCENTAGE_STATS.includes(stat)
+    ? `${value.toFixed(1)}%`
+    : value.toFixed(1);
+}
+
+function leaderRowOf(
+  stat: LeaderStat,
+  leader: LeagueLeader,
+  index: number,
+  favoriteTeamIds: string[],
+): LeaderRow {
+  return {
+    athleteId: leader.athlete.id,
+    rank: index + 1,
+    name: leader.athlete.displayName,
+    headshotUrl: leader.athlete.headshotUrl,
+    teamAbbreviation: leader.team?.abbreviation ?? null,
+    teamLogoUrl: leader.team?.logoUrl ?? null,
+    value: formatLeaderValue(stat, leader.value),
+    isFavorite: leader.team ? favoriteTeamIds.includes(leader.team.id) : false,
+  };
+}
+
+function leaderCategoryViewOf(
+  stat: LeaderStat,
+  category: LeaderCategory | undefined,
+  favoriteTeamIds: string[],
+): LeaderCategoryView {
+  const title = strings.standings.leaders.categories[stat];
+  // A category ESPN did not send reads as failed, not as a season without leaders.
+  if (!category || category.leaders === null) {
+    return { stat, title, status: "error" };
+  }
+  if (category.leaders.length === 0) return { stat, title, status: "empty" };
+
+  return {
+    stat,
+    title,
+    status: "ready",
+    leaders: category.leaders
+      .slice(0, LEADERS_PER_CATEGORY)
+      .map((leader, index) =>
+        leaderRowOf(stat, leader, index, favoriteTeamIds),
+      ),
+  };
+}
+
+function leadersOf(
+  leadersQuery: LeadersQueryState,
+  query: StandingsQueryState,
+  favoriteTeamIds: string[],
+): StandingsLeaders {
+  if (leadersQuery.status !== "success") return { kind: leadersQuery.status };
+
+  const showsPercentages = arePercentagesMeaningful(query);
+  const shownStats = showsPercentages
+    ? LEADER_STATS
+    : LEADER_STATS.filter((stat) => !PERCENTAGE_STATS.includes(stat));
+
+  return {
+    kind: "ready",
+    categories: shownStats.map((stat) =>
+      leaderCategoryViewOf(
+        stat,
+        leadersQuery.categories.find((category) => category.stat === stat),
+        favoriteTeamIds,
+      ),
+    ),
+    percentagesNote:
+      showsPercentages === false
+        ? strings.standings.leaders.percentagesHidden
+        : null,
+  };
+}
+
+export function buildStandingsView({
+  query,
+  leadersQuery,
+  favoriteTeamIds,
+  conferenceParam,
+  viewParam,
+}: StandingsViewInput): StandingsView {
+  const selectedView = selectedViewOf(viewParam);
+
+  return {
+    screen: screenOf(query, favoriteTeamIds, conferenceParam),
+    selectedView,
+    viewOptions: VIEW_IDS.map((id) => ({
+      id,
+      label: strings.standings.views[id],
+      href: viewHrefOf(id, conferenceParam),
+      selected: id === selectedView,
+    })),
+    leaders: leadersOf(leadersQuery, query, favoriteTeamIds),
+  };
 }

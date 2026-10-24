@@ -3,6 +3,7 @@ import currentSeason from "@/app/lib/espn/__fixtures__/season-current.json";
 import regularSeasonLeaders from "@/app/lib/espn/__fixtures__/leaders-regular-season.json";
 import leaderAthletes from "@/app/lib/espn/__fixtures__/leaders-athletes.json";
 import standings from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
+import teamsList from "@/app/lib/espn/__fixtures__/teams-list.json";
 import { favoritesStore } from "@/app/lib/favorites/use-favorite-team-ids";
 import { strings } from "@/app/lib/strings";
 import HomeSidebar from ".";
@@ -15,6 +16,7 @@ const ATLANTA_TEAM_ID = "1";
 function espnFixtureFor(url: string) {
   if (url.endsWith(STANDINGS_URL_SUFFIX)) return standings;
   if (url.endsWith("/leagues/nba/season")) return currentSeason;
+  if (url.endsWith("/teams")) return teamsList;
   if (LEADERS_URL_PATTERN.test(url)) return regularSeasonLeaders;
   const athleteId = url.match(ATHLETE_URL_PATTERN)?.[1];
   return leaderAthletes[athleteId as keyof typeof leaderAthletes];
@@ -94,8 +96,17 @@ describe("HomeSidebar", () => {
     expect(
       within(points).getByRole("img", { name: "Ty Jerome" }),
     ).toBeDefined();
-    expect(within(points).getByText("45.0")).toBeDefined();
+    expect(within(points).getByText("36.5")).toBeDefined();
     expect(within(points).getAllByRole("listitem")).toHaveLength(2);
+    expect(
+      within(leadersPanel())
+        .getAllByRole("region")
+        .map((category) => category.getAttribute("aria-labelledby")),
+    ).toEqual([
+      "sidebar-leaders-points",
+      "sidebar-leaders-rebounds",
+      "sidebar-leaders-assists",
+    ]);
   });
 
   it("still shows the leaders when the standings cannot be loaded", async () => {
@@ -105,7 +116,7 @@ describe("HomeSidebar", () => {
     render(await HomeSidebar());
 
     expect(screen.getByText(strings.home.sidebar.standingsError)).toBeDefined();
-    expect(within(leadersPanel()).getByText("45.0")).toBeDefined();
+    expect(within(leadersPanel()).getByText("36.5")).toBeDefined();
   });
 
   it("still shows the standings when the leaders cannot be loaded", async () => {

@@ -1,5 +1,5 @@
 import type { Game } from "./game";
-import type { Leader, LeaderStat } from "./leaders";
+import type { GameLeaderStat, Leader } from "./leaders";
 
 export type BoxScoreAthlete = {
   id: string;
@@ -62,7 +62,7 @@ export type TeamStatistics = {
 };
 
 export type GameLeader = {
-  stat: LeaderStat;
+  stat: GameLeaderStat;
   // Game totals once the game starts; season averages before it.
   leader: Leader;
 };

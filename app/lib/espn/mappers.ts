@@ -10,7 +10,7 @@ import type {
   TeamBoxScore,
   TeamStatistics,
 } from "@/app/lib/domain/game-summary";
-import type { Leader, LeaderStat } from "@/app/lib/domain/leaders";
+import type { GameLeaderStat, Leader } from "@/app/lib/domain/leaders";
 import type {
   Broadcast,
   BroadcastMarket,
@@ -634,7 +634,7 @@ function mapTeamStatistics({
 }
 
 // Before the game starts ESPN names the season averages, e.g. "pointsPerGame".
-const LEADER_STAT_BY_CATEGORY_NAME: Record<string, LeaderStat> = {
+const LEADER_STAT_BY_CATEGORY_NAME: Record<string, GameLeaderStat> = {
   points: "points",
   rebounds: "rebounds",
   assists: "assists",

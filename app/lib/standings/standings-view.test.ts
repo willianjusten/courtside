@@ -1,11 +1,26 @@
+import type { LeaderCategory, LeaderStat } from "@/app/lib/domain/leaders";
 import type { Standings, StandingsRow } from "@/app/lib/domain/standings";
+import leaderAthletes from "@/app/lib/espn/__fixtures__/leaders-athletes.json";
+import leadersFixture from "@/app/lib/espn/__fixtures__/leaders-regular-season.json";
+import teamsListFixture from "@/app/lib/espn/__fixtures__/teams-list.json";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
 import seasonEndFixture from "@/app/lib/espn/__fixtures__/standings-season-end.json";
-import { mapConferenceStandings, mapSeason } from "@/app/lib/espn/mappers";
-import type { RawStandingsResponse } from "@/app/lib/espn/raw-types";
+import {
+  mapConferenceStandings,
+  mapLeader,
+  mapListedTeam,
+  mapSeason,
+} from "@/app/lib/espn/mappers";
+import type {
+  RawLeaderAthlete,
+  RawListedTeam,
+  RawStandingsResponse,
+} from "@/app/lib/espn/raw-types";
 import { strings } from "@/app/lib/strings";
 import {
   buildStandingsView,
+  type LeadersQueryState,
+  type StandingsLeaders,
   type StandingsReadyScreen,
   type StandingsQueryState,
 } from "./standings-view";
@@ -27,20 +42,103 @@ const seasonEndStandings = standingsFrom(
   new Date("2026-04-20T12:00:00Z"),
 );
 
+const CATEGORY_NAME_BY_STAT: Record<LeaderStat, string> = {
+  points: "pointsPerGame",
+  rebounds: "reboundsPerGame",
+  assists: "assistsPerGame",
+  steals: "stealsPerGame",
+  blocks: "blocksPerGame",
+  threesMade: "3PointsMadePerGame",
+  fieldGoalPercentage: "fieldGoalPercentage",
+  freeThrowPercentage: "FreeThrowPct",
+};
+
+const teamsById = new Map(
+  (
+    teamsListFixture.sports[0].leagues[0].teams as unknown as {
+      team: RawListedTeam;
+    }[]
+  ).map(({ team }) => [team.id, mapListedTeam(team)]),
+);
+
+// The leaders in ESPN's category order, mapped as the server assembly maps them.
+const leaderCategories: LeaderCategory[] = leadersFixture.categories.map(
+  (rawCategory) => ({
+    stat: (Object.keys(CATEGORY_NAME_BY_STAT) as LeaderStat[]).find(
+      (stat) => CATEGORY_NAME_BY_STAT[stat] === rawCategory.name,
+    )!,
+    leaders: rawCategory.leaders.map((rawLeader) => {
+      const athleteId = rawLeader.athlete.$ref.match(/athletes\/(\d+)/)![1];
+      const teamId = rawLeader.team.$ref.match(/teams\/(\d+)/)![1];
+      return {
+        ...mapLeader(
+          rawLeader,
+          leaderAthletes[
+            athleteId as keyof typeof leaderAthletes
+          ] as RawLeaderAthlete,
+        ),
+        team: teamsById.get(teamId) ?? null,
+      };
+    }),
+  }),
+);
+
 const LAKERS_ID = "13";
 const KNICKS_ID = "18";
 const PACERS_ID = "11";
+const GRIZZLIES_ID = "29";
 
-function screenFor({
-  query = { status: "success", standings },
-  favoriteTeamIds = [],
-  conferenceParam = null,
-}: {
+type ViewOptions = {
   query?: StandingsQueryState;
+  leadersQuery?: LeadersQueryState;
   favoriteTeamIds?: string[];
   conferenceParam?: string | null;
-} = {}) {
-  return buildStandingsView({ query, favoriteTeamIds, conferenceParam }).screen;
+  viewParam?: string | null;
+};
+
+function viewFor({
+  query = { status: "success", standings },
+  leadersQuery = { status: "success", categories: leaderCategories },
+  favoriteTeamIds = [],
+  conferenceParam = null,
+  viewParam = null,
+}: ViewOptions = {}) {
+  return buildStandingsView({
+    query,
+    leadersQuery,
+    favoriteTeamIds,
+    conferenceParam,
+    viewParam,
+  });
+}
+
+function screenFor(options: ViewOptions = {}) {
+  return viewFor(options).screen;
+}
+
+function readyLeadersFor(
+  options: ViewOptions = {},
+): Extract<StandingsLeaders, { kind: "ready" }> {
+  const leaders = viewFor(options).leaders;
+  if (leaders.kind !== "ready") {
+    throw new Error(`Expected ready leaders, got ${leaders.kind}`);
+  }
+  return leaders;
+}
+
+// Every team with the given number of games played, split evenly between wins and losses.
+function withGamesPlayed(source: Standings, gamesPlayed: number): Standings {
+  return {
+    ...source,
+    conferences: source.conferences.map((conference) => ({
+      ...conference,
+      rows: conference.rows.map((row) => ({
+        ...row,
+        wins: Math.ceil(gamesPlayed / 2),
+        losses: Math.floor(gamesPlayed / 2),
+      })),
+    })),
+  };
 }
 
 function readyScreenFor(
@@ -346,4 +444,271 @@ describe("buildStandingsView", () => {
       expect(screenFor({ query: { status } })).toEqual({ kind: status });
     },
   );
+});
+
+describe("buildStandingsView leaders", () => {
+  const lateSeason: StandingsQueryState = {
+    status: "success",
+    standings: seasonEndStandings,
+  };
+
+  it("lists the categories in a fixed order, whatever order ESPN sends them in", () => {
+    const { categories } = readyLeadersFor({ query: lateSeason });
+
+    expect(categories.map(({ stat, title }) => [stat, title])).toEqual([
+      ["points", "Points per game"],
+      ["rebounds", "Rebounds per game"],
+      ["assists", "Assists per game"],
+      ["steals", "Steals per game"],
+      ["blocks", "Blocks per game"],
+      ["threesMade", "3-pointers made per game"],
+      ["fieldGoalPercentage", "Field goal %"],
+      ["freeThrowPercentage", "Free throw %"],
+    ]);
+  });
+
+  it("shows each leader's rank, headshot, name, team, and value", () => {
+    const [points] = readyLeadersFor().categories;
+
+    expect(points.status === "ready" && points.leaders[0]).toEqual({
+      athleteId: "4065733",
+      rank: 1,
+      name: "Ty Jerome",
+      headshotUrl:
+        "https://a.espncdn.com/i/headshots/nba/players/full/4065733.png",
+      teamAbbreviation: "MEM",
+      teamLogoUrl: teamsById.get(GRIZZLIES_ID)?.logoUrl,
+      value: "36.5",
+      isFavorite: false,
+    });
+  });
+
+  it("keeps only the top 5 of each category", () => {
+    const withMoreLeaders = leaderCategories.map((category) => ({
+      ...category,
+      leaders: [...(category.leaders ?? []), ...(category.leaders ?? [])],
+    }));
+
+    const { categories } = readyLeadersFor({
+      query: lateSeason,
+      leadersQuery: { status: "success", categories: withMoreLeaders },
+    });
+
+    expect(
+      categories.map((category) =>
+        category.status === "ready"
+          ? category.leaders.map((leader) => leader.rank)
+          : [],
+      ),
+    ).toEqual(Array.from({ length: 8 }, () => [1, 2, 3, 4, 5]));
+  });
+
+  it("shows averages with one decimal and percentages as percentages", () => {
+    const valuesOf = (stat: LeaderStat, value: number) => {
+      const categories = leaderCategories.map((category) => ({
+        ...category,
+        leaders: (category.leaders ?? []).map((leader) => ({
+          ...leader,
+          value,
+        })),
+      }));
+      const category = readyLeadersFor({
+        query: lateSeason,
+        leadersQuery: { status: "success", categories },
+      }).categories.find((candidate) => candidate.stat === stat);
+      return category?.status === "ready" ? category.leaders[0].value : null;
+    };
+
+    expect(valuesOf("points", 31.44)).toBe("31.4");
+    expect(valuesOf("steals", 2)).toBe("2.0");
+    expect(valuesOf("fieldGoalPercentage", 88.88899993896484)).toBe("88.9%");
+    expect(valuesOf("freeThrowPercentage", 100)).toBe("100.0%");
+  });
+
+  it("flags the leaders of favorite teams", () => {
+    const [points] = readyLeadersFor({
+      favoriteTeamIds: [GRIZZLIES_ID],
+    }).categories;
+
+    expect(
+      points.status === "ready" &&
+        points.leaders.map((leader) => [leader.name, leader.isFavorite]),
+    ).toEqual([
+      ["Ty Jerome", true],
+      ["Giannis Antetokounmpo", false],
+      ["Julius Randle", false],
+      ["Donovan Mitchell", false],
+      ["Tyrese Maxey", false],
+    ]);
+  });
+
+  it("shows no team for a leader whose team is unknown", () => {
+    const categories = leaderCategories.map((category) => ({
+      ...category,
+      leaders: (category.leaders ?? []).map((leader) => ({
+        ...leader,
+        team: null,
+      })),
+    }));
+
+    const [points] = readyLeadersFor({
+      favoriteTeamIds: [GRIZZLIES_ID],
+      leadersQuery: { status: "success", categories },
+    }).categories;
+
+    expect(points.status === "ready" && points.leaders[0]).toMatchObject({
+      teamAbbreviation: null,
+      teamLogoUrl: null,
+      isFavorite: false,
+    });
+  });
+
+  it("hides the percentage categories early in the season and explains why", () => {
+    const leaders = readyLeadersFor();
+
+    expect(leaders.categories.map(({ stat }) => stat)).not.toContain(
+      "fieldGoalPercentage",
+    );
+    expect(leaders.categories.map(({ stat }) => stat)).not.toContain(
+      "freeThrowPercentage",
+    );
+    expect(leaders.categories).toHaveLength(6);
+    expect(leaders.percentagesNote).toBe(
+      strings.standings.leaders.percentagesHidden,
+    );
+  });
+
+  it("shows the percentage categories once the median team has played 10 games", () => {
+    const statsFor = (gamesPlayed: number) =>
+      readyLeadersFor({
+        query: {
+          status: "success",
+          standings: withGamesPlayed(standings, gamesPlayed),
+        },
+      }).categories.map(({ stat }) => stat);
+
+    expect(statsFor(9)).not.toContain("fieldGoalPercentage");
+    expect(statsFor(10)).toContain("fieldGoalPercentage");
+    expect(statsFor(10)).toContain("freeThrowPercentage");
+    expect(readyLeadersFor({ query: lateSeason }).percentagesNote).toBeNull();
+  });
+
+  it("goes by the median team, so a few teams with more games do not show the percentages", () => {
+    const mostlyEarly = withGamesPlayed(standings, 4);
+    const [east, west] = mostlyEarly.conferences;
+    const withEastAhead: Standings = {
+      ...mostlyEarly,
+      conferences: [
+        {
+          ...east,
+          rows: east.rows.map((row, index) =>
+            index < 14 ? { ...row, wins: 10, losses: 2 } : row,
+          ),
+        },
+        west,
+      ],
+    };
+
+    expect(
+      readyLeadersFor({
+        query: { status: "success", standings: withEastAhead },
+      }).categories.map(({ stat }) => stat),
+    ).not.toContain("fieldGoalPercentage");
+  });
+
+  it("hides the percentage categories while the standings are not loaded", () => {
+    expect(
+      readyLeadersFor({ query: { status: "loading" } }).categories,
+    ).toHaveLength(6);
+  });
+
+  it("does not claim teams lack games when the standings failed to load", () => {
+    const leaders = readyLeadersFor({ query: { status: "error" } });
+
+    expect(leaders.categories).toHaveLength(6);
+    expect(leaders.percentagesNote).toBeNull();
+  });
+
+  it("marks categories without leaders as empty and failed ones as errors", () => {
+    const categories = leaderCategories.map((category) =>
+      category.stat === "points"
+        ? { ...category, leaders: [] }
+        : category.stat === "rebounds"
+          ? { ...category, leaders: null }
+          : category,
+    );
+
+    const [points, rebounds] = readyLeadersFor({
+      leadersQuery: { status: "success", categories },
+    }).categories;
+
+    expect(points).toEqual({
+      stat: "points",
+      title: "Points per game",
+      status: "empty",
+    });
+    expect(rebounds).toEqual({
+      stat: "rebounds",
+      title: "Rebounds per game",
+      status: "error",
+    });
+  });
+
+  it.each(["loading", "error"] as const)(
+    "returns %s leaders without leaders data",
+    (status) => {
+      expect(viewFor({ leadersQuery: { status } }).leaders).toEqual({
+        kind: status,
+      });
+    },
+  );
+});
+
+describe("buildStandingsView view switch", () => {
+  it("shows the standings by default", () => {
+    const view = viewFor();
+
+    expect(view.selectedView).toBe("standings");
+    expect(view.viewOptions).toEqual([
+      {
+        id: "standings",
+        label: "Standings",
+        href: "/standings",
+        selected: true,
+      },
+      {
+        id: "leaders",
+        label: "Leaders",
+        href: "/standings?view=leaders",
+        selected: false,
+      },
+    ]);
+  });
+
+  it("shows the leaders picked in the URL", () => {
+    const view = viewFor({ viewParam: "leaders" });
+
+    expect(view.selectedView).toBe("leaders");
+    expect(view.viewOptions.map(({ id, selected }) => [id, selected])).toEqual([
+      ["standings", false],
+      ["leaders", true],
+    ]);
+  });
+
+  it("ignores a view in the URL it does not know", () => {
+    expect(viewFor({ viewParam: "players" }).selectedView).toBe("standings");
+  });
+
+  it("keeps the conference in the URL when switching views", () => {
+    expect(
+      viewFor({ conferenceParam: "east" }).viewOptions.map(({ href }) => href),
+    ).toEqual(["/standings?conf=east", "/standings?view=leaders&conf=east"]);
+  });
+
+  it("offers the view switch while the standings are still loading", () => {
+    expect(
+      viewFor({ query: { status: "loading" }, viewParam: "leaders" })
+        .selectedView,
+    ).toBe("leaders");
+  });
 });

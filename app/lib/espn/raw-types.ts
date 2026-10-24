@@ -239,6 +239,7 @@ export type RawLeader = {
   value: number;
   displayValue: string;
   athlete: RawRef;
+  team?: RawRef;
 };
 
 export type RawLeaderAthlete = {

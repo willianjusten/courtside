@@ -2,14 +2,17 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
 import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
+import LeagueLeaders from "@/app/components/LeagueLeaders";
 import { useFavoriteTeamIds } from "@/app/lib/favorites/use-favorite-team-ids";
+import { leadersQueryOptions } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import {
   buildStandingsView,
   type ConferenceOption,
+  type LeadersQueryState,
   type StandingsQueryState,
+  type StandingsViewOption,
 } from "@/app/lib/standings/standings-view";
 import { strings } from "@/app/lib/strings";
 import { StandingsLegend, StandingsTable } from "./standings-table";
@@ -37,14 +40,43 @@ function ConferenceSwitch({ options }: { options: ConferenceOption[] }) {
   );
 }
 
-export default function Standings({ sideColumn }: { sideColumn: ReactNode }) {
+// Mobile only: desktop shows the standings and the leaders side by side.
+function ViewSwitch({ options }: { options: StandingsViewOption[] }) {
+  return (
+    <div
+      role="group"
+      aria-label={strings.standings.views.label}
+      className="flex gap-5 border-b border-white/10 md:hidden"
+    >
+      {options.map((option) => (
+        <button
+          key={option.id}
+          type="button"
+          aria-pressed={option.selected}
+          // Replacing the entry keeps the view in the URL without adding a history step per switch.
+          onClick={() => window.history.replaceState(null, "", option.href)}
+          className={`-mb-px min-h-11 cursor-pointer border-b-2 px-0.5 text-sm font-bold tracking-[0.04em] ${option.selected ? "border-accent text-foreground" : "border-transparent text-muted"} ${FOCUS_RING_CLASS_NAME}`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function Standings() {
   const {
     data: standings,
     error,
     isRefetchError,
   } = useQuery(standingsQueryOptions());
+  const { data: leaderCategories, error: leadersError } = useQuery(
+    leadersQueryOptions(),
+  );
   const favoriteTeamIds = useFavoriteTeamIds();
-  const conferenceParam = useSearchParams()?.get("conf") ?? null;
+  const searchParams = useSearchParams();
+  const conferenceParam = searchParams?.get("conf") ?? null;
+  const viewParam = searchParams?.get("view") ?? null;
 
   // Data is checked before the error: a failed refetch keeps the last standings instead of hiding them.
   const query: StandingsQueryState = standings
@@ -54,11 +86,20 @@ export default function Standings({ sideColumn }: { sideColumn: ReactNode }) {
     : error
       ? { status: "error" }
       : { status: "loading" };
-  const { screen } = buildStandingsView({
+  // A failed refetch keeps the last leaders too.
+  const leadersQuery: LeadersQueryState = leaderCategories
+    ? { status: "success", categories: leaderCategories }
+    : leadersError
+      ? { status: "error" }
+      : { status: "loading" };
+  const { screen, selectedView, viewOptions, leaders } = buildStandingsView({
     query,
+    leadersQuery,
     favoriteTeamIds,
     conferenceParam,
+    viewParam,
   });
+  const showsLeadersOnMobile = selectedView === "leaders";
 
   return (
     <div className="flex flex-col gap-6 md:gap-7">
@@ -73,19 +114,22 @@ export default function Standings({ sideColumn }: { sideColumn: ReactNode }) {
             {strings.standings.title}
           </h1>
         </header>
+        <ViewSwitch options={viewOptions} />
         {screen.kind === "ready" && (
-          <ConferenceSwitch options={screen.conferenceOptions} />
+          <div className={showsLeadersOnMobile ? "hidden md:block" : ""}>
+            <ConferenceSwitch options={screen.conferenceOptions} />
+          </div>
         )}
       </div>
-      {/* Stacked on every width until the leaders ticket (#113) moves them into a desktop side column. */}
-      <div className="flex flex-col gap-8">
+      {/* Tablets stack the leaders below the table; wide screens give them a side column. */}
+      <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         <section
           aria-label={
             screen.kind === "ready"
               ? strings.standings.conferenceTable(screen.conferenceLabel)
               : strings.standings.title
           }
-          className="flex min-w-0 flex-col gap-3.5"
+          className={`min-w-0 flex-col gap-3.5 ${showsLeadersOnMobile ? "hidden md:flex" : "flex"}`}
         >
           {screen.kind === "loading" && (
             <p role="status" className="text-sm text-muted">
@@ -114,7 +158,11 @@ export default function Standings({ sideColumn }: { sideColumn: ReactNode }) {
             </>
           )}
         </section>
-        <div className="min-w-0">{sideColumn}</div>
+        <div
+          className={`min-w-0 ${showsLeadersOnMobile ? "" : "hidden md:block"}`}
+        >
+          <LeagueLeaders leaders={leaders} />
+        </div>
       </div>
     </div>
   );

@@ -12,7 +12,10 @@ import type {
   Play,
   TeamStatistics,
 } from "@/app/lib/domain/game-summary";
-import type { LeaderStat } from "@/app/lib/domain/leaders";
+import {
+  GAME_LEADER_STATS,
+  type GameLeaderStat,
+} from "@/app/lib/domain/leaders";
 import { gameFlowOf, type GameFlowView } from "@/app/lib/game/game-flow";
 import {
   channelLabelOf,
@@ -203,8 +206,6 @@ export type TeamStatsView = {
   rows: TeamStatRow[];
 };
 
-const LEADER_STATS: LeaderStat[] = ["points", "rebounds", "assists"];
-
 export type GameLeaderAthlete = {
   name: string;
   teamAbbreviation: string;
@@ -212,7 +213,7 @@ export type GameLeaderAthlete = {
 };
 
 export type GameLeaderRow = {
-  stat: LeaderStat;
+  stat: GameLeaderStat;
   label: string;
   value: string;
   // One athlete, or both teams' leaders on a tie, away first as the header reads.
@@ -617,7 +618,7 @@ function teamStatsOf(summary: GameSummary): TeamStatsView | null {
 
 function gameLeaderOf(
   summary: GameSummary,
-  stat: LeaderStat,
+  stat: GameLeaderStat,
 ): GameLeaderRow | null {
   const candidates = (["away", "home"] as const).flatMap((side) => {
     const gameLeader = summary.leaders[side].find(
@@ -645,7 +646,7 @@ function gameLeaderOf(
 }
 
 function leadersOf(summary: GameSummary): GameLeadersView | null {
-  const leaders = LEADER_STATS.flatMap((stat) => {
+  const leaders = GAME_LEADER_STATS.flatMap((stat) => {
     const leader = gameLeaderOf(summary, stat);
     return leader ? [leader] : [];
   });

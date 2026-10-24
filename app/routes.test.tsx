@@ -6,11 +6,17 @@ import {
 } from "@testing-library/react";
 import type { ReactElement } from "react";
 import Providers from "./providers";
+import {
+  LEADERS_API_PATH,
+  leadersQueryOptions,
+} from "@/app/lib/queries/leaders";
+import { getQueryClient } from "@/app/lib/query/get-query-client";
 import { strings } from "@/app/lib/strings";
 import HomePage from "./page";
 import GamesPage from "./games/[date]/page";
 import GamePage from "./game/[id]/page";
 import StandingsPage from "./standings/page";
+import { GET as getLeaders } from "./api/leaders/route";
 import TeamPage from "./teams/[slug]/page";
 import PlayoffsPage from "./playoffs/page";
 import finalDay from "./lib/espn/__fixtures__/scoreboard-final-day.json";
@@ -60,6 +66,13 @@ function espnFixtureFor(url: string) {
   return finalDay;
 }
 
+// The client reads the leaders through the app's route handler, which assembles them from the ESPN fixtures.
+function responseFor(url: string) {
+  return url === LEADERS_API_PATH
+    ? getLeaders()
+    : new Response(JSON.stringify(espnFixtureFor(url)));
+}
+
 function render(ui: ReactElement) {
   return renderWithoutProviders(ui, { wrapper: Providers });
 }
@@ -68,14 +81,15 @@ describe("routes", () => {
   beforeEach(() => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(
-        async (url: string) =>
-          new Response(JSON.stringify(espnFixtureFor(url))),
-      ),
+      vi.fn(async (url: string) => responseFor(url)),
     );
   });
 
   afterEach(() => {
+    // The browser keeps one query client for the session, and the leaders tests each answer the leaders differently.
+    getQueryClient().removeQueries({
+      queryKey: leadersQueryOptions().queryKey,
+    });
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     window.history.replaceState(null, "", "/");
@@ -349,26 +363,72 @@ describe("routes", () => {
   });
 
   it.each([
-    ["points", "Ty Jerome", "45.0"],
-    ["rebounds", "Domantas Sabonis", "18.0"],
-    ["assists", "Trae Young", "13.0"],
+    ["points", "Ty Jerome", "MEM", "36.5"],
+    ["rebounds", "Domantas Sabonis", "SAC", "18.5"],
+    ["assists", "Trae Young", "WSH", "12.5"],
   ] as const)(
-    "shows the %s leaders with player names and photos",
-    async (stat, topPlayerName, topValue) => {
+    "shows the %s leaders with player names, teams, and values",
+    async (stat, topPlayerName, teamAbbreviation, topValue) => {
       render(await StandingsPage());
 
-      const category = screen.getByRole("region", {
-        name: strings.leaders.categories[stat].title,
+      const category = await screen.findByRole("region", {
+        name: strings.standings.leaders.categories[stat],
       });
       const [topLeader] = within(category).getAllByRole("listitem");
       expect(within(category).getAllByRole("listitem")).toHaveLength(5);
       expect(within(topLeader).getByText(topPlayerName)).toBeDefined();
+      expect(within(topLeader).getByText(teamAbbreviation)).toBeDefined();
       expect(within(topLeader).getByText(topValue)).toBeDefined();
-      expect(
-        within(topLeader).getByRole("img", { name: topPlayerName }),
-      ).toBeDefined();
     },
   );
+
+  it("hides the percentage leaders early in the season and says why", async () => {
+    render(await StandingsPage());
+
+    expect(
+      await screen.findByText(strings.standings.leaders.percentagesHidden),
+    ).toBeDefined();
+    expect(
+      screen.queryByRole("region", {
+        name: strings.standings.leaders.categories.fieldGoalPercentage,
+      }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("region", {
+        name: strings.standings.leaders.categories.threesMade,
+      }),
+    ).toBeDefined();
+  });
+
+  it("restores the leaders view kept in the URL", async () => {
+    window.history.replaceState(null, "", "/standings?view=leaders");
+    render(await StandingsPage());
+
+    const viewSwitch = await screen.findByRole("group", {
+      name: strings.standings.views.label,
+    });
+    expect(
+      within(viewSwitch)
+        .getByRole("button", { name: strings.standings.views.leaders })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+  });
+
+  it("keeps the view picked on the switch in the URL", async () => {
+    window.history.replaceState(null, "", "/standings?conf=east");
+    render(await StandingsPage());
+
+    const viewSwitch = await screen.findByRole("group", {
+      name: strings.standings.views.label,
+    });
+    fireEvent.click(
+      within(viewSwitch).getByRole("button", {
+        name: strings.standings.views.leaders,
+      }),
+    );
+
+    expect(window.location.search).toBe("?view=leaders&conf=east");
+  });
 
   it("shows that there are no leaders yet before the regular season has stats", async () => {
     vi.stubGlobal(
@@ -381,13 +441,13 @@ describe("routes", () => {
               }),
               { status: 404 },
             )
-          : new Response(JSON.stringify(espnFixtureFor(url))),
+          : responseFor(url),
       ),
     );
 
     render(await StandingsPage());
 
-    expect(screen.getAllByText(strings.leaders.empty)).toHaveLength(3);
+    expect(await screen.findAllByText(strings.leaders.empty)).toHaveLength(6);
   });
 
   it("shows an error only in the leaders category whose players cannot be loaded", async () => {
@@ -397,17 +457,17 @@ describe("routes", () => {
       vi.fn(async (url: string) =>
         url.endsWith("/athletes/4065733")
           ? new Response(null, { status: 500 })
-          : new Response(JSON.stringify(espnFixtureFor(url))),
+          : responseFor(url),
       ),
     );
 
     render(await StandingsPage());
 
-    const points = screen.getByRole("region", {
-      name: strings.leaders.categories.points.title,
+    const points = await screen.findByRole("region", {
+      name: strings.standings.leaders.categories.points,
     });
     const rebounds = screen.getByRole("region", {
-      name: strings.leaders.categories.rebounds.title,
+      name: strings.standings.leaders.categories.rebounds,
     });
     expect(
       within(points).getByText(strings.leaders.categoryError),
@@ -422,13 +482,18 @@ describe("routes", () => {
       vi.fn(async (url: string) =>
         LEADERS_URL_PATTERN.test(url)
           ? new Response(null, { status: 500 })
-          : new Response(JSON.stringify(espnFixtureFor(url))),
+          : responseFor(url),
       ),
     );
 
     render(await StandingsPage());
 
-    expect(screen.getByText(strings.leaders.error)).toBeDefined();
+    expect(
+      await screen.findByText(strings.leaders.error, undefined, {
+        // The client retries the failed leaders once, a second later.
+        timeout: 3000,
+      }),
+    ).toBeDefined();
     expect(
       await screen.findByRole("region", {
         name: strings.standings.conferenceTable("Western Conference"),

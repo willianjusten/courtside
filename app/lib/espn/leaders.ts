@@ -1,5 +1,10 @@
 import "server-only";
-import type { LeaderCategory, LeaderStat } from "@/app/lib/domain/leaders";
+import {
+  LEADER_STATS,
+  type LeaderCategory,
+  type LeaderStat,
+} from "@/app/lib/domain/leaders";
+import type { ListedTeam } from "@/app/lib/domain/team";
 import { REGULAR_SEASON_TYPE_ID } from "./config";
 import { mapLeader } from "./mappers";
 import type {
@@ -9,19 +14,24 @@ import type {
   RawLeaderCategory,
   RawLeadersResponse,
 } from "./raw-types";
+import { fetchTeams } from "./teams";
 import { espnGet, espnGetRef, EspnRequestError } from "./transport";
 
 const LEADERS_PER_CATEGORY = 5;
 const NOT_FOUND_STATUS = 404;
 const NO_STATS_MESSAGE = "No stats found.";
+const TEAM_ID_IN_REF_PATTERN = /\/teams\/(\d+)/;
 
 const CATEGORY_NAME_BY_STAT: Record<LeaderStat, string> = {
   points: "pointsPerGame",
   rebounds: "reboundsPerGame",
   assists: "assistsPerGame",
+  steals: "stealsPerGame",
+  blocks: "blocksPerGame",
+  threesMade: "3PointsMadePerGame",
+  fieldGoalPercentage: "fieldGoalPercentage",
+  freeThrowPercentage: "FreeThrowPct",
 };
-
-const LEADER_STATS = Object.keys(CATEGORY_NAME_BY_STAT) as LeaderStat[];
 
 async function fetchRegularSeasonLeaders(
   seasonYear: number,
@@ -80,11 +90,18 @@ function createAthleteResolver() {
   };
 }
 
+// The team comes from the teams list by the id in ESPN's ref, which saves one request per leader.
+function teamOf(rawLeader: RawLeader, teamsById: Map<string, ListedTeam>) {
+  const teamId = rawLeader.team?.$ref.match(TEAM_ID_IN_REF_PATTERN)?.[1];
+  return (teamId && teamsById.get(teamId)) || null;
+}
+
 // A category fails on its own, so one unresolvable athlete never hides the other categories. Dropping just that athlete would shift the ranking.
 async function resolveCategory(
   stat: LeaderStat,
   topRawLeaders: RawLeader[],
   resolveAthlete: (ref: string) => Promise<RawLeaderAthlete>,
+  teamsById: Map<string, ListedTeam>,
 ): Promise<LeaderCategory> {
   try {
     const athletes = await Promise.all(
@@ -92,9 +109,10 @@ async function resolveCategory(
     );
     return {
       stat,
-      leaders: topRawLeaders.map((rawLeader, index) =>
-        mapLeader(rawLeader, athletes[index]),
-      ),
+      leaders: topRawLeaders.map((rawLeader, index) => ({
+        ...mapLeader(rawLeader, athletes[index]),
+        team: teamOf(rawLeader, teamsById),
+      })),
     };
   } catch (error) {
     console.error(`Failed to resolve the ${stat} leaders`, error);
@@ -102,7 +120,7 @@ async function resolveCategory(
   }
 }
 
-// Regular season points, rebounds, and assists leaders of the current season, with athletes resolved. Server only, so the browser never follows ESPN's $ref links itself.
+// Regular season leaders of the current season in each category, with athletes and teams resolved. Server only, so the browser never follows ESPN's $ref links itself.
 export async function fetchLeaders(): Promise<LeaderCategory[]> {
   const { year } = await espnGet<RawCurrentSeason>("currentSeason");
   const rawLeaders = await fetchRegularSeasonLeaders(year);
@@ -119,10 +137,16 @@ export async function fetchLeaders(): Promise<LeaderCategory[]> {
     ),
   }));
   const resolveAthlete = createAthleteResolver();
+  // Teams only label the leaders, so a failed teams list leaves the leaders without them instead of failing every category.
+  const teams = await fetchTeams().catch((error: unknown) => {
+    console.error("Failed to load the teams of the league leaders", error);
+    return [];
+  });
+  const teamsById = new Map(teams.map((team) => [team.id, team]));
 
   return Promise.all(
     topRawCategories.map(({ stat, topRawLeaders }) =>
-      resolveCategory(stat, topRawLeaders, resolveAthlete),
+      resolveCategory(stat, topRawLeaders, resolveAthlete, teamsById),
     ),
   );
 }

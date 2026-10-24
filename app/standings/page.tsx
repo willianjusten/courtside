@@ -1,7 +1,7 @@
-import LeagueLeaders from "@/app/components/LeagueLeaders";
 import Standings from "@/app/components/Standings";
 // Not in the @/app/lib/espn barrel: the leaders module is server-only and the barrel is also imported by client code.
 import { fetchLeaders } from "@/app/lib/espn/leaders";
+import { leadersQueryOptions } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
 
@@ -9,22 +9,21 @@ import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
 export const dynamic = "force-dynamic";
 
 export default async function StandingsPage() {
-  const [, leaderCategories] = await Promise.all([
-    // A failed prefetch is left to the client, which fetches the standings again.
-    getServerQueryClient().prefetchQuery(standingsQueryOptions()),
-    // Leaders are secondary, so a failure there must not take the standings down with it.
-    fetchLeaders().catch((error: unknown) => {
-      console.error("Failed to load league leaders", error);
-      return null;
+  const queryClient = getServerQueryClient();
+  // A failed prefetch is left to the client, which fetches again; the leaders fail on their own, without the standings.
+  await Promise.all([
+    queryClient.prefetchQuery(standingsQueryOptions()),
+    // The server assembles the leaders itself instead of calling its own route handler.
+    queryClient.prefetchQuery({
+      ...leadersQueryOptions(),
+      queryFn: fetchLeaders,
     }),
   ]);
 
   return (
     <Hydrate>
       <section className="py-6 md:py-8">
-        <Standings
-          sideColumn={<LeagueLeaders categories={leaderCategories} />}
-        />
+        <Standings />
       </section>
     </Hydrate>
   );

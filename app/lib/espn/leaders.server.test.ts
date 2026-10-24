@@ -1,14 +1,18 @@
 // @vitest-environment node
+import { LEADER_STATS, type LeaderCategory } from "@/app/lib/domain/leaders";
 import { fetchLeaders } from "@/app/lib/espn/leaders";
 import currentSeason from "./__fixtures__/season-current.json";
 import regularSeasonLeaders from "./__fixtures__/leaders-regular-season.json";
 import leaderAthletes from "./__fixtures__/leaders-athletes.json";
+import teamsList from "./__fixtures__/teams-list.json";
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 const CORE_NBA_URL =
   "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba";
 const SEASON_URL = `${CORE_NBA_URL}/season`;
 const LEADERS_URL = `${CORE_NBA_URL}/seasons/2027/types/2/leaders?limit=5`;
+const TEAMS_URL =
+  "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams";
 const ATHLETE_URL_PATTERN = /\/seasons\/2027\/athletes\/(\d+)$/;
 
 type AthleteId = keyof typeof leaderAthletes;
@@ -23,15 +27,23 @@ function respondWithEspn({
   leaders = regularSeasonLeaders as unknown,
   athletes = leaderAthletes as Record<string, unknown>,
   leadersStatus = 200,
+  teams = teamsList as unknown,
 } = {}) {
   fetchMock.mockImplementation(async (url: string) => {
     if (url === SEASON_URL) return jsonResponse(currentSeason);
+    if (url === TEAMS_URL) return jsonResponse(teams);
     if (url === LEADERS_URL) return jsonResponse(leaders, leadersStatus);
 
     const athleteId = url.match(ATHLETE_URL_PATTERN)?.[1];
     const athlete = athleteId ? athletes[athleteId] : undefined;
     return athlete ? jsonResponse(athlete) : jsonResponse({}, 404);
   });
+}
+
+function failedStats(categories: LeaderCategory[]) {
+  return categories
+    .filter(({ leaders }) => leaders === null)
+    .map(({ stat }) => stat);
 }
 
 function athleteRequests() {
@@ -67,21 +79,16 @@ describe("fetchLeaders", () => {
     );
   });
 
-  it("returns points, rebounds, and assists leaders in that order", async () => {
+  it("returns the eight leader categories in a fixed order, whatever order ESPN sends them in", async () => {
     respondWithEspn();
 
     const categories = await fetchLeaders();
 
-    expect(
-      categories.map(({ stat, leaders }) => [stat, leaders?.length]),
-    ).toEqual([
-      ["points", 5],
-      ["rebounds", 5],
-      ["assists", 5],
-    ]);
+    expect(categories.map(({ stat }) => stat)).toEqual(LEADER_STATS);
+    expect(categories.every(({ leaders }) => leaders?.length === 5)).toBe(true);
   });
 
-  it("maps each leader with the resolved athlete's names and photo", async () => {
+  it("maps each leader with the resolved athlete's names and photo and the leader's team", async () => {
     respondWithEspn();
 
     const [points, rebounds] = await fetchLeaders();
@@ -94,21 +101,56 @@ describe("fetchLeaders", () => {
         headshotUrl:
           "https://a.espncdn.com/i/headshots/nba/players/full/4065733.png",
       },
-      value: 45,
-      displayValue: "45.0",
+      team: expect.objectContaining({ id: "29", abbreviation: "MEM" }),
+      value: 36.5,
+      displayValue: "36.5",
     });
     expect(
       rebounds.leaders?.map((leader) => [
         leader.athlete.displayName,
+        leader.team?.abbreviation,
         leader.displayValue,
       ]),
     ).toEqual([
-      ["Domantas Sabonis", "18.0"],
-      ["Rudy Gobert", "15.0"],
-      ["Ivica Zubac", "15.0"],
-      ["Andre Drummond", "14.0"],
-      ["Jalen Johnson", "14.0"],
+      ["Domantas Sabonis", "SAC", "18.5"],
+      ["Ivica Zubac", "IND", "13.0"],
+      ["Victor Wembanyama", "SA", "13.0"],
+      ["Rudy Gobert", "MIN", "12.0"],
+      ["Chet Holmgren", "OKC", "12.0"],
     ]);
+  });
+
+  it("keeps percentages on ESPN's 0 to 100 scale", async () => {
+    respondWithEspn();
+
+    const categories = await fetchLeaders();
+    const freeThrows = categories.find(
+      ({ stat }) => stat === "freeThrowPercentage",
+    );
+
+    expect(freeThrows?.leaders?.[0].value).toBe(100);
+  });
+
+  it("maps a leader whose team is not in the teams list to no team", async () => {
+    const withoutGrizzlies = structuredClone(teamsList);
+    const [league] = withoutGrizzlies.sports[0].leagues;
+    league.teams = league.teams.filter(({ team }) => team.id !== "29");
+    respondWithEspn({ teams: withoutGrizzlies });
+
+    const [points] = await fetchLeaders();
+
+    expect(points.leaders?.[0].athlete.displayName).toBe("Ty Jerome");
+    expect(points.leaders?.[0].team).toBeNull();
+  });
+
+  it("keeps the leaders without teams when the teams list cannot be loaded", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    respondWithEspn({ teams: { error: "unavailable" } });
+
+    const [points] = await fetchLeaders();
+
+    expect(points.leaders?.[0].athlete.displayName).toBe("Ty Jerome");
+    expect(points.leaders?.[0].team).toBeNull();
   });
 
   it("resolves only the top 5 athletes of each category", async () => {
@@ -119,8 +161,15 @@ describe("fetchLeaders", () => {
 
     const [pointsLeaders] = await fetchLeaders();
 
+    const topFiveAthleteIds = new Set(
+      regularSeasonLeaders.categories.flatMap((category) =>
+        category.leaders
+          .slice(0, 5)
+          .map((leader) => leader.athlete.$ref.match(/athletes\/(\d+)/)?.[1]),
+      ),
+    );
     expect(pointsLeaders.leaders).toHaveLength(5);
-    expect(athleteRequests()).toHaveLength(15);
+    expect(athleteRequests()).toHaveLength(topFiveAthleteIds.size);
   });
 
   it("resolves an athlete who leads several categories only once", async () => {
@@ -178,11 +227,8 @@ describe("fetchLeaders", () => {
 
     const categories = await fetchLeaders();
 
-    expect(categories.map(({ stat, leaders }) => [stat, leaders])).toEqual([
-      ["points", []],
-      ["rebounds", []],
-      ["assists", []],
-    ]);
+    expect(categories.map(({ stat }) => stat)).toEqual(LEADER_STATS);
+    expect(categories.every(({ leaders }) => leaders?.length === 0)).toBe(true);
     expect(athleteRequests()).toHaveLength(0);
   });
 
@@ -212,13 +258,7 @@ describe("fetchLeaders", () => {
 
     const categories = await fetchLeaders();
 
-    expect(
-      categories.map(({ stat, leaders }) => [stat, leaders?.length ?? null]),
-    ).toEqual([
-      ["points", null],
-      ["rebounds", 5],
-      ["assists", 5],
-    ]);
+    expect(failedStats(categories)).toEqual(["points"]);
   });
 
   it("fails every category an unresolved athlete leads", async () => {
@@ -237,13 +277,7 @@ describe("fetchLeaders", () => {
 
     const categories = await fetchLeaders();
 
-    expect(
-      categories.map(({ stat, leaders }) => [stat, leaders?.length ?? null]),
-    ).toEqual([
-      ["points", null],
-      ["rebounds", 5],
-      ["assists", null],
-    ]);
+    expect(failedStats(categories)).toEqual(["points", "assists"]);
   });
 
   it("fails the category of a leader that refers to a resource outside ESPN's NBA API", async () => {

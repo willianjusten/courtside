@@ -1,4 +1,4 @@
-import type { LeaderStat } from "@/app/lib/domain/leaders";
+import type { GameLeaderStat } from "@/app/lib/domain/leaders";
 import { resizedImageUrl } from "@/app/lib/espn";
 import type {
   GameLeaderAthlete,
@@ -17,7 +17,7 @@ const HEADSHOT_CLASS_NAME = "shrink-0 rounded-lg bg-white/6 object-cover";
 
 // The stat tints of the artboards: accent orange for points, playoff blue for rebounds, win green for assists.
 const LEADER_TONE_CLASS_NAMES: Record<
-  LeaderStat,
+  GameLeaderStat,
   { tile: string; label: string }
 > = {
   points: {

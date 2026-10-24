@@ -1,7 +1,9 @@
-import type {
-  Leader,
-  LeaderCategory,
-  LeaderStat,
+import {
+  GAME_LEADER_STATS,
+  type GameLeaderStat,
+  type Leader,
+  type LeaderCategory,
+  type LeaderStat,
 } from "@/app/lib/domain/leaders";
 import type { ConferenceStandings } from "@/app/lib/domain/standings";
 import { defaultConferenceOf } from "@/app/lib/standings/favorite-conference";
@@ -40,11 +42,11 @@ export type SidebarRunnerUp = {
 export type SidebarLeaderCategory =
   | {
       status: "ready";
-      stat: LeaderStat;
+      stat: GameLeaderStat;
       leader: Leader;
       runnersUp: SidebarRunnerUp[];
     }
-  | { status: "empty" | "error"; stat: LeaderStat };
+  | { status: "empty" | "error"; stat: GameLeaderStat };
 
 export function buildSidebarStandings(
   conferences: ConferenceStandings[],
@@ -69,10 +71,15 @@ export function buildSidebarStandings(
   };
 }
 
+function isSidebarStat(stat: LeaderStat): stat is GameLeaderStat {
+  return (GAME_LEADER_STATS as LeaderStat[]).includes(stat);
+}
+
 export function buildSidebarLeaders(
   categories: LeaderCategory[],
 ): SidebarLeaderCategory[] {
-  return categories.map(({ stat, leaders }) => {
+  return categories.flatMap(({ stat, leaders }): SidebarLeaderCategory | [] => {
+    if (!isSidebarStat(stat)) return [];
     if (leaders === null) return { status: "error", stat };
     const [leader, ...rest] = leaders;
     if (!leader) return { status: "empty", stat };

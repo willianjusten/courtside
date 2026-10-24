@@ -1,4 +1,4 @@
-import type { Leader, LeaderCategory } from "@/app/lib/domain/leaders";
+import type { LeaderCategory, LeagueLeader } from "@/app/lib/domain/leaders";
 import type { ConferenceStandings } from "@/app/lib/domain/standings";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
 import { mapConferenceStandings } from "@/app/lib/espn/mappers";
@@ -12,7 +12,7 @@ const [east, west] = conferences as [ConferenceStandings, ConferenceStandings];
 const eastTeamId = east.rows[7].team.id;
 const westTeamId = west.rows[2].team.id;
 
-function leaderNamed(name: string, displayValue: string): Leader {
+function leaderNamed(name: string, displayValue: string): LeagueLeader {
   const [firstName, ...lastNames] = name.split(" ");
   return {
     athlete: {
@@ -21,6 +21,7 @@ function leaderNamed(name: string, displayValue: string): Leader {
       shortName: `${firstName[0]}. ${lastNames.join(" ")}`,
       headshotUrl: `https://a.espncdn.com/${name}.png`,
     },
+    team: null,
     value: Number(displayValue),
     displayValue,
   };
@@ -147,6 +148,28 @@ describe("buildSidebarLeaders", () => {
     ]);
 
     expect(points).toMatchObject({ status: "ready", runnersUp: [] });
+  });
+
+  it("shows only the points, rebounds, and assists categories", () => {
+    const categories: LeaderCategory[] = [
+      "points",
+      "rebounds",
+      "assists",
+      "steals",
+      "blocks",
+      "threesMade",
+      "fieldGoalPercentage",
+      "freeThrowPercentage",
+    ].map((stat) => ({
+      stat: stat as LeaderCategory["stat"],
+      leaders: pointsLeaders,
+    }));
+
+    expect(buildSidebarLeaders(categories).map(({ stat }) => stat)).toEqual([
+      "points",
+      "rebounds",
+      "assists",
+    ]);
   });
 
   it("marks categories without leaders as empty and failed ones as errors", () => {
