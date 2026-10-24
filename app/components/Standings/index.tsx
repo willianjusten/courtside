@@ -99,7 +99,7 @@ export default function Standings({ sideColumn }: { sideColumn: ReactNode }) {
           )}
           {screen.kind === "ready" && (
             <>
-              <div className="md:card md:overflow-x-auto md:border-white/10 md:bg-white/3 md:px-3 md:pt-2 md:pb-2.5">
+              <div className="overflow-x-auto md:card md:border-white/10 md:bg-white/3 md:px-3 md:pt-2 md:pb-2.5">
                 <StandingsTable
                   label={strings.standings.conferenceTable(
                     screen.conferenceLabel,

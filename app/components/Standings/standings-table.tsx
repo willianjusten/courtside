@@ -49,13 +49,19 @@ function toneClassNameOf<Kind extends string>(
 }
 
 // Each cell carries the row surface, since a table row cannot take a border radius.
+// The tint is a gradient layer so the sticky cells can lay it over an opaque background color.
 const CELL_CLASS_NAME =
-  "border-y border-white/7 bg-white/3.5 group-hover:bg-white/6 group-data-favorite:border-favorite/30 group-data-favorite:bg-favorite/7";
+  "border-y border-white/7 bg-linear-to-r from-white/3.5 to-white/3.5 group-hover:from-white/6 group-hover:to-white/6 group-data-favorite:border-favorite/30 group-data-favorite:from-favorite/7 group-data-favorite:to-favorite/7";
 
-const DESKTOP_CELL_CLASS_NAME = `hidden px-1.5 text-right text-xs text-secondary md:table-cell ${CELL_CLASS_NAME}`;
-const DESKTOP_HEADER_CLASS_NAME =
-  "hidden px-1.5 pb-1.5 text-right font-medium md:table-cell";
-const DESKTOP_COLUMN_CLASS_NAME = "hidden md:table-column";
+// On mobile the seed and team columns stay put while the stats scroll under them, so they cover what passes
+// beneath with the page color. Desktop fits every column, and an opaque cell there would hide the page glow.
+const STICKY_CLASS_NAME = "sticky bg-ink md:bg-transparent";
+const SEED_STICKY_CLASS_NAME = `${STICKY_CLASS_NAME} left-0 md:static`;
+// Offset by the seed column's width (w-11.5). The team cell stays positioned on desktop to contain the row link.
+const TEAM_STICKY_CLASS_NAME = `${STICKY_CLASS_NAME} left-11.5 md:relative md:left-auto`;
+
+const STAT_CELL_CLASS_NAME = `px-1.5 text-right text-xs text-secondary ${CELL_CLASS_NAME}`;
+const STAT_HEADER_CLASS_NAME = "px-1.5 pb-1.5 text-right font-medium";
 
 function FavoriteStar() {
   return (
@@ -86,9 +92,9 @@ function ClincherSymbol({ marker }: { marker: ClincherMarker }) {
 
 function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
   return (
-    <tr className="group relative" data-favorite={row.isFavorite || undefined}>
+    <tr className="group" data-favorite={row.isFavorite || undefined}>
       <td
-        className={`rounded-l-tile border-l py-2 pr-1.5 pl-2.5 ${CELL_CLASS_NAME}`}
+        className={`rounded-l-tile border-l py-2 pr-1.5 pl-2.5 ${CELL_CLASS_NAME} ${SEED_STICKY_CLASS_NAME}`}
       >
         <span
           className={`flex size-6.5 items-center justify-center rounded-[9px] border font-display text-[15px] ${SEED_CLASS_NAME[row.zone]}`}
@@ -98,12 +104,13 @@ function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
       </td>
       <th
         scope="row"
-        className={`px-1.5 text-left font-normal ${CELL_CLASS_NAME}`}
+        className={`px-1.5 text-left font-normal ${CELL_CLASS_NAME} ${TEAM_STICKY_CLASS_NAME}`}
       >
         <Link
           href={row.href}
-          // The overlay stretches the link over the whole row, so any cell opens the team page.
-          className={`flex min-h-11 min-w-0 items-center gap-2 rounded-md after:absolute after:inset-0 after:content-[''] ${FOCUS_RING_CLASS_NAME}`}
+          // The overlay stretches the link over the whole row, so any cell opens the team page. The sticky cell
+          // contains it, so it reaches back over the seed column (w-11.5) and on over the stat columns (444px in all).
+          className={`flex min-h-11 min-w-0 items-center gap-2 rounded-md after:absolute after:inset-y-0 after:-right-111 after:-left-11.5 after:content-[''] ${FOCUS_RING_CLASS_NAME}`}
         >
           <TeamLogo logoUrl={row.logoUrl} size={LOGO_SIZE} lazy />
           <span className="flex min-w-0 flex-col">
@@ -133,23 +140,18 @@ function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
       >
         {row.record}
       </td>
+      <td className={STAT_CELL_CLASS_NAME}>{row.winPercent}</td>
+      <td className={STAT_CELL_CLASS_NAME}>{row.gamesBehind}</td>
+      <td className={STAT_CELL_CLASS_NAME}>{row.homeRecord}</td>
+      <td className={STAT_CELL_CLASS_NAME}>{row.roadRecord}</td>
+      <td className={STAT_CELL_CLASS_NAME}>{row.lastTenRecord}</td>
       <td
-        className={`px-1.5 text-right text-xs text-secondary ${CELL_CLASS_NAME}`}
-      >
-        {row.winPercent}
-      </td>
-      <td className={DESKTOP_CELL_CLASS_NAME}>{row.gamesBehind}</td>
-      <td className={DESKTOP_CELL_CLASS_NAME}>{row.homeRecord}</td>
-      <td className={DESKTOP_CELL_CLASS_NAME}>{row.roadRecord}</td>
-      <td className={DESKTOP_CELL_CLASS_NAME}>{row.lastTenRecord}</td>
-      {/* The streak closes the row on mobile, where the desktop columns after it are hidden. */}
-      <td
-        className={`rounded-r-tile border-r py-2 pr-2.5 pl-1.5 text-right text-xs font-bold md:rounded-r-none md:border-r-0 md:pr-1.5 ${CELL_CLASS_NAME} ${toneClassNameOf(STREAK_CLASS_NAME, row.streakKind)}`}
+        className={`px-1.5 text-right text-xs font-bold ${CELL_CLASS_NAME} ${toneClassNameOf(STREAK_CLASS_NAME, row.streakKind)}`}
       >
         {row.streak}
       </td>
       <td
-        className={`hidden rounded-r-tile border-r py-2 pr-2.5 pl-1.5 text-right text-xs md:table-cell ${CELL_CLASS_NAME} ${toneClassNameOf(POINT_DIFFERENTIAL_CLASS_NAME, row.pointDifferentialKind)}`}
+        className={`rounded-r-tile border-r py-2 pr-2.5 pl-1.5 text-right text-xs ${CELL_CLASS_NAME} ${toneClassNameOf(POINT_DIFFERENTIAL_CLASS_NAME, row.pointDifferentialKind)}`}
       >
         {row.pointDifferential}
       </td>
@@ -167,53 +169,57 @@ export function StandingsTable({
   const { columns } = strings.standings;
 
   return (
-    <table className="w-full table-fixed border-separate md:min-w-180 border-spacing-y-1 tabular-nums">
+    // The minimum widths leave the team column 142px on mobile and 230px on desktop, scrolling below them.
+    <table className="w-full min-w-158 table-fixed border-separate border-spacing-y-1 tabular-nums md:min-w-180">
       <caption className="sr-only">{label}</caption>
       <colgroup>
         <col className="w-11.5" />
         <col />
         <col className="w-14" />
         <col className="w-14" />
-        <col className={`w-12 ${DESKTOP_COLUMN_CLASS_NAME}`} />
-        <col className={`w-14 ${DESKTOP_COLUMN_CLASS_NAME}`} />
-        <col className={`w-14 ${DESKTOP_COLUMN_CLASS_NAME}`} />
-        <col className={`w-14 ${DESKTOP_COLUMN_CLASS_NAME}`} />
+        <col className="w-12" />
+        <col className="w-14" />
+        <col className="w-14" />
+        <col className="w-14" />
         <col className="w-13" />
-        <col className={`w-16 ${DESKTOP_COLUMN_CLASS_NAME}`} />
+        <col className="w-16" />
       </colgroup>
       <thead>
         <tr className="text-[10px] tracking-[0.12em] text-muted">
-          <th scope="col" className="pb-1.5 pl-2.5 text-left font-medium">
+          <th
+            scope="col"
+            className={`pb-1.5 pl-2.5 text-left font-medium ${SEED_STICKY_CLASS_NAME}`}
+          >
             {columns.seed}
           </th>
-          <th scope="col" className="px-1.5 pb-1.5 text-left font-medium">
+          <th
+            scope="col"
+            className={`px-1.5 pb-1.5 text-left font-medium ${TEAM_STICKY_CLASS_NAME}`}
+          >
             {columns.team}
           </th>
           <th scope="col" className="px-1.5 pb-1.5 text-center font-medium">
             {columns.record}
           </th>
-          <th scope="col" className="px-1.5 pb-1.5 text-right font-medium">
+          <th scope="col" className={STAT_HEADER_CLASS_NAME}>
             {columns.winPercent}
           </th>
-          <th scope="col" className={DESKTOP_HEADER_CLASS_NAME}>
+          <th scope="col" className={STAT_HEADER_CLASS_NAME}>
             {columns.gamesBehind}
           </th>
-          <th scope="col" className={DESKTOP_HEADER_CLASS_NAME}>
+          <th scope="col" className={STAT_HEADER_CLASS_NAME}>
             {columns.home}
           </th>
-          <th scope="col" className={DESKTOP_HEADER_CLASS_NAME}>
+          <th scope="col" className={STAT_HEADER_CLASS_NAME}>
             {columns.road}
           </th>
-          <th scope="col" className={DESKTOP_HEADER_CLASS_NAME}>
+          <th scope="col" className={STAT_HEADER_CLASS_NAME}>
             {columns.lastTen}
           </th>
-          <th
-            scope="col"
-            className="pr-2.5 pb-1.5 pl-1.5 text-right font-medium md:pr-1.5"
-          >
+          <th scope="col" className={STAT_HEADER_CLASS_NAME}>
             {columns.streak}
           </th>
-          <th scope="col" className={`${DESKTOP_HEADER_CLASS_NAME} pr-2.5`}>
+          <th scope="col" className={`${STAT_HEADER_CLASS_NAME} pr-2.5`}>
             {columns.pointDifferential}
           </th>
         </tr>
