@@ -9,6 +9,7 @@ import {
   finalLabel,
   hasScore,
   isInProgress,
+  leadingSideOf,
   periodLabel,
 } from "@/app/lib/game/status";
 import { strings } from "@/app/lib/strings";
@@ -264,11 +265,6 @@ function metaLabelOf(game: Game, channelLabel: string) {
     }
   })();
   return parts.join(META_SEPARATOR);
-}
-
-function leadingSideOf({ status, home, away }: Game): TeamSide | null {
-  if (!hasScore(status) || home.score === away.score) return null;
-  return home.score > away.score ? "home" : "away";
 }
 
 function winProbabilityOf({

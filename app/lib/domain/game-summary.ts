@@ -85,6 +85,8 @@ export type GameSide<Value> = {
 
 export type GameSummary = {
   game: Game;
+  // Null when ESPN leaves the city out of the venue.
+  venueCity: string | null;
   // Points per period, overtimes included. Empty before the game starts.
   lineScore: GameSide<number[]>;
   boxScore: GameSide<TeamBoxScore>;

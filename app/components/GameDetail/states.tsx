@@ -31,10 +31,18 @@ export function GameDetailError({ onRetry, isRetrying }: GameDetailErrorProps) {
   );
 }
 
-export function StaleGameNotice() {
+export function StaleGameNotice({ message }: { message: string }) {
   return (
     <p role="status" className="text-sm text-warning">
-      {strings.game.stale}
+      {message}
+    </p>
+  );
+}
+
+export function GameNote({ note }: { note: string }) {
+  return (
+    <p className="rounded-card border border-dashed border-white/16 p-4 text-center text-sm text-muted">
+      {note}
     </p>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Game, GameCompetitor, Team } from "@/app/lib/domain/game";
+import type { Game, Team } from "@/app/lib/domain/game";
 import type {
   BoxScoreStats,
   GameLeader,
@@ -8,12 +8,9 @@ import type {
   TeamBoxScore,
   WinProbabilityPoint,
 } from "@/app/lib/domain/game-summary";
-import TeamLogo from "@/app/components/TeamLogo";
 import { strings } from "@/app/lib/strings";
-import GameStatusLabel from "@/app/components/GameStatusLabel";
-import { hasScore, periodLabel } from "@/app/lib/game/status";
+import { periodLabel } from "@/app/lib/game/status";
 
-const LOGO_DISPLAY_SIZE = 56;
 const BOX_SCORE_COLUMNS = Object.keys(
   strings.game.boxScore.columns,
 ) as (keyof BoxScoreStats)[];
@@ -38,106 +35,6 @@ function Section({
       </h2>
       {children}
     </section>
-  );
-}
-
-function HeaderTeam({
-  competitor,
-  showScore,
-}: {
-  competitor: GameCompetitor;
-  showScore: boolean;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-2 text-center">
-      <TeamLogo logoUrl={competitor.team.logoUrl} size={LOGO_DISPLAY_SIZE} />
-      <span className="font-medium">{competitor.team.displayName}</span>
-      {showScore && (
-        <span className="font-display text-5xl leading-none">
-          {competitor.score}
-        </span>
-      )}
-    </div>
-  );
-}
-
-export function GameHeader({ game }: { game: Game }) {
-  const showScore = hasScore(game.status);
-
-  return (
-    <header className="flex flex-col gap-4 card p-4">
-      <h1 className="text-center font-display text-4xl leading-none tracking-[0.01em]">
-        {strings.game.title(
-          game.away.team.displayName,
-          game.home.team.displayName,
-        )}
-      </h1>
-      <div className="grid grid-cols-3 items-center">
-        <HeaderTeam competitor={game.away} showScore={showScore} />
-        <p className="text-center text-secondary">
-          <GameStatusLabel status={game.status} startTime={game.startTime} />
-        </p>
-        <HeaderTeam competitor={game.home} showScore={showScore} />
-      </div>
-      <p className="text-center text-xs text-muted">
-        <span className="sr-only">{strings.broadcast.label}</span>
-        {game.broadcasts
-          .map((broadcast) => broadcast.name)
-          .join(strings.broadcast.separator)}
-      </p>
-    </header>
-  );
-}
-
-export function LineScore({
-  game,
-  lineScore,
-}: {
-  game: Game;
-  lineScore: GameSide<number[]>;
-}) {
-  const periodCount = Math.max(lineScore.home.length, lineScore.away.length);
-  if (periodCount === 0) return null;
-
-  const periods = Array.from({ length: periodCount }, (_, index) => index + 1);
-  const rows = [
-    { competitor: game.away, periodScores: lineScore.away },
-    { competitor: game.home, periodScores: lineScore.home },
-  ];
-
-  return (
-    <Section headingId="game-line-score" title={strings.game.lineScore.title}>
-      <table className="w-full text-sm tabular-nums">
-        <thead>
-          <tr className="text-muted">
-            <th scope="col" className="text-left">
-              {strings.game.lineScore.team}
-            </th>
-            {periods.map((period) => (
-              <th key={period} scope="col">
-                {periodLabel(period)}
-              </th>
-            ))}
-            <th scope="col">{strings.game.lineScore.total}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(({ competitor, periodScores }) => (
-            <tr key={competitor.team.id}>
-              <th scope="row" className="text-left">
-                {competitor.team.abbreviation}
-              </th>
-              {periods.map((period) => (
-                <td key={period} className="text-center">
-                  {periodScores[period - 1] ?? ""}
-                </td>
-              ))}
-              <td className="text-center font-bold">{competitor.score}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </Section>
   );
 }
 

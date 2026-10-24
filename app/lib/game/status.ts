@@ -1,7 +1,8 @@
-import type { GameStatus } from "@/app/lib/domain/game";
+import type { Game, GameStatus } from "@/app/lib/domain/game";
+import type { TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
 
-const REGULATION_PERIODS = 4;
+export const REGULATION_PERIODS = 4;
 const STATUSES_WITHOUT_SCORE: ReadonlyArray<GameStatus["kind"]> = [
   "scheduled",
   "postponed",
@@ -30,4 +31,9 @@ export function finalLabel(period: number) {
   return wentToOvertime(period)
     ? strings.gameStatus.finalAfter(periodLabel(period))
     : strings.gameStatus.final;
+}
+
+export function leadingSideOf({ status, home, away }: Game): TeamSide | null {
+  if (!hasScore(status) || home.score === away.score) return null;
+  return home.score > away.score ? "home" : "away";
 }

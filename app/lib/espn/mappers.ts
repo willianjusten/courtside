@@ -30,8 +30,8 @@ import type {
   ListedTeam,
   RosterPlayer,
   TeamDetail,
-  TeamSlug,
 } from "@/app/lib/domain/team";
+import { teamSlugOf } from "@/app/lib/team/team-path";
 import { nbaDateOf } from "@/app/lib/time/nba-date";
 import type {
   RawBoxScoreAthlete,
@@ -124,10 +124,6 @@ function mapTeam(team: RawTeam): Team {
     alternateColor: team.alternateColor ?? null,
     logoUrl: team.logo || null,
   };
-}
-
-function teamSlugOf(teamName: string): TeamSlug {
-  return teamName.toLowerCase().trim().replaceAll(/\s+/g, "-");
 }
 
 // The scoreboard variant matches the logo the games list already uses.
@@ -700,6 +696,7 @@ export function mapGameSummary(summary: RawSummary): GameSummary {
       homeWinProbability: null,
       topScorer: null,
     },
+    venueCity: summary.gameInfo?.venue?.address?.city ?? null,
     lineScore: bySide(home, away, mapLineScore),
     boxScore: bySide(home, away, (competitor) =>
       mapTeamBoxScore(

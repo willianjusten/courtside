@@ -55,6 +55,7 @@ export type RawRecord = {
 
 export type RawVenue = {
   fullName: string;
+  address?: { city?: string };
 };
 
 export type RawBroadcast = {

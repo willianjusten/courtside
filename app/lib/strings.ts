@@ -131,6 +131,7 @@ export const strings = {
   broadcast: {
     label: "Broadcast: ",
     separator: " · ",
+    localTv: "Local TV",
   },
   game: {
     title: (awayTeamName: string, homeTeamName: string) =>
@@ -140,10 +141,23 @@ export const strings = {
     retry: "Try again",
     retrying: "Trying again...",
     stale: "Game data may be out of date. Retrying automatically.",
+    preGameNote: "The game flow and box score appear at tip-off.",
+    postponedNote: "This game has been postponed.",
+    canceledNote: "This game has been canceled.",
+    header: {
+      separator: " · ",
+      sides: { away: "away", home: "home" },
+      seriesLeads: (abbreviation: string, wins: number, losses: number) =>
+        `${abbreviation} leads ${wins}-${losses}`,
+      seriesWon: (abbreviation: string, wins: number, losses: number) =>
+        `${abbreviation} wins ${wins}-${losses}`,
+      seriesTied: (wins: number) => `Series tied ${wins}-${wins}`,
+    },
     lineScore: {
       title: "Line score",
       team: "Team",
       total: "T",
+      notPlayed: "–",
     },
     leaders: {
       title: "Game leaders",

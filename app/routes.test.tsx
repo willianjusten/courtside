@@ -133,7 +133,24 @@ describe("routes", () => {
     ).rejects.toThrow();
   });
 
-  it("renders a final game with its score, broadcasts, and leaders", async () => {
+  it("returns not found for a game id that is not an ESPN event id", async () => {
+    await expect(
+      GamePage({ params: Promise.resolve({ id: "not-a-game" }) }),
+    ).rejects.toThrow();
+  });
+
+  it("returns not found for a game ESPN does not know", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 404 })),
+    );
+
+    await expect(
+      GamePage({ params: Promise.resolve({ id: "1" }) }),
+    ).rejects.toThrow();
+  });
+
+  it("renders a final game with its score, status, channel, venue, and leaders", async () => {
     render(await GamePage({ params: Promise.resolve({ id: FINAL_GAME_ID }) }));
 
     expect(
@@ -143,16 +160,32 @@ describe("routes", () => {
     ).toBeDefined();
     expect(screen.getByText(strings.gameStatus.final)).toBeDefined();
     expect(screen.getByText("ESPN")).toBeDefined();
+    expect(screen.getByText("crypto.com Arena · Los Angeles")).toBeDefined();
     const leaders = screen.getByRole("region", {
       name: strings.game.leaders.title,
     });
     expect(within(leaders).getAllByText("Luka Doncic")).not.toHaveLength(0);
   });
 
+  it("links both teams in the header to their team pages", async () => {
+    render(await GamePage({ params: Promise.resolve({ id: FINAL_GAME_ID }) }));
+
+    expect(
+      (
+        await screen.findByRole("link", { name: /Golden State Warriors/ })
+      ).getAttribute("href"),
+    ).toBe("/teams/warriors");
+    expect(
+      screen
+        .getByRole("link", { name: /Los Angeles Lakers/ })
+        .getAttribute("href"),
+    ).toBe("/teams/lakers");
+  });
+
   it("shows the line score per period with each team's total", async () => {
     render(await GamePage({ params: Promise.resolve({ id: FINAL_GAME_ID }) }));
 
-    const lineScore = await screen.findByRole("region", {
+    const lineScore = await screen.findByRole("table", {
       name: strings.game.lineScore.title,
     });
     const lakersRow = within(lineScore).getByRole("row", { name: /LAL/ });
@@ -218,7 +251,7 @@ describe("routes", () => {
     expect(latestPlay?.textContent).toContain("Joel Embiid defensive rebound");
   });
 
-  it("renders a game that has not started yet", async () => {
+  it("renders a game that has not started yet with a note instead of the game details", async () => {
     render(await GamePage({ params: Promise.resolve({ id: PRE_GAME_ID }) }));
 
     expect(
@@ -226,11 +259,13 @@ describe("routes", () => {
         name: strings.game.title("Denver Nuggets", "Oklahoma City Thunder"),
       }),
     ).toBeDefined();
+    expect(screen.getByText(strings.game.preGameNote)).toBeDefined();
     expect(
-      screen.queryByRole("region", { name: strings.game.lineScore.title }),
+      screen.queryByRole("table", { name: strings.game.lineScore.title }),
     ).toBeNull();
-    expect(screen.getByText(strings.game.plays.empty)).toBeDefined();
-    expect(screen.getByText(strings.game.winProbability.empty)).toBeDefined();
+    expect(
+      screen.queryByRole("region", { name: strings.game.plays.title }),
+    ).toBeNull();
   });
 
   it("renders the standings page for the current season", async () => {

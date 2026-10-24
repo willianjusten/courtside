@@ -85,6 +85,14 @@ describe("fetchGameSummary", () => {
       });
     });
 
+    it("maps the venue city", async () => {
+      respondWith(finalSummary);
+
+      const { venueCity } = await fetchGameSummary("401909092");
+
+      expect(venueCity).toBe("Los Angeles");
+    });
+
     it("maps the line score per period", async () => {
       respondWith(finalSummary);
 
