@@ -1,45 +1,53 @@
 import type { ReactNode } from "react";
 import type { Game, Team } from "@/app/lib/domain/game";
 import type {
-  BoxScoreStats,
   GameLeader,
   GameSide,
   Play,
-  TeamBoxScore,
   WinProbabilityPoint,
 } from "@/app/lib/domain/game-summary";
 import { strings } from "@/app/lib/strings";
 import { periodLabel } from "@/app/lib/game/status";
 import { SURFACE_CLASS_NAME, TILE_CLASS_NAME } from "./styles";
 
-const BOX_SCORE_COLUMNS = Object.keys(
-  strings.game.boxScore.columns,
-) as (keyof BoxScoreStats)[];
 const percentFormatter = new Intl.NumberFormat("en-US", {
   style: "percent",
   maximumFractionDigits: 0,
 });
 
-function Section({
+export function Section({
   headingId,
   title,
+  action,
   children,
 }: {
   headingId: string;
   title: string;
+  action?: ReactNode;
   children: ReactNode;
 }) {
+  const heading = (
+    <h2
+      id={headingId}
+      className="font-display text-base tracking-[0.18em] text-muted uppercase md:text-lg"
+    >
+      {title}
+    </h2>
+  );
+
   return (
     <section
       aria-labelledby={headingId}
       className={`flex min-w-0 flex-col gap-3 p-3.5 md:p-[18px] ${SURFACE_CLASS_NAME}`}
     >
-      <h2
-        id={headingId}
-        className="font-display text-base tracking-[0.18em] text-muted uppercase md:text-lg"
-      >
-        {title}
-      </h2>
+      {action ? (
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          {heading}
+          {action}
+        </div>
+      ) : (
+        heading
+      )}
       {children}
     </section>
   );
@@ -138,85 +146,6 @@ export function WinProbability({
       ) : (
         <p className="text-muted">{strings.game.winProbability.empty}</p>
       )}
-    </Section>
-  );
-}
-
-function StatCells({ stats }: { stats: BoxScoreStats }) {
-  return BOX_SCORE_COLUMNS.map((column) => (
-    <td key={column} className="px-2 text-center">
-      {stats[column]}
-    </td>
-  ));
-}
-
-export function BoxScore({
-  team,
-  boxScore,
-}: {
-  team: Team;
-  boxScore: TeamBoxScore;
-}) {
-  if (boxScore.players.length === 0) return null;
-
-  return (
-    <Section
-      headingId={`game-box-score-${team.id}`}
-      title={strings.game.boxScore.title(team.displayName)}
-    >
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm whitespace-nowrap tabular-nums">
-          <thead>
-            <tr className="text-muted">
-              <th scope="col" className="text-left">
-                {strings.game.boxScore.player}
-              </th>
-              {BOX_SCORE_COLUMNS.map((column) => (
-                <th key={column} scope="col" className="px-2">
-                  {strings.game.boxScore.columns[column]}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {boxScore.players.map(
-              ({ athlete, starter, stats, didNotPlayReason }) => (
-                <tr key={athlete.id}>
-                  <th scope="row" className="text-left font-medium">
-                    {athlete.shortName}
-                    {starter && (
-                      <span className="ml-1 text-xs text-muted">
-                        {athlete.position}
-                      </span>
-                    )}
-                  </th>
-                  {stats ? (
-                    <StatCells stats={stats} />
-                  ) : (
-                    <td
-                      colSpan={BOX_SCORE_COLUMNS.length}
-                      className="px-2 text-muted"
-                    >
-                      {didNotPlayReason &&
-                        strings.game.boxScore.didNotPlay(didNotPlayReason)}
-                    </td>
-                  )}
-                </tr>
-              ),
-            )}
-          </tbody>
-          {boxScore.totals && (
-            <tfoot>
-              <tr className="font-bold">
-                <th scope="row" className="text-left">
-                  {strings.game.boxScore.totals}
-                </th>
-                <StatCells stats={boxScore.totals} />
-              </tr>
-            </tfoot>
-          )}
-        </table>
-      </div>
     </Section>
   );
 }

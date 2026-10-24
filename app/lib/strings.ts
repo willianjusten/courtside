@@ -179,10 +179,20 @@ export const strings = {
       empty: "No leaders yet.",
     },
     boxScore: {
-      title: (teamName: string) => `${teamName} box score`,
+      title: "Box score",
+      caption: (teamName: string) => `${teamName} box score`,
+      teamToggle: "Team",
+      empty: "The box score fills in once the players check in.",
+      groups: {
+        starters: "Starters",
+        bench: "Bench",
+        didNotPlay: "Did not play",
+        yetToPlay: "Yet to play",
+      },
       player: "Player",
       totals: "Totals",
-      didNotPlay: (reason: string) => `DNP - ${reason}`,
+      didNotPlayReason: (reason: string) => `DNP - ${reason}`,
+      didNotPlayWithoutReason: "DNP",
       columns: {
         minutes: "MIN",
         points: "PTS",

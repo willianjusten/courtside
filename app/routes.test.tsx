@@ -1,4 +1,5 @@
 import {
+  fireEvent,
   render as renderWithoutProviders,
   screen,
   within,
@@ -209,21 +210,27 @@ describe("routes", () => {
   it("shows each team's box score", async () => {
     render(await GamePage({ params: Promise.resolve({ id: FINAL_GAME_ID }) }));
 
-    const lakersBoxScore = await screen.findByRole("region", {
-      name: strings.game.boxScore.title("Los Angeles Lakers"),
+    const boxScore = await screen.findByRole("region", {
+      name: strings.game.boxScore.title,
     });
     expect(
-      within(lakersBoxScore).getByRole("row", { name: /Z\. Williams/ }),
-    ).toBeDefined();
-    expect(
-      within(lakersBoxScore).getByText(
-        strings.game.boxScore.didNotPlay("COACH'S DECISION"),
-      ),
-    ).toBeDefined();
-    expect(
-      screen.getByRole("region", {
-        name: strings.game.boxScore.title("Golden State Warriors"),
+      within(boxScore).getByRole("table", {
+        name: strings.game.boxScore.caption("Warriors"),
       }),
+    ).toBeDefined();
+
+    fireEvent.click(within(boxScore).getByRole("button", { name: "Lakers" }));
+
+    const lakersTable = within(boxScore).getByRole("table", {
+      name: strings.game.boxScore.caption("Lakers"),
+    });
+    expect(
+      within(lakersTable).getByRole("row", { name: /Z\. Williams/ }),
+    ).toBeDefined();
+    expect(
+      within(lakersTable).getByText(
+        strings.game.boxScore.didNotPlayReason("COACH'S DECISION"),
+      ),
     ).toBeDefined();
   });
 

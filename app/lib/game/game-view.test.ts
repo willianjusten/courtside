@@ -11,6 +11,7 @@ import type { RawSummary } from "@/app/lib/espn/raw-types";
 import { strings } from "@/app/lib/strings";
 import {
   buildGameView,
+  type BoxScoreView,
   type GameHeader,
   type GameScreen,
   type GameSummaryQueryState,
@@ -66,6 +67,34 @@ function tabsFor(summary: GameSummary, tabParam: string | null): GameTabs {
     throw new Error(`Expected a live or final screen, got ${screen.kind}`);
   }
   return screen.tabs;
+}
+
+function boxScoreFor(summary: GameSummary): BoxScoreView | null {
+  const screen = screenFor(summary);
+  if (screen.kind !== "live" && screen.kind !== "final") {
+    throw new Error(`Expected a live or final screen, got ${screen.kind}`);
+  }
+  return screen.boxScore;
+}
+
+// The overtime playoff final played live, to cover an injured player during a live game.
+const liveWithInjury = withGame(overtimePlayoff, {
+  status: { kind: "live", period: 3, clock: "4:10" },
+});
+
+// ESPN's team stats for the game, read straight from the fixture, to check the box score totals against.
+function teamStatOf(fixture: unknown, teamId: string, statName: string) {
+  const { boxscore } = fixture as {
+    boxscore: {
+      teams: {
+        team: { id: string };
+        statistics: { name: string; displayValue: string }[];
+      }[];
+    };
+  };
+  return boxscore.teams
+    .find(({ team }) => team.id === teamId)
+    ?.statistics.find(({ name }) => name === statName)?.displayValue;
 }
 
 const headerFor = (summary: GameSummary, timeZone?: string | null) =>
@@ -494,6 +523,183 @@ describe("buildGameView", () => {
           venueLabel: "Mortgage Matchup Center · Phoenix",
         },
       });
+    });
+  });
+
+  describe("box score", () => {
+    it("shows MIN, PTS, REB, AST, FG, 3PT, and +/- columns", () => {
+      expect(boxScoreFor(final)?.columns).toEqual([
+        { stat: "minutes", label: "MIN" },
+        { stat: "points", label: "PTS" },
+        { stat: "rebounds", label: "REB" },
+        { stat: "assists", label: "AST" },
+        { stat: "fieldGoals", label: "FG" },
+        { stat: "threePointers", label: "3PT" },
+        { stat: "plusMinus", label: "+/-" },
+      ]);
+    });
+
+    it("lists the away team first, as the header reads", () => {
+      const teams = boxScoreFor(final)?.teams ?? [];
+
+      expect(teams.map(({ side, teamName }) => ({ side, teamName }))).toEqual([
+        { side: "away", teamName: "Warriors" },
+        { side: "home", teamName: "Lakers" },
+      ]);
+    });
+
+    it("separates the starters from the bench, in ESPN's order", () => {
+      const lakers = boxScoreFor(final)?.teams[1];
+
+      expect(lakers?.starters.map(({ shortName }) => shortName)).toEqual([
+        "Z. Williams",
+        "W. Kessler",
+        "M. Thybulle",
+        "L. Doncic",
+        "A. Reaves",
+      ]);
+      expect(lakers?.bench.map(({ shortName }) => shortName)).toEqual([
+        "K. Looney",
+        "S. Mamukelashvili",
+        "J. LaRavia",
+        "Q. Grimes",
+        "B. James",
+        "C. Manon",
+        "J. Hardy",
+      ]);
+    });
+
+    it("shows each player's number, name, position, and stat line", () => {
+      const doncic = boxScoreFor(final)?.teams[1].starters[3];
+
+      expect(doncic).toEqual({
+        id: expect.any(String),
+        jersey: "77",
+        name: "Luka Doncic",
+        shortName: "L. Doncic",
+        position: "G",
+        stats: {
+          minutes: "30",
+          points: "28",
+          rebounds: "8",
+          assists: "7",
+          fieldGoals: "7-18",
+          threePointers: "5-12",
+          plusMinus: "+31",
+        },
+        plusMinusTone: "positive",
+      });
+    });
+
+    it("marks a negative plus-minus", () => {
+      const looney = boxScoreFor(final)?.teams[1].bench[0];
+
+      expect(looney?.plusMinusTone).toBe("negative");
+    });
+
+    it("lists players who did not play apart, with their reason", () => {
+      const lakers = boxScoreFor(final)?.teams[1];
+
+      expect(lakers?.didNotPlay).toEqual([
+        {
+          id: expect.any(String),
+          jersey: "2",
+          name: "Jarred Vanderbilt",
+          shortName: "J. Vanderbilt",
+          position: "F",
+          reason: strings.game.boxScore.didNotPlayReason("COACH'S DECISION"),
+        },
+      ]);
+      expect(
+        [...lakers!.starters, ...lakers!.bench].map(({ name }) => name),
+      ).not.toContain("Jarred Vanderbilt");
+    });
+
+    it("keeps injured players who did not play with their injury", () => {
+      const rockets = boxScoreFor(overtimePlayoff)?.teams[1];
+
+      expect(rockets?.didNotPlay.map(({ reason }) => reason)).toEqual([
+        strings.game.boxScore.didNotPlayReason("LEFT ANKLE SPRAIN"),
+        strings.game.boxScore.didNotPlayReason("COACH'S DECISION"),
+      ]);
+    });
+
+    it.each([
+      ["a final game", finalSummary],
+      ["an overtime playoff game", overtimePlayoffSummary],
+      ["a double overtime playoff game", doubleOvertimePlayoffSummary],
+    ])(
+      "totals each team's points to its score and matches its team stats in %s",
+      (_, fixture) => {
+        const summary = summaryOf(fixture);
+
+        for (const { side, totals } of boxScoreFor(summary)?.teams ?? []) {
+          const { team, score } = summary.game[side];
+          expect(totals).toMatchObject({
+            points: String(score),
+            rebounds: teamStatOf(fixture, team.id, "totalRebounds"),
+            assists: teamStatOf(fixture, team.id, "assists"),
+            fieldGoals: teamStatOf(
+              fixture,
+              team.id,
+              "fieldGoalsMade-fieldGoalsAttempted",
+            ),
+            threePointers: teamStatOf(
+              fixture,
+              team.id,
+              "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+            ),
+          });
+        }
+      },
+    );
+
+    it("lists the players who have not checked in yet during a live game, without calling it a coach's decision", () => {
+      const view = boxScoreFor(liveFirstQuarter);
+      const cavaliers = view?.teams[0];
+
+      expect(view?.didNotPlayLabel).toBe(
+        strings.game.boxScore.groups.yetToPlay,
+      );
+      expect(cavaliers?.starters).toHaveLength(5);
+      expect(cavaliers?.didNotPlay.map(({ reason }) => reason)).toEqual(
+        Array(7).fill(null),
+      );
+      expect(cavaliers?.totals?.points).toBe("11");
+    });
+
+    it("keeps an injury as the reason during a live game", () => {
+      const [rockets] = liveWithInjury.boxScore.home.players.filter(
+        ({ stats }) => !stats,
+      );
+      const rocketsView = boxScoreFor(liveWithInjury)?.teams[1];
+
+      expect(rockets.didNotPlayReason).toBe("LEFT ANKLE SPRAIN");
+      expect(rocketsView?.didNotPlay[0].reason).toBe(
+        strings.game.boxScore.didNotPlayReason("LEFT ANKLE SPRAIN"),
+      );
+    });
+
+    it("labels the players who did not play once the game is final", () => {
+      expect(boxScoreFor(final)?.didNotPlayLabel).toBe(
+        strings.game.boxScore.groups.didNotPlay,
+      );
+    });
+
+    it("shows no box score before ESPN lists any player", () => {
+      expect(
+        boxScoreFor({
+          ...live,
+          boxScore: {
+            home: { players: [], totals: null },
+            away: { players: [], totals: null },
+          },
+        }),
+      ).toBeNull();
+    });
+
+    it("shows no box score before the game", () => {
+      expect(screenFor(preGame)).not.toHaveProperty("boxScore");
     });
   });
 

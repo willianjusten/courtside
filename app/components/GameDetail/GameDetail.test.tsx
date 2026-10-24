@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
 import liveSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game.json";
@@ -253,5 +253,71 @@ describe("GameDetail tabs", () => {
       expect(document.activeElement?.textContent).toBe(strings.game.tabs.box),
     );
     expect(window.location.search).toBe("?tab=box");
+  });
+});
+
+describe("GameDetail box score", () => {
+  const teamButton = (name: string) => screen.getByRole("button", { name });
+  const boxScoreTable = () =>
+    within(
+      screen.getByRole("region", { name: strings.game.boxScore.title }),
+    ).getByRole("table");
+
+  it("shows the away team first and switches teams with the toggle", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(teamButton("Warriors").getAttribute("aria-pressed")).toBe("true");
+    expect(teamButton("Lakers").getAttribute("aria-pressed")).toBe("false");
+    expect(
+      within(boxScoreTable()).getByText(
+        strings.game.boxScore.caption("Warriors"),
+      ),
+    ).toBeDefined();
+
+    fireEvent.click(teamButton("Lakers"));
+
+    expect(teamButton("Lakers").getAttribute("aria-pressed")).toBe("true");
+    expect(
+      within(boxScoreTable()).getByText(
+        strings.game.boxScore.caption("Lakers"),
+      ),
+    ).toBeDefined();
+  });
+
+  it("groups the starters, the bench, and the players who did not play, then the totals", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+    fireEvent.click(teamButton("Lakers"));
+
+    const rowTexts = within(boxScoreTable())
+      .getAllByRole("row")
+      .map((row) => row.textContent);
+    const indexOfRow = (text: string) =>
+      rowTexts.findIndex((name) => name?.includes(text));
+
+    expect(indexOfRow(strings.game.boxScore.groups.starters)).toBeLessThan(
+      indexOfRow("Doncic"),
+    );
+    expect(indexOfRow("Doncic")).toBeLessThan(
+      indexOfRow(strings.game.boxScore.groups.bench),
+    );
+    expect(indexOfRow(strings.game.boxScore.groups.bench)).toBeLessThan(
+      indexOfRow("Looney"),
+    );
+    expect(indexOfRow("Looney")).toBeLessThan(
+      indexOfRow(strings.game.boxScore.groups.didNotPlay),
+    );
+    expect(indexOfRow("Vanderbilt")).toBe(rowTexts.length - 2);
+    expect(rowTexts.at(-1)).toContain(strings.game.boxScore.totals);
+  });
+
+  it("keeps the picked team while a live game refetches", async () => {
+    await renderLoadedGameDetail(liveSummary, DURING_LIVE_GAME);
+    fetchMock.mockResolvedValue(jsonResponse(liveSummary));
+
+    fireEvent.click(teamButton("76ers"));
+    await waitOnePollingInterval();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(teamButton("76ers").getAttribute("aria-pressed")).toBe("true");
   });
 });

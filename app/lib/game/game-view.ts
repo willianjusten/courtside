@@ -4,7 +4,11 @@ import type {
   GameStatus,
   PlayoffSeries,
 } from "@/app/lib/domain/game";
-import type { GameSummary } from "@/app/lib/domain/game-summary";
+import type {
+  BoxScorePlayer,
+  BoxScoreStats,
+  GameSummary,
+} from "@/app/lib/domain/game-summary";
 import {
   channelLabelOf,
   finalLabel,
@@ -88,6 +92,63 @@ export type LineScoreView = {
   rows: LineScoreRow[];
 };
 
+const BOX_SCORE_STATS = [
+  "minutes",
+  "points",
+  "rebounds",
+  "assists",
+  "fieldGoals",
+  "threePointers",
+  "plusMinus",
+] as const satisfies readonly (keyof BoxScoreStats)[];
+
+export type BoxScoreStat = (typeof BOX_SCORE_STATS)[number];
+
+export type BoxScoreLine = Pick<BoxScoreStats, BoxScoreStat>;
+
+export type BoxScoreColumn = {
+  stat: BoxScoreStat;
+  label: string;
+};
+
+export type PlusMinusTone = "positive" | "negative" | null;
+
+export type BoxScoreAthleteRow = {
+  id: string;
+  jersey: string | null;
+  name: string;
+  shortName: string;
+  position: string | null;
+};
+
+export type BoxScorePlayerRow = BoxScoreAthleteRow & {
+  stats: BoxScoreLine;
+  plusMinusTone: PlusMinusTone;
+};
+
+export type DidNotPlayRow = BoxScoreAthleteRow & {
+  // e.g. "DNP - COACH'S DECISION"; null for a player who has not checked in yet during a live game.
+  reason: string | null;
+};
+
+export type TeamBoxScoreView = {
+  side: TeamSide;
+  teamName: string;
+  starters: BoxScorePlayerRow[];
+  bench: BoxScorePlayerRow[];
+  didNotPlay: DidNotPlayRow[];
+  // Null until ESPN lists the team's players. Minutes and plus-minus are empty.
+  totals: BoxScoreLine | null;
+};
+
+export type BoxScoreView = {
+  columns: BoxScoreColumn[];
+  // "Did not play" once the game is final, "Yet to play" while it is live.
+  didNotPlayLabel: string;
+  // Away first, as the header reads.
+  teams: TeamBoxScoreView[];
+};
+
 const GAME_TAB_IDS = ["summary", "box", "stats", "plays"] as const;
 const DEFAULT_GAME_TAB = "summary";
 
@@ -115,12 +176,16 @@ export type GameScreen =
       kind: "live";
       header: GameHeader;
       lineScore: LineScoreView;
+      // Null until ESPN lists any player.
+      boxScore: BoxScoreView | null;
       tabs: GameTabs;
     }
   | {
       kind: "final";
       header: GameHeader;
       lineScore: LineScoreView;
+      // Null until ESPN lists any player.
+      boxScore: BoxScoreView | null;
       tabs: GameTabs;
     };
 
@@ -265,6 +330,98 @@ function lineScoreOf(
   };
 }
 
+function boxScoreLineOf(stats: BoxScoreStats): BoxScoreLine {
+  return Object.fromEntries(
+    BOX_SCORE_STATS.map((stat) => [stat, stats[stat]]),
+  ) as BoxScoreLine;
+}
+
+function plusMinusToneOf(plusMinus: string): PlusMinusTone {
+  const value = Number(plusMinus);
+  if (value > 0) return "positive";
+  if (value < 0) return "negative";
+  return null;
+}
+
+function athleteRowOf({ athlete }: BoxScorePlayer): BoxScoreAthleteRow {
+  return {
+    id: athlete.id,
+    jersey: athlete.jersey,
+    name: athlete.displayName,
+    shortName: athlete.shortName,
+    position: athlete.position,
+  };
+}
+
+// ESPN marks every bench player who has not checked in yet as a coach's decision while the game is live.
+const COACHS_DECISION = "COACH'S DECISION";
+
+function didNotPlayReasonOf(
+  { didNotPlayReason }: BoxScorePlayer,
+  isLive: boolean,
+): string | null {
+  if (!didNotPlayReason) {
+    return isLive ? null : strings.game.boxScore.didNotPlayWithoutReason;
+  }
+  if (isLive && didNotPlayReason === COACHS_DECISION) return null;
+  return strings.game.boxScore.didNotPlayReason(didNotPlayReason);
+}
+
+function teamBoxScoreOf(
+  summary: GameSummary,
+  side: TeamSide,
+  isLive: boolean,
+): TeamBoxScoreView {
+  const { players, totals } = summary.boxScore[side];
+  const starters: BoxScorePlayerRow[] = [];
+  const bench: BoxScorePlayerRow[] = [];
+  const didNotPlay: DidNotPlayRow[] = [];
+
+  for (const player of players) {
+    if (!player.stats) {
+      didNotPlay.push({
+        ...athleteRowOf(player),
+        reason: didNotPlayReasonOf(player, isLive),
+      });
+      continue;
+    }
+    const row = {
+      ...athleteRowOf(player),
+      stats: boxScoreLineOf(player.stats),
+      plusMinusTone: plusMinusToneOf(player.stats.plusMinus),
+    };
+    (player.starter ? starters : bench).push(row);
+  }
+
+  return {
+    side,
+    teamName: summary.game[side].team.name,
+    starters,
+    bench,
+    didNotPlay,
+    totals: totals && boxScoreLineOf(totals),
+  };
+}
+
+function boxScoreOf(summary: GameSummary): BoxScoreView | null {
+  const { home, away } = summary.boxScore;
+  if (home.players.length === 0 && away.players.length === 0) return null;
+
+  const isLive = isInProgress(summary.game.status);
+  const { groups } = strings.game.boxScore;
+  return {
+    didNotPlayLabel: isLive ? groups.yetToPlay : groups.didNotPlay,
+    columns: BOX_SCORE_STATS.map((stat) => ({
+      stat,
+      label: strings.game.boxScore.columns[stat],
+    })),
+    teams: [
+      teamBoxScoreOf(summary, "away", isLive),
+      teamBoxScoreOf(summary, "home", isLive),
+    ],
+  };
+}
+
 function isGameTabId(tab: string): tab is GameTabId {
   return (GAME_TAB_IDS as readonly string[]).includes(tab);
 }
@@ -303,6 +460,7 @@ function screenOf(
         kind: "live",
         header,
         lineScore: lineScoreOf(summary, header.leadingSide),
+        boxScore: boxScoreOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
     case "final":
@@ -310,6 +468,7 @@ function screenOf(
         kind: "final",
         header,
         lineScore: lineScoreOf(summary, header.leadingSide),
+        boxScore: boxScoreOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
   }

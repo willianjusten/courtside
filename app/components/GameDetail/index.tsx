@@ -10,8 +10,8 @@ import { strings } from "@/app/lib/strings";
 import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import { GameHeader, LineScore } from "./header";
 import { GameSections } from "./game-sections";
+import { BoxScore } from "./box-score";
 import {
-  BoxScore,
   GameLeaders,
   PendingSection,
   PlayByPlay,
@@ -100,18 +100,7 @@ export default function GameDetail({ gameId }: { gameId: string }) {
                   points={summary.winProbability}
                 />
               }
-              boxScore={
-                <>
-                  <BoxScore
-                    team={summary.game.away.team}
-                    boxScore={summary.boxScore.away}
-                  />
-                  <BoxScore
-                    team={summary.game.home.team}
-                    boxScore={summary.boxScore.home}
-                  />
-                </>
-              }
+              boxScore={<BoxScore boxScore={screen.boxScore} />}
               teamStats={
                 <PendingSection
                   headingId="game-team-stats"
