@@ -1,0 +1,110 @@
+{
+  "-59640": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/5060631/injuries/-59640?lang=en&region=us",
+    "id": "-59640",
+    "longComment": "Thiero will miss a second straight game, and the young forward has yet to make his debut in 2026-27. His next chance will come against the Jazz on Sunday, but even if he gets the green light, he's not expected to have a sizable role in the rotation.",
+    "shortComment": "Thiero (knee) is out for Friday's game against the Clippers.",
+    "status": "Day-To-Day",
+    "date": "2026-10-24T13:46Z",
+    "athlete": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/5060631?lang=en&region=us"
+    },
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "source": {
+      "id": "1",
+      "description": "basic/manual",
+      "state": "basic"
+    },
+    "type": {
+      "id": "6",
+      "name": "INJURY_STATUS_DAYTODAY",
+      "description": "day-to-day",
+      "abbreviation": "DD"
+    },
+    "details": {
+      "fantasyStatus": {
+        "description": "GTD",
+        "abbreviation": "GTD"
+      },
+      "type": "Knee",
+      "location": "Leg",
+      "detail": "Inflammation",
+      "side": "Left",
+      "returnDate": "2026-10-25"
+    }
+  },
+  "-59639": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4592691/injuries/-59639?lang=en&region=us",
+    "id": "-59639",
+    "longComment": "LaRavia will miss Friday's contest with a right ankle sprain he sustained in Wednesday's season-opening win over the Warriors. With the 24-year-old forward sidelined, Quentin Grimes, Matisse Thybulle and Sandro Mamukelashvili could all see a bump in minutes. LaRavia's next chance to play will come Sunday at Utah.",
+    "shortComment": "LaRavia (ankle) has been ruled out for Friday's game against the Clippers, Mark Medina of TheSportingTribune.com reports.",
+    "status": "Day-To-Day",
+    "date": "2026-10-24T13:46Z",
+    "athlete": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4592691?lang=en&region=us"
+    },
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "source": {
+      "id": "1",
+      "description": "basic/manual",
+      "state": "basic"
+    },
+    "type": {
+      "id": "6",
+      "name": "INJURY_STATUS_DAYTODAY",
+      "description": "day-to-day",
+      "abbreviation": "DD"
+    },
+    "details": {
+      "fantasyStatus": {
+        "description": "GTD",
+        "abbreviation": "GTD"
+      },
+      "type": "Ankle",
+      "location": "Leg",
+      "detail": "Sprain",
+      "side": "Right",
+      "returnDate": "2026-10-25"
+    }
+  },
+  "-59637": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/5113969/injuries/-59637?lang=en&region=us",
+    "id": "-59637",
+    "longComment": "Carr isn't quite ready to make his NBA debut, but he can continue to be considered day-to-day. His next chance to take the court will arrive Sunday in Utah.",
+    "shortComment": "Carr (oblique) is out for Friday's game against the Clippers.",
+    "status": "Day-To-Day",
+    "date": "2026-10-24T13:46Z",
+    "athlete": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/5113969?lang=en&region=us"
+    },
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "source": {
+      "id": "1",
+      "description": "basic/manual",
+      "state": "basic"
+    },
+    "type": {
+      "id": "6",
+      "name": "INJURY_STATUS_DAYTODAY",
+      "description": "day-to-day",
+      "abbreviation": "DD"
+    },
+    "details": {
+      "fantasyStatus": {
+        "description": "GTD",
+        "abbreviation": "GTD"
+      },
+      "type": "Oblique",
+      "location": "Torso",
+      "detail": "Strain",
+      "side": "Right",
+      "returnDate": "2026-10-25"
+    }
+  }
+}

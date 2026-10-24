@@ -26,4 +26,6 @@ export type RosterPlayer = {
   headshotUrl: string | null;
   // As sent by ESPN, e.g. "Out" or "Day-To-Day"; null for a healthy player.
   injuryStatus: string | null;
+  // ESPN's report on the injury, e.g. "Carr (oblique) is out for Friday's game"; null when ESPN has none.
+  injuryComment: string | null;
 };

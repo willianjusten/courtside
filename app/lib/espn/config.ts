@@ -97,6 +97,19 @@ export const ESPN_ENDPOINTS = {
     path: `${TEAMS_PATH}/{teamId}/roster`,
     access: "direct",
   },
+  // The team's injury reports, each a $ref to the report that explains it.
+  teamInjuries: {
+    host: "core",
+    path: `${CORE_NBA_PATH}/teams/{teamId}/injuries`,
+    access: "proxy",
+    revalidateSeconds: FIVE_MINUTES_IN_SECONDS,
+  },
+  injury: {
+    host: "core",
+    path: `${CORE_NBA_PATH}/seasons/{seasonYear}/athletes/{athleteId}/injuries/{injuryId}`,
+    access: "proxy",
+    revalidateSeconds: FIVE_MINUTES_IN_SECONDS,
+  },
   // Leaders are assembled from these three on the server; "proxy" keeps any browser access off ESPN directly.
   currentSeason: {
     host: "core",

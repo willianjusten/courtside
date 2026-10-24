@@ -91,7 +91,7 @@ const gamesBeforeTipOff = [warriorsBeforeTipOff, ...lakersGames.slice(1)];
 // In ESPN's order, which lists the players by last name.
 const lakersPlayers = (
   (lakersRosterFixture as unknown as RawRosterResponse).athletes ?? []
-).map(mapRosterPlayer);
+).map((athlete) => mapRosterPlayer(athlete));
 
 function rosterPlayerOf(overrides: Partial<RosterPlayer>): RosterPlayer {
   return {
@@ -104,6 +104,7 @@ function rosterPlayerOf(overrides: Partial<RosterPlayer>): RosterPlayer {
     age: null,
     headshotUrl: null,
     injuryStatus: null,
+    injuryComment: null,
     ...overrides,
   };
 }
@@ -855,6 +856,7 @@ describe("buildTeamView", () => {
         headshotUrl:
           "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
         injuryStatus: null,
+        injuryComment: null,
       });
     });
 
@@ -869,6 +871,21 @@ describe("buildTeamView", () => {
         "Adou Thiero: Day-To-Day",
         "Jake LaRavia: Day-To-Day",
       ]);
+    });
+
+    it("explains an injury with ESPN's report on it", () => {
+      const comment =
+        "Carr (oblique) is out for Friday's game against the Clippers.";
+      const [cameronCarr] = rosterOf({
+        players: [
+          rosterPlayerOf({
+            injuryStatus: "Day-To-Day",
+            injuryComment: comment,
+          }),
+        ],
+      });
+
+      expect(cameronCarr.injuryComment).toBe(comment);
     });
 
     it("leaves the roster out until it loads", () => {

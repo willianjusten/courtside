@@ -389,7 +389,10 @@ export function mapLeader(
   };
 }
 
-export function mapRosterPlayer(athlete: RawRosterAthlete): RosterPlayer {
+export function mapRosterPlayer(
+  athlete: RawRosterAthlete,
+  injuryComment: string | null = null,
+): RosterPlayer {
   return {
     id: athlete.id,
     displayName: athlete.displayName,
@@ -400,6 +403,7 @@ export function mapRosterPlayer(athlete: RawRosterAthlete): RosterPlayer {
     age: athlete.age ?? null,
     headshotUrl: athlete.headshot?.href ?? null,
     injuryStatus: athlete.injuries?.[0]?.status ?? null,
+    injuryComment,
   };
 }
 

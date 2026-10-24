@@ -153,6 +153,16 @@ export type RawRosterAthlete = {
   injuries?: { status: string }[];
 };
 
+export type RawTeamInjuriesResponse = {
+  items?: { $ref: string }[];
+};
+
+export type RawInjury = {
+  athlete: { $ref: string };
+  // e.g. "Carr (oblique) is out for Friday's game against the Clippers."
+  shortComment?: string;
+};
+
 export type RawTeamsList = {
   sports: { leagues: { teams: { team: RawListedTeam }[] }[] }[];
 };

@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import * as Popover from "@radix-ui/react-popover";
+import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
 import { resizedImageUrl } from "@/app/lib/espn";
 import { strings } from "@/app/lib/strings";
 import type { TeamRosterPlayer } from "@/app/lib/team/team-view";
@@ -34,12 +39,59 @@ function Headshot({ headshotUrl }: { headshotUrl: string | null }) {
   );
 }
 
-function InjuryStatus({ status }: { status: string }) {
+const INJURY_STATUS_CLASS_NAME =
+  "shrink-0 rounded-full border border-warning/32 bg-warning/8 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-warning-soft";
+
+// Opens on hover with a mouse and on tap or Enter otherwise, since touch screens have no hover. A popover, unlike a
+// tooltip, also escapes the roster's scroll box.
+function InjuryReport({
+  status,
+  comment,
+}: {
+  status: string;
+  comment: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <span className="shrink-0 rounded-full border border-warning/32 bg-warning/8 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-warning-soft">
-      {status}
-    </span>
+    <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Popover.Trigger
+        className={`${INJURY_STATUS_CLASS_NAME} cursor-help ${FOCUS_RING_CLASS_NAME}`}
+        onPointerEnter={({ pointerType }) => {
+          if (pointerType === "mouse") setIsOpen(true);
+        }}
+        onPointerLeave={({ pointerType }) => {
+          if (pointerType === "mouse") setIsOpen(false);
+        }}
+      >
+        {status}
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          role="tooltip"
+          side="top"
+          sideOffset={6}
+          collisionPadding={16}
+          // Opening on hover must not move the keyboard focus away from where it is.
+          onOpenAutoFocus={(event) => event.preventDefault()}
+          className="z-50 max-w-[min(300px,calc(100vw-2rem))] rounded-xl border border-white/10 bg-white/4.5 px-3 py-2 text-xs font-normal text-foreground shadow-[0_24px_48px_rgb(0_0_0/0.45)] backdrop-blur-xl"
+        >
+          {comment}
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
+}
+
+function InjuryStatus({
+  status,
+  comment,
+}: {
+  status: string;
+  comment: string | null;
+}) {
+  if (comment) return <InjuryReport status={status} comment={comment} />;
+  return <span className={INJURY_STATUS_CLASS_NAME}>{status}</span>;
 }
 
 export default function TeamRoster({
@@ -54,7 +106,7 @@ export default function TeamRoster({
       <h2 id={HEADING_ID} className="font-display text-2xl tracking-[0.06em]">
         {roster.title}
       </h2>
-      <div className="overflow-x-auto card">
+      <div className="overflow-x-auto card border-white/10 bg-white/4.5">
         <table className="w-full text-left text-sm">
           <thead className="text-muted">
             <tr>
@@ -74,7 +126,10 @@ export default function TeamRoster({
                     <Headshot headshotUrl={player.headshotUrl} />
                     {player.name}
                     {player.injuryStatus && (
-                      <InjuryStatus status={player.injuryStatus} />
+                      <InjuryStatus
+                        status={player.injuryStatus}
+                        comment={player.injuryComment}
+                      />
                     )}
                   </span>
                 </td>

@@ -29,6 +29,8 @@ import teamsList from "./lib/espn/__fixtures__/teams-list.json";
 import lakersDetail from "./lib/espn/__fixtures__/team-detail-lakers.json";
 import lakersSchedule from "./lib/espn/__fixtures__/team-schedule-lakers.json";
 import lakersRoster from "./lib/espn/__fixtures__/team-roster-lakers.json";
+import lakersInjuries from "./lib/espn/__fixtures__/team-injuries-lakers.json";
+import lakersInjuryItems from "./lib/espn/__fixtures__/team-injuries-lakers-items.json";
 import lakersLiveScoreboard from "./lib/espn/__fixtures__/scoreboard-lakers-live-simulated.json";
 import standings from "./lib/espn/__fixtures__/standings-regular-season.json";
 import currentSeason from "./lib/espn/__fixtures__/season-current.json";
@@ -40,6 +42,7 @@ import preGameSummary from "./lib/espn/__fixtures__/summary-pre-game.json";
 
 const LEADERS_URL_PATTERN = /\/types\/2\/leaders\?limit=5$/;
 const ATHLETE_URL_PATTERN = /\/athletes\/(\d+)$/;
+const INJURY_URL_PATTERN = /\/injuries\/(-?\d+)$/;
 const FINAL_GAME_ID = "401909092";
 const LIVE_GAME_ID = "401909093";
 const PRE_GAME_ID = "401909094";
@@ -61,6 +64,10 @@ function espnFixtureFor(url: string) {
   if (url.includes("/scoreboard/header?")) return headerWeek;
   if (url.endsWith("/teams/13/schedule")) return lakersSchedule;
   if (url.endsWith("/teams/13/roster")) return lakersRoster;
+  if (url.endsWith("/teams/13/injuries")) return lakersInjuries;
+  const injuryId = url.match(INJURY_URL_PATTERN)?.[1];
+  if (injuryId)
+    return lakersInjuryItems[injuryId as keyof typeof lakersInjuryItems];
   if (url.endsWith("/teams/13")) return lakersDetail;
   if (url.endsWith("/teams")) return teamsList;
   if (url.endsWith("/standings?seasontype=2")) return standings;
@@ -713,6 +720,28 @@ describe("routes", () => {
         within(roster).getByRole("row", { name: /Luka Doncic/ }),
       ).queryByText("Day-To-Day"),
     ).toBeNull();
+  });
+
+  it("explains an injury with ESPN's report when its status is hovered or tapped", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const roster = await screen.findByRole("region", {
+      name: strings.team.roster.title,
+    });
+    const cameronCarrStatus = await within(
+      within(roster).getByRole("row", { name: /Cameron Carr/ }),
+    ).findByRole("button", { name: "Day-To-Day" });
+    const report =
+      "Carr (oblique) is out for Friday's game against the Clippers.";
+
+    fireEvent.pointerEnter(cameronCarrStatus, { pointerType: "mouse" });
+    expect((await screen.findByRole("tooltip")).textContent).toBe(report);
+
+    fireEvent.pointerLeave(cameronCarrStatus, { pointerType: "mouse" });
+    expect(screen.queryByRole("tooltip")).toBeNull();
+
+    fireEvent.click(cameronCarrStatus);
+    expect((await screen.findByRole("tooltip")).textContent).toBe(report);
   });
 
   it("shows each player's photo beside their name", async () => {

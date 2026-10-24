@@ -189,6 +189,8 @@ export type TeamRosterPlayer = {
   headshotUrl: string | null;
   // e.g. "Out" or "Day-To-Day"; null for a healthy player.
   injuryStatus: string | null;
+  // Why the player is out, as ESPN reports it; null without a report.
+  injuryComment: string | null;
 };
 
 export type TeamReadyScreen = {
@@ -534,6 +536,7 @@ function rosterOf(players: RosterPlayer[]): TeamRosterPlayer[] {
       height: player.height,
       headshotUrl: player.headshotUrl,
       injuryStatus: player.injuryStatus,
+      injuryComment: player.injuryComment,
     }));
 }
 

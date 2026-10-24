@@ -23,3 +23,5 @@ Files ending in `-simulated` are derived from `scoreboard-scheduled-day.json` by
 `scoreboard-header-week.json` is the real `site.web.api.espn.com` scoreboard header for 2026-10-17 to 2026-10-23, trimmed to the sport, the league, and each event's id, date, name, status, and season.
 
 `standings-season-end.json` is the real regular season standings of the 2025-26 season (`season=2026`), captured on 2026-10-24 after the season ended, without the response's `links`. Every team carries ESPN's clincher stat, covering each code: `*`, `z`, `y`, `x`, `xp`, `pb`, and `e`.
+
+`team-injuries-lakers.json` is the real core API injuries list of the Lakers, captured on 2026-10-24, and `team-injuries-lakers-items.json` maps each of its injury IDs to that injury's real core API report. It was captured after `team-roster-lakers.json`, so Collin Sexton is Day-To-Day in the roster but has no report.
