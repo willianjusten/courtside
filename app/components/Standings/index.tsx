@@ -190,6 +190,7 @@ export default function Standings() {
             leaders={leaders}
             onRetry={() => refetchLeaders()}
             isRetrying={isFetchingLeaders}
+            isAboveTheFold={showsLeadersOnMobile}
           />
         </div>
       </div>

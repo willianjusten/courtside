@@ -13,6 +13,8 @@ import type { StreakKind } from "@/app/lib/standings/streak";
 import { strings } from "@/app/lib/strings";
 
 const LOGO_SIZE = 26;
+// About the rows a phone shows before scrolling; their logos load right away and the rest wait for the scroll.
+const ABOVE_THE_FOLD_ROW_COUNT = 8;
 
 const SEED_CLASS_NAME: Record<StandingsZone, string> = {
   playoff: "border-playoff/45 bg-playoff/18 text-playoff-soft",
@@ -63,6 +65,17 @@ const TEAM_STICKY_CLASS_NAME = `${STICKY_CLASS_NAME} left-11.5 md:relative md:le
 const STAT_CELL_CLASS_NAME = `px-1.5 text-right text-xs text-secondary ${CELL_CLASS_NAME}`;
 const STAT_HEADER_CLASS_NAME = "px-1.5 pb-1.5 text-right font-medium";
 
+type StandingsColumn = keyof typeof strings.standings.columns;
+
+function ColumnLabel({ column }: { column: StandingsColumn }) {
+  return (
+    <>
+      <span aria-hidden="true">{strings.standings.columns[column]}</span>
+      <span className="sr-only">{strings.standings.columnNames[column]}</span>
+    </>
+  );
+}
+
 function FavoriteStar() {
   return (
     <svg
@@ -90,7 +103,13 @@ function ClincherSymbol({ marker }: { marker: ClincherMarker }) {
   );
 }
 
-function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
+function StandingsTableRowView({
+  row,
+  isBelowTheFold,
+}: {
+  row: StandingsTableRow;
+  isBelowTheFold: boolean;
+}) {
   return (
     <tr className="group" data-favorite={row.isFavorite || undefined}>
       <td
@@ -112,7 +131,11 @@ function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
           // contains it, so it reaches back over the seed column (w-11.5) and on over the stat columns (444px in all).
           className={`flex min-h-11 min-w-0 items-center gap-2 rounded-md after:absolute after:inset-y-0 after:-right-111 after:-left-11.5 after:content-[''] ${FOCUS_RING_CLASS_NAME}`}
         >
-          <TeamLogo logoUrl={row.logoUrl} size={LOGO_SIZE} lazy />
+          <TeamLogo
+            logoUrl={row.logoUrl}
+            size={LOGO_SIZE}
+            lazy={isBelowTheFold}
+          />
           <span className="flex min-w-0 flex-col">
             <span className="flex items-center gap-1 text-[13px] font-medium">
               <span className="truncate" aria-hidden="true">
@@ -166,8 +189,6 @@ export function StandingsTable({
   label: string;
   rows: StandingsTableRow[];
 }) {
-  const { columns } = strings.standings;
-
   return (
     // The minimum widths leave the team column 142px on mobile and 230px on desktop, scrolling below them.
     <table className="w-full min-w-158 table-fixed border-separate border-spacing-y-1 tabular-nums md:min-w-180">
@@ -190,43 +211,47 @@ export function StandingsTable({
             scope="col"
             className={`pb-1.5 pl-2.5 text-left font-medium ${SEED_STICKY_CLASS_NAME}`}
           >
-            {columns.seed}
+            <ColumnLabel column="seed" />
           </th>
           <th
             scope="col"
             className={`px-1.5 pb-1.5 text-left font-medium ${TEAM_STICKY_CLASS_NAME}`}
           >
-            {columns.team}
+            <ColumnLabel column="team" />
           </th>
           <th scope="col" className="px-1.5 pb-1.5 text-center font-medium">
-            {columns.record}
+            <ColumnLabel column="record" />
           </th>
           <th scope="col" className={STAT_HEADER_CLASS_NAME}>
-            {columns.winPercent}
+            <ColumnLabel column="winPercent" />
           </th>
           <th scope="col" className={STAT_HEADER_CLASS_NAME}>
-            {columns.gamesBehind}
+            <ColumnLabel column="gamesBehind" />
           </th>
           <th scope="col" className={STAT_HEADER_CLASS_NAME}>
-            {columns.home}
+            <ColumnLabel column="home" />
           </th>
           <th scope="col" className={STAT_HEADER_CLASS_NAME}>
-            {columns.road}
+            <ColumnLabel column="road" />
           </th>
           <th scope="col" className={STAT_HEADER_CLASS_NAME}>
-            {columns.lastTen}
+            <ColumnLabel column="lastTen" />
           </th>
           <th scope="col" className={STAT_HEADER_CLASS_NAME}>
-            {columns.streak}
+            <ColumnLabel column="streak" />
           </th>
           <th scope="col" className={`${STAT_HEADER_CLASS_NAME} pr-2.5`}>
-            {columns.pointDifferential}
+            <ColumnLabel column="pointDifferential" />
           </th>
         </tr>
       </thead>
       <tbody>
-        {rows.map((row) => (
-          <StandingsTableRowView key={row.teamId} row={row} />
+        {rows.map((row, rowIndex) => (
+          <StandingsTableRowView
+            key={row.teamId}
+            row={row}
+            isBelowTheFold={rowIndex >= ABOVE_THE_FOLD_ROW_COUNT}
+          />
         ))}
       </tbody>
     </table>

@@ -349,6 +349,19 @@ export const strings = {
       streak: "STRK",
       pointDifferential: "DIFF",
     },
+    // Read in place of the abbreviated column headers.
+    columnNames: {
+      seed: "Seed",
+      team: "Team",
+      record: "Wins and losses",
+      winPercent: "Win percentage",
+      gamesBehind: "Games behind",
+      home: "Home record",
+      road: "Road record",
+      lastTen: "Last 10 games",
+      streak: "Streak",
+      pointDifferential: "Point differential",
+    },
     noStreak: "-",
     leaderGamesBehind: "-",
     views: {

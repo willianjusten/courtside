@@ -12,9 +12,6 @@ import type {
 } from "@/app/lib/standings/standings-view";
 import { strings } from "@/app/lib/strings";
 
-// The largest rendered headshot size, the desktop leader's: ESPN headshots are 1040x760, so this keeps their aspect ratio.
-const HEADSHOT_WIDTH = 56;
-const HEADSHOT_HEIGHT = 41;
 // Requested at twice the display size so headshots stay sharp on high-density screens.
 const HEADSHOT_REQUEST_SCALE = 2;
 const TEAM_LOGO_SIZE = 14;
@@ -28,9 +25,11 @@ const CATEGORY_GRID_CLASS_NAME =
   "grid items-start gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3";
 
 // The leader of each category gets a larger photo and value than the runners-up, as in the artboards.
-const HEADSHOT_CLASS_NAME = {
-  leader: "h-9.5 w-13 md:h-10.25 md:w-14",
-  runnerUp: "h-5.5 w-7.5 md:h-6 md:w-8",
+// The width and height are the desktop ones, the larger: the leader's keep the 1040x760 aspect ratio of ESPN
+// headshots, and the runner-ups' crop it slightly to fill their box.
+const HEADSHOT = {
+  leader: { className: "h-9.5 w-13 md:h-10.25 md:w-14", width: 56, height: 41 },
+  runnerUp: { className: "h-5.5 w-7.5 md:h-6 md:w-8", width: 32, height: 24 },
 };
 const NAME_CLASS_NAME = {
   leader: "text-sm font-bold",
@@ -57,9 +56,16 @@ function FavoriteStar() {
   );
 }
 
-function LeaderListItem({ leader }: { leader: LeaderRow }) {
+function LeaderListItem({
+  leader,
+  isAboveTheFold,
+}: {
+  leader: LeaderRow;
+  isAboveTheFold: boolean;
+}) {
   const tier = leader.rank === 1 ? "leader" : "runnerUp";
-  const headshotClassName = `shrink-0 rounded-lg bg-white/6 object-cover ${HEADSHOT_CLASS_NAME[tier]}`;
+  const headshot = HEADSHOT[tier];
+  const headshotClassName = `shrink-0 rounded-lg bg-white/6 object-cover ${headshot.className}`;
 
   return (
     <li
@@ -72,14 +78,14 @@ function LeaderListItem({ leader }: { leader: LeaderRow }) {
         <img
           src={resizedImageUrl(
             leader.headshotUrl,
-            HEADSHOT_WIDTH * HEADSHOT_REQUEST_SCALE,
-            HEADSHOT_HEIGHT * HEADSHOT_REQUEST_SCALE,
+            headshot.width * HEADSHOT_REQUEST_SCALE,
+            headshot.height * HEADSHOT_REQUEST_SCALE,
           )}
           // The name sits next to the photo, so the photo adds nothing for screen readers.
           alt=""
-          width={HEADSHOT_WIDTH}
-          height={HEADSHOT_HEIGHT}
-          loading="lazy"
+          width={headshot.width}
+          height={headshot.height}
+          loading={isAboveTheFold ? undefined : "lazy"}
           className={headshotClassName}
         />
       ) : (
@@ -91,7 +97,11 @@ function LeaderListItem({ leader }: { leader: LeaderRow }) {
         </span>
         {leader.teamAbbreviation && (
           <span className="flex items-center gap-1.25 text-[11px] text-muted">
-            <TeamLogo logoUrl={leader.teamLogoUrl} size={TEAM_LOGO_SIZE} lazy />
+            <TeamLogo
+              logoUrl={leader.teamLogoUrl}
+              size={TEAM_LOGO_SIZE}
+              lazy={!isAboveTheFold}
+            />
             {leader.teamAbbreviation}
             {leader.isFavorite && <FavoriteStar />}
           </span>
@@ -106,7 +116,13 @@ function LeaderListItem({ leader }: { leader: LeaderRow }) {
   );
 }
 
-function LeaderCategoryCard({ category }: { category: LeaderCategoryView }) {
+function LeaderCategoryCard({
+  category,
+  isAboveTheFold,
+}: {
+  category: LeaderCategoryView;
+  isAboveTheFold: boolean;
+}) {
   const headingId = `${HEADING_ID}-${category.stat}`;
 
   return (
@@ -120,7 +136,11 @@ function LeaderCategoryCard({ category }: { category: LeaderCategoryView }) {
       {category.status === "ready" ? (
         <ol className="flex flex-col gap-0.5 md:gap-1">
           {category.leaders.map((leader) => (
-            <LeaderListItem key={leader.athleteId} leader={leader} />
+            <LeaderListItem
+              key={leader.athleteId}
+              leader={leader}
+              isAboveTheFold={isAboveTheFold}
+            />
           ))}
         </ol>
       ) : category.status === "error" ? (
@@ -141,7 +161,7 @@ function SkeletonLeaderRow({ isLeader }: { isLeader: boolean }) {
     <div className="flex min-h-9 items-center gap-2.5 py-0.75 md:py-1.25">
       <div className="h-2.5 w-3 shrink-0 rounded-sm bg-white/10 md:w-3.5" />
       <div
-        className={`shrink-0 rounded-lg bg-white/10 ${HEADSHOT_CLASS_NAME[tier]}`}
+        className={`shrink-0 rounded-lg bg-white/10 ${HEADSHOT[tier].className}`}
       />
       <div className="h-3.5 grow rounded-md bg-white/10" />
       <div
@@ -179,12 +199,15 @@ type LeagueLeadersProps = {
   leaders: StandingsLeaders;
   onRetry: () => void;
   isRetrying: boolean;
+  // True when the mobile Leaders view opens the page; elsewhere the leaders sit below the standings.
+  isAboveTheFold?: boolean;
 };
 
 export default function LeagueLeaders({
   leaders,
   onRetry,
   isRetrying,
+  isAboveTheFold = false,
 }: LeagueLeadersProps) {
   return (
     <section
@@ -217,7 +240,11 @@ export default function LeagueLeaders({
           {leaders.staleNotice && <StaleNotice message={leaders.staleNotice} />}
           <div className={CATEGORY_GRID_CLASS_NAME}>
             {leaders.categories.map((category) => (
-              <LeaderCategoryCard key={category.stat} category={category} />
+              <LeaderCategoryCard
+                key={category.stat}
+                category={category}
+                isAboveTheFold={isAboveTheFold}
+              />
             ))}
           </div>
           {leaders.percentagesNote && (
