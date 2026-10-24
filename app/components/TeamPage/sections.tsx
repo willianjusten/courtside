@@ -50,6 +50,7 @@ type TeamSectionsProps = {
 
 // Mobile shows the sections under tabs, as in the TeamPage artboard; desktop lays them out in columns,
 // as in the TeamPageDesktop artboard: the schedule beside a side column of the standings over the roster.
+// From lg up the side column fits the whole roster table, so it doesn't scroll sideways.
 export function TeamSections({
   tabs,
   onSelectTab,
@@ -66,7 +67,7 @@ export function TeamSections({
     <Tabs.Root
       value={tabs.selected}
       onValueChange={selectTab}
-      className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_minmax(300px,380px)] md:grid-rows-[auto_1fr] md:gap-6"
+      className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_minmax(300px,380px)] md:grid-rows-[auto_1fr] md:gap-6 lg:grid-cols-[minmax(0,1fr)_460px]"
     >
       <Tabs.List
         aria-label={strings.team.tabs.label}

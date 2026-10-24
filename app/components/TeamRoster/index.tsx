@@ -46,28 +46,28 @@ export default function TeamRoster({ players }: { players: RosterPlayer[] }) {
         <table className="w-full text-left text-sm">
           <thead className="text-muted">
             <tr>
-              <th className="px-4 py-2">{roster.jersey}</th>
-              <th className="px-4 py-2">{roster.player}</th>
-              <th className="px-4 py-2">{roster.position}</th>
-              <th className="px-4 py-2">{roster.height}</th>
-              <th className="px-4 py-2">{roster.weight}</th>
-              <th className="px-4 py-2">{roster.age}</th>
+              <th className="px-3 py-2">{roster.jersey}</th>
+              <th className="px-3 py-2">{roster.player}</th>
+              <th className="px-3 py-2">{roster.position}</th>
+              <th className="px-3 py-2">{roster.height}</th>
+              <th className="px-3 py-2">{roster.weight}</th>
+              <th className="px-3 py-2">{roster.age}</th>
             </tr>
           </thead>
           <tbody>
             {players.map((player) => (
               <tr key={player.id} className="border-t border-white/10">
-                <td className="px-4 py-2 tabular-nums">{player.jersey}</td>
-                <td className="px-4 py-2 font-medium">
+                <td className="px-3 py-2 tabular-nums">{player.jersey}</td>
+                <td className="px-3 py-2 font-medium">
                   <span className="flex items-center gap-2.5">
                     <Headshot headshotUrl={player.headshotUrl} />
                     {player.displayName}
                   </span>
                 </td>
-                <td className="px-4 py-2">{player.position}</td>
-                <td className="px-4 py-2">{player.height}</td>
-                <td className="px-4 py-2">{player.weight}</td>
-                <td className="px-4 py-2 tabular-nums">{player.age}</td>
+                <td className="px-3 py-2">{player.position}</td>
+                <td className="px-3 py-2 whitespace-nowrap">{player.height}</td>
+                <td className="px-3 py-2 whitespace-nowrap">{player.weight}</td>
+                <td className="px-3 py-2 tabular-nums">{player.age}</td>
               </tr>
             ))}
           </tbody>

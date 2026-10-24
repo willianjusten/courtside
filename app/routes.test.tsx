@@ -641,7 +641,9 @@ describe("routes", () => {
       within(upcomingGames[0]).getByRole("link").getAttribute("href"),
     ).toBe("/game/401909851");
     expect(
-      within(upNext).queryByRole("button", { name: /Show \d+ more/ }),
+      within(upNext).queryByRole("button", {
+        name: strings.team.schedule.showMore,
+      }),
     ).toBeNull();
   });
 

@@ -139,7 +139,7 @@ export type TeamScheduleExpansions = Record<TeamScheduleListId, number>;
 export type TeamScheduleList<Item> = {
   // The games shown so far.
   items: Item[];
-  // e.g. "Show 5 more"; null once every game shows.
+  // Null once every game shows.
   showMoreLabel: string | null;
 };
 
@@ -392,15 +392,10 @@ function scheduleListOf<Item>(
   expansions: number,
 ): TeamScheduleList<Item> {
   const shownCount = SCHEDULE_INITIAL_COUNT + expansions * SCHEDULE_PAGE_SIZE;
-  const hiddenCount = Math.max(items.length - shownCount, 0);
   return {
     items: items.slice(0, shownCount),
     showMoreLabel:
-      hiddenCount > 0
-        ? strings.team.schedule.showMore(
-            Math.min(hiddenCount, SCHEDULE_PAGE_SIZE),
-          )
-        : null,
+      items.length > shownCount ? strings.team.schedule.showMore : null,
   };
 }
 

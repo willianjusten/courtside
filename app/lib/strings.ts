@@ -440,7 +440,7 @@ export const strings = {
       },
       score: (teamScore: number, opponentScore: number) =>
         `${teamScore}-${opponentScore}`,
-      showMore: (count: number) => `Show ${count} more`,
+      showMore: "Show more",
     },
     roster: {
       title: "Roster",

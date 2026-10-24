@@ -559,7 +559,7 @@ describe("buildTeamView", () => {
       }
 
       it.each(["upcoming", "results"] as const)(
-        "shows the first four %s and offers five more",
+        "shows the first four %s and offers more",
         (listId) => {
           const games = tenGamesLike(
             listId === "upcoming" ? clippersAtHome : warriorsAtHome,
@@ -568,12 +568,12 @@ describe("buildTeamView", () => {
           const list = scheduleOf({ games })[listId];
 
           expect(list.items).toHaveLength(4);
-          expect(list.showMoreLabel).toBe(strings.team.schedule.showMore(5));
+          expect(list.showMoreLabel).toBe(strings.team.schedule.showMore);
         },
       );
 
       it.each(["upcoming", "results"] as const)(
-        "adds five %s per expansion and offers only the ones left",
+        "adds five %s per expansion and offers more while games are left",
         (listId) => {
           const games = tenGamesLike(
             listId === "upcoming" ? clippersAtHome : warriorsAtHome,
@@ -583,7 +583,7 @@ describe("buildTeamView", () => {
           const list = scheduleOf({ games, scheduleExpansions })[listId];
 
           expect(list.items).toHaveLength(9);
-          expect(list.showMoreLabel).toBe(strings.team.schedule.showMore(1));
+          expect(list.showMoreLabel).toBe(strings.team.schedule.showMore);
         },
       );
 
