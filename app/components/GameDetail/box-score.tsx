@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
 import type { ReactNode } from "react";
 import type {
   BoxScoreAthleteRow,
@@ -15,6 +14,7 @@ import type {
 import type { TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
 import { Section } from "./sections";
+import { ToggleGroup } from "./toggle-group";
 
 const HEADING_ID = "game-box-score";
 const CELL_CLASS_NAME = "px-1.5 py-2.5";
@@ -22,40 +22,6 @@ const PLUS_MINUS_CLASS_NAMES: Record<NonNullable<PlusMinusTone>, string> = {
   positive: "text-win",
   negative: "text-loss",
 };
-
-function TeamToggle({
-  teams,
-  selectedSide,
-  onSelect,
-}: {
-  teams: TeamBoxScoreView[];
-  selectedSide: TeamSide;
-  onSelect: (side: TeamSide) => void;
-}) {
-  return (
-    <div
-      role="group"
-      aria-label={strings.game.boxScore.teamToggle}
-      className="flex w-full gap-[3px] rounded-full border border-white/10 bg-white/5 p-[3px] md:w-auto"
-    >
-      {teams.map(({ side, teamName }) => {
-        const isSelected = side === selectedSide;
-        return (
-          <button
-            key={side}
-            type="button"
-            aria-pressed={isSelected}
-            onClick={() => onSelect(side)}
-            // The pill is drawn 36px tall; its hit area reaches 4px past the toggle's edge to make a 44px target.
-            className={`relative min-h-9 grow cursor-pointer rounded-full px-3.5 text-xs font-bold tracking-[0.04em] transition-colors before:absolute before:inset-x-0 before:-inset-y-1 md:grow-0 ${FOCUS_RING_CLASS_NAME} ${isSelected ? "bg-white/92 text-ink" : "text-secondary hover:bg-white/8"}`}
-          >
-            {teamName}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 function PlayerName({ row }: { row: BoxScoreAthleteRow }) {
   return (
@@ -230,9 +196,13 @@ export function BoxScore({ boxScore }: { boxScore: BoxScoreView | null }) {
       title={strings.game.boxScore.title}
       action={
         boxScore && (
-          <TeamToggle
-            teams={boxScore.teams}
-            selectedSide={selectedSide}
+          <ToggleGroup
+            label={strings.game.boxScore.teamToggle}
+            options={boxScore.teams.map(({ side, teamName }) => ({
+              value: side,
+              label: teamName,
+            }))}
+            selectedValue={selectedSide}
             onSelect={setSelectedSide}
           />
         )

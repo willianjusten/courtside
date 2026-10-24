@@ -227,8 +227,14 @@ export const strings = {
       },
     },
     plays: {
-      title: "Plays",
+      title: "Play-by-play",
       empty: "No plays yet.",
+      newestFirst: "Newest first",
+      summary: (playCount: number) => `${playCount} plays · newest first`,
+      periodFilter: "Period",
+      allPeriods: "All",
+      showAll: (playCount: number) => `Show all ${playCount} plays`,
+      showFewer: "Show fewer plays",
       score: (awayScore: number, homeScore: number) =>
         `${awayScore}-${homeScore}`,
     },

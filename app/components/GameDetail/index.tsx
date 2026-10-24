@@ -12,7 +12,8 @@ import { GameHeader, LineScore } from "./header";
 import { GameSections } from "./game-sections";
 import { BoxScore } from "./box-score";
 import { GameLeaders } from "./game-leaders";
-import { PendingSection, PlayByPlay, WinProbability } from "./sections";
+import { PlayByPlay } from "./play-by-play";
+import { PendingSection, WinProbability } from "./sections";
 import { TeamStats } from "./team-stats";
 import {
   GameDetailError,
@@ -97,7 +98,7 @@ export default function GameDetail({ gameId }: { gameId: string }) {
               }
               boxScore={<BoxScore boxScore={screen.boxScore} />}
               teamStats={<TeamStats teamStats={screen.teamStats} />}
-              plays={<PlayByPlay game={summary.game} plays={summary.plays} />}
+              plays={<PlayByPlay playByPlay={screen.playByPlay} />}
             />
           )}
         </div>

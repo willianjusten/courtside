@@ -8,6 +8,7 @@ import type {
   BoxScorePlayer,
   BoxScoreStats,
   GameSummary,
+  Play,
   TeamStatistics,
 } from "@/app/lib/domain/game-summary";
 import type { LeaderStat } from "@/app/lib/domain/leaders";
@@ -220,6 +221,39 @@ export type GameLeadersView = {
   leaders: GameLeaderRow[];
 };
 
+export type PlayTeam = {
+  side: TeamSide;
+  // The logo's alt text.
+  name: string;
+  logoUrl: string | null;
+};
+
+export type PlayRow = {
+  id: string;
+  periodLabel: string;
+  clock: string;
+  // Null for plays without a team, such as the end of a period.
+  team: PlayTeam | null;
+  text: string;
+  // The score after the play, away first, as the header reads.
+  score: string;
+  isScoring: boolean;
+};
+
+export type PlayPeriod = {
+  period: number;
+  label: string;
+  // Newest first.
+  plays: PlayRow[];
+};
+
+export type PlayByPlayView = {
+  // Newest first, both live and final.
+  plays: PlayRow[];
+  // The periods with plays, in game order, for the period filter.
+  periods: PlayPeriod[];
+};
+
 const GAME_TAB_IDS = ["summary", "box", "stats", "plays"] as const;
 const DEFAULT_GAME_TAB = "summary";
 
@@ -253,6 +287,7 @@ export type GameScreen =
       boxScore: BoxScoreView | null;
       // Null until ESPN lists the statistics of both teams.
       teamStats: TeamStatsView | null;
+      playByPlay: PlayByPlayView;
       tabs: GameTabs;
     }
   | {
@@ -265,6 +300,7 @@ export type GameScreen =
       boxScore: BoxScoreView | null;
       // Null until ESPN lists the statistics of both teams.
       teamStats: TeamStatsView | null;
+      playByPlay: PlayByPlayView;
       tabs: GameTabs;
     };
 
@@ -587,6 +623,51 @@ function leadersOf(summary: GameSummary): GameLeadersView | null {
   return leaders.length > 0 ? { leaders } : null;
 }
 
+function playRowOf(play: Play, teamById: Map<string, PlayTeam>): PlayRow {
+  return {
+    id: play.id,
+    periodLabel: periodLabel(play.period),
+    clock: play.clock,
+    team: (play.teamId && teamById.get(play.teamId)) || null,
+    text: play.text.trim(),
+    score: strings.game.plays.score(play.awayScore, play.homeScore),
+    isScoring: play.scoringPlay,
+  };
+}
+
+function playByPlayOf(summary: GameSummary): PlayByPlayView {
+  const { home, away } = summary.game;
+  const teamById = new Map(
+    (
+      [
+        ["home", home.team],
+        ["away", away.team],
+      ] as const
+    ).map(([side, { id, displayName, logoUrl }]) => [
+      id,
+      { side, name: displayName, logoUrl },
+    ]),
+  );
+  // ESPN sends the plays in game order.
+  const playsInGameOrder = summary.plays.map((play) => ({
+    period: play.period,
+    row: playRowOf(play, teamById),
+  }));
+  const plays = playsInGameOrder.map(({ row }) => row).reverse();
+
+  const periods: PlayPeriod[] = [];
+  for (const { period, row } of playsInGameOrder) {
+    const currentPeriod = periods.at(-1);
+    if (currentPeriod?.period === period) {
+      currentPeriod.plays.unshift(row);
+    } else {
+      periods.push({ period, label: periodLabel(period), plays: [row] });
+    }
+  }
+
+  return { plays, periods };
+}
+
 function isGameTabId(tab: string): tab is GameTabId {
   return (GAME_TAB_IDS as readonly string[]).includes(tab);
 }
@@ -628,6 +709,7 @@ function screenOf(
         leaders: leadersOf(summary),
         boxScore: boxScoreOf(summary),
         teamStats: teamStatsOf(summary),
+        playByPlay: playByPlayOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
     case "final":
@@ -638,6 +720,7 @@ function screenOf(
         leaders: leadersOf(summary),
         boxScore: boxScoreOf(summary),
         teamStats: teamStatsOf(summary),
+        playByPlay: playByPlayOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
   }

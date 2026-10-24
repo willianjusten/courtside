@@ -21,6 +21,7 @@ import {
   type GameSummaryQueryState,
   type GameTabs,
   type LineScoreView,
+  type PlayByPlayView,
   type TeamStatsView,
 } from "./game-view";
 
@@ -96,6 +97,14 @@ function leadersFor(summary: GameSummary): GameLeadersView | null {
     throw new Error(`Expected a live or final screen, got ${screen.kind}`);
   }
   return screen.leaders;
+}
+
+function playByPlayFor(summary: GameSummary): PlayByPlayView {
+  const screen = screenFor(summary);
+  if (screen.kind !== "live" && screen.kind !== "final") {
+    throw new Error(`Expected a live or final screen, got ${screen.kind}`);
+  }
+  return screen.playByPlay;
 }
 
 function withTeamStats(
@@ -969,6 +978,104 @@ describe("buildGameView", () => {
 
     it("falls back to Summary for an unknown tab", () => {
       expect(tabsFor(final, "highlights").selected).toBe("summary");
+    });
+  });
+  describe("play-by-play", () => {
+    it("lists a final game's plays newest first", () => {
+      const { plays } = playByPlayFor(final);
+
+      expect(plays).toHaveLength(final.plays.length);
+      expect(plays[0].text).toBe("End of Game");
+      expect(plays.at(-1)?.text).toBe(
+        "Draymond Green vs. Walker Kessler (Luka Doncic gains possession)",
+      );
+    });
+
+    it("lists a live game's plays newest first", () => {
+      const { plays } = playByPlayFor(liveFirstQuarter);
+
+      expect(plays[0]).toMatchObject({
+        clock: "6:53",
+        text: "Joel Embiid defensive rebound",
+      });
+      expect(plays.at(-1)?.clock).toBe("12:00");
+    });
+
+    it("shows each play's period, clock, team, description, and score after it, away first", () => {
+      const dunk = playByPlayFor(final).plays.find(
+        ({ id }) => id === "4019090927",
+      );
+
+      expect(dunk).toEqual({
+        id: "4019090927",
+        periodLabel: "Q1",
+        clock: "11:39",
+        team: {
+          side: "home",
+          name: final.game.home.team.displayName,
+          logoUrl: final.game.home.team.logoUrl,
+        },
+        text: "Walker Kessler makes 3-foot alley oop dunk (Luka Doncic assists)",
+        score: "0-2",
+        isScoring: true,
+      });
+    });
+
+    it("leaves the team out of plays without one, such as the end of the game", () => {
+      expect(playByPlayFor(final).plays[0].team).toBeNull();
+    });
+
+    it("flags ESPN's scoring plays", () => {
+      const { plays } = playByPlayFor(live);
+      const scoringPlayIds = live.plays
+        .filter(({ scoringPlay }) => scoringPlay)
+        .map(({ id }) => id);
+
+      expect(
+        plays.filter(({ isScoring }) => isScoring).map(({ id }) => id),
+      ).toEqual(scoringPlayIds.reverse());
+    });
+
+    it("trims the trailing space ESPN leaves on some descriptions", () => {
+      const turnover = playByPlayFor(live).plays.find(
+        ({ id }) => id === "401869400464",
+      );
+
+      expect(turnover?.text).toBe("shot clock turnover");
+    });
+
+    it("groups the plays by period in game order, each newest first", () => {
+      const { periods } = playByPlayFor(overtimePlayoff);
+
+      expect(
+        periods.map(({ period, label, plays }) => ({
+          period,
+          label,
+          playCount: plays.length,
+        })),
+      ).toEqual([
+        { period: 1, label: "Q1", playCount: 125 },
+        { period: 2, label: "Q2", playCount: 114 },
+        { period: 3, label: "Q3", playCount: 111 },
+        { period: 4, label: "Q4", playCount: 114 },
+        { period: 5, label: "OT", playCount: 59 },
+      ]);
+      expect(periods[4].plays[0].text).toBe("End of Game");
+      expect(periods[0].plays.at(-1)?.clock).toBe("12:00");
+    });
+
+    it("leaves out periods without plays", () => {
+      expect(playByPlayFor(final).periods.map(({ label }) => label)).toEqual([
+        "Q1",
+        "Q4",
+      ]);
+    });
+
+    it("lists no plays or periods until ESPN sends any", () => {
+      expect(playByPlayFor({ ...live, plays: [] })).toEqual({
+        plays: [],
+        periods: [],
+      });
     });
   });
 });

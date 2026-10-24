@@ -5,6 +5,8 @@ type TeamLogoProps = {
   size: number;
   lazy?: boolean;
   fallbackColor?: string;
+  // Empty by default, for logos next to the team's name.
+  alt?: string;
 };
 
 const SHIELD_OUTLINE_PATH =
@@ -45,6 +47,7 @@ export default function TeamLogo({
   size,
   lazy = false,
   fallbackColor,
+  alt = "",
 }: TeamLogoProps) {
   if (!logoUrl) return <GenericShield size={size} color={fallbackColor} />;
 
@@ -52,7 +55,7 @@ export default function TeamLogo({
     <img
       // Requested at twice the display size so logos stay sharp on high-density screens.
       src={resizedLogoUrl(logoUrl, size * 2)}
-      alt=""
+      alt={alt}
       width={size}
       height={size}
       loading={lazy ? "lazy" : undefined}

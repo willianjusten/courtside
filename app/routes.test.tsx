@@ -240,8 +240,14 @@ describe("routes", () => {
     const plays = await screen.findByRole("region", {
       name: strings.game.plays.title,
     });
-    expect(within(plays).getAllByRole("listitem")).toHaveLength(50);
+    // Desktop previews the most recent plays, newest first.
+    expect(within(plays).getAllByRole("listitem")).toHaveLength(6);
     expect(within(plays).getByText("End of Game")).toBeDefined();
+    expect(
+      within(plays).getByRole("button", {
+        name: strings.game.plays.showAll(50),
+      }),
+    ).toBeDefined();
     const winProbability = screen.getByRole("region", {
       name: strings.game.winProbability.title,
     });
@@ -264,7 +270,7 @@ describe("routes", () => {
     const plays = screen.getByRole("region", {
       name: strings.game.plays.title,
     });
-    const latestPlay = within(plays).getAllByRole("listitem").at(-1);
+    const latestPlay = within(plays).getAllByRole("listitem")[0];
     expect(latestPlay?.textContent).toContain("Joel Embiid defensive rebound");
   });
 

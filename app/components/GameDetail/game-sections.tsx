@@ -1,9 +1,10 @@
 "use client";
 
 import * as Tabs from "@radix-ui/react-tabs";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
 import type { GameTab, GameTabId, GameTabs } from "@/app/lib/game/game-view";
+import { useIsDesktop } from "@/app/lib/layout/use-is-desktop";
 import { strings } from "@/app/lib/strings";
 
 // Every panel stays mounted: on mobile the inactive ones are hidden, and from md up the panels dissolve
@@ -66,6 +67,14 @@ export function GameSections({
   teamStats,
   plays,
 }: GameSectionsProps) {
+  const isDesktop = useIsDesktop();
+  // The Plays tab renders the longest list, so mobile mounts it once the fan opens it, then keeps it,
+  // also across a resize from desktop, so the picked period stays.
+  const [hasOpenedPlays, setHasOpenedPlays] = useState(false);
+  if ((tabs.selected === "plays" || isDesktop) && !hasOpenedPlays) {
+    setHasOpenedPlays(true);
+  }
+
   const selectTab = (tabId: string) => {
     const tab = tabs.items.find(({ id }) => id === tabId);
     if (tab) onSelectTab(tab);
@@ -103,7 +112,9 @@ export function GameSections({
         <Slot className="md:col-start-2 md:row-start-2">{teamStats}</Slot>
       </Panel>
       <Panel value="plays">
-        <Slot className="md:col-span-2 md:row-start-5">{plays}</Slot>
+        <Slot className="md:col-span-2 md:row-start-5">
+          {hasOpenedPlays && plays}
+        </Slot>
       </Panel>
     </Tabs.Root>
   );

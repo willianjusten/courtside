@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 import type { Game } from "@/app/lib/domain/game";
-import type { Play, WinProbabilityPoint } from "@/app/lib/domain/game-summary";
+import type { WinProbabilityPoint } from "@/app/lib/domain/game-summary";
 import { strings } from "@/app/lib/strings";
-import { periodLabel } from "@/app/lib/game/status";
 import { SURFACE_CLASS_NAME, TILE_CLASS_NAME } from "./styles";
 
 const percentFormatter = new Intl.NumberFormat("en-US", {
@@ -98,44 +97,6 @@ export function WinProbability({
         </div>
       ) : (
         <p className="text-muted">{strings.game.winProbability.empty}</p>
-      )}
-    </Section>
-  );
-}
-
-export function PlayByPlay({ game, plays }: { game: Game; plays: Play[] }) {
-  const abbreviationByTeamId = new Map(
-    [game.home.team, game.away.team].map((team) => [
-      team.id,
-      team.abbreviation,
-    ]),
-  );
-
-  return (
-    <Section headingId="game-plays" title={strings.game.plays.title}>
-      {plays.length === 0 ? (
-        <p className="text-muted">{strings.game.plays.empty}</p>
-      ) : (
-        // Newest first, so a live game's latest plays are on top.
-        <ol reversed className="flex flex-col-reverse gap-1 text-sm">
-          {plays.map((play) => (
-            <li
-              key={play.id}
-              className={`flex gap-3 rounded px-2 py-1 ${play.scoringPlay ? "bg-white/5" : ""}`}
-            >
-              <span className="w-16 shrink-0 text-muted tabular-nums">
-                {periodLabel(play.period)} {play.clock}
-              </span>
-              <span className="w-10 shrink-0 text-muted">
-                {play.teamId ? abbreviationByTeamId.get(play.teamId) : ""}
-              </span>
-              <span className="grow">{play.text}</span>
-              <span className="shrink-0 tabular-nums">
-                {strings.game.plays.score(play.awayScore, play.homeScore)}
-              </span>
-            </li>
-          ))}
-        </ol>
       )}
     </Section>
   );

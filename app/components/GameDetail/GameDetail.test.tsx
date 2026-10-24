@@ -394,3 +394,206 @@ describe("GameDetail game leaders", () => {
     expect(within(points).getAllByRole("img")).toHaveLength(2);
   });
 });
+
+describe("GameDetail play-by-play", () => {
+  // Tailwind's md breakpoint, where the desktop layout starts.
+  const DESKTOP_MEDIA_QUERY = "(min-width: 48rem)";
+  const ROW_HEIGHT = 40;
+
+  function setViewport(viewport: "mobile" | "desktop") {
+    vi.spyOn(window, "matchMedia").mockImplementation(
+      (query) =>
+        ({
+          matches: viewport === "desktop" && query === DESKTOP_MEDIA_QUERY,
+          media: query,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        }) as unknown as MediaQueryList,
+    );
+  }
+
+  beforeEach(() => {
+    window.scrollTo(0, 0);
+  });
+
+  const playsRegion = () =>
+    screen.getByRole("region", { name: strings.game.plays.title });
+  const playRows = () => within(playsRegion()).getAllByRole("listitem");
+  const periodButton = (name: string) =>
+    within(playsRegion()).getByRole("button", { name });
+
+  it("lists the plays newest first with the team logo, period and clock, description, and score", async () => {
+    setViewport("mobile");
+    window.history.replaceState(null, "", `/game/${GAME_ID}?tab=plays`);
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    const rows = playRows();
+    expect(rows).toHaveLength(50);
+    expect(rows[0].textContent).toBe("Q4 0.0End of Game105-130");
+    const dunk = rows.find((row) =>
+      row.textContent?.includes("3-foot alley oop"),
+    );
+    expect(dunk?.textContent).toBe(
+      "Q1 11:39Walker Kessler makes 3-foot alley oop dunk (Luka Doncic assists)0-2",
+    );
+    expect(
+      within(dunk as HTMLElement)
+        .getByRole("img")
+        .getAttribute("alt"),
+    ).toBe("Los Angeles Lakers");
+  });
+
+  it("emphasizes the scoring plays", async () => {
+    setViewport("mobile");
+    window.history.replaceState(null, "", `/game/${GAME_ID}?tab=plays`);
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    const scoringRows = playRows().filter((row) => row.querySelector("strong"));
+    expect(scoringRows).toHaveLength(13);
+    expect(scoringRows[0].textContent).toContain("105-130");
+  });
+
+  it("filters the plays by period with pressed-state buttons", async () => {
+    setViewport("mobile");
+    window.history.replaceState(null, "", `/game/${GAME_ID}?tab=plays`);
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(
+      periodButton(strings.game.plays.allPeriods).getAttribute("aria-pressed"),
+    ).toBe("true");
+    fireEvent.click(periodButton("Q1"));
+
+    expect(periodButton("Q1").getAttribute("aria-pressed")).toBe("true");
+    expect(playRows()).toHaveLength(40);
+    expect(playRows().every((row) => row.textContent?.startsWith("Q1"))).toBe(
+      true,
+    );
+
+    fireEvent.click(periodButton(strings.game.plays.allPeriods));
+    expect(playRows()).toHaveLength(50);
+  });
+
+  it("loads the Plays tab on mobile only once it is opened", async () => {
+    setViewport("mobile");
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(
+      screen.queryByRole("region", { name: strings.game.plays.title }),
+    ).toBeNull();
+
+    fireEvent.mouseDown(
+      screen.getByRole("tab", { name: strings.game.tabs.plays }),
+    );
+    expect(playRows()).toHaveLength(50);
+  });
+
+  it("shows the 6 most recent plays on desktop and expands to the full feed", async () => {
+    setViewport("desktop");
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(playRows()).toHaveLength(6);
+    expect(playRows()[0].textContent).toContain("End of Game");
+    const toggle = within(playsRegion()).getByRole("button", {
+      name: strings.game.plays.showAll(50),
+    });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(
+      document.getElementById(toggle.getAttribute("aria-controls") ?? ""),
+    ).toBe(within(playsRegion()).getByRole("list"));
+
+    fireEvent.click(toggle);
+    expect(playRows()).toHaveLength(50);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(toggle.textContent).toBe(strings.game.plays.showFewer);
+
+    fireEvent.click(toggle);
+    expect(playRows()).toHaveLength(6);
+  });
+
+  it("collapses the desktop feed again when another period is picked", async () => {
+    setViewport("desktop");
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    fireEvent.click(
+      within(playsRegion()).getByRole("button", {
+        name: strings.game.plays.showAll(50),
+      }),
+    );
+    fireEvent.click(periodButton("Q1"));
+
+    expect(playRows()).toHaveLength(6);
+    expect(
+      within(playsRegion()).getByRole("button", {
+        name: strings.game.plays.showAll(40),
+      }),
+    ).toBeDefined();
+  });
+
+  it("keeps the rows being read in place when new plays arrive", async () => {
+    setViewport("mobile");
+    // Lays the rows out one under another, with the feed starting 1000px down the page.
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        const feedTop = 1000 - window.scrollY;
+        if (this.tagName === "OL") {
+          return {
+            top: feedTop,
+            bottom: feedTop + this.children.length * ROW_HEIGHT,
+          } as DOMRect;
+        }
+        const rowIndex = Array.from(this.parentElement?.children ?? []).indexOf(
+          this,
+        );
+        return { top: feedTop + rowIndex * ROW_HEIGHT } as DOMRect;
+      },
+    );
+    window.history.replaceState(null, "", `/game/${GAME_ID}?tab=plays`);
+    await renderLoadedGameDetail(liveSummary, DURING_LIVE_GAME);
+    act(() => {
+      window.scrollTo(0, 1200);
+      window.dispatchEvent(new Event("scroll"));
+    });
+
+    const newestPlay = liveSummary.plays.at(-1);
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        ...liveSummary,
+        plays: [
+          ...liveSummary.plays,
+          {
+            ...newestPlay,
+            id: "new-play-1",
+            text: "Joel Embiid makes free throw 1 of 2",
+          },
+          {
+            ...newestPlay,
+            id: "new-play-2",
+            text: "Joel Embiid makes free throw 2 of 2",
+          },
+        ],
+      }),
+    );
+    await waitOnePollingInterval();
+
+    expect(playRows()[0].textContent).toContain("free throw 2 of 2");
+    expect(window.scrollY).toBe(1200 + 2 * ROW_HEIGHT);
+  });
+
+  it("leaves the page where it is when new plays arrive above the fold", async () => {
+    setViewport("mobile");
+    window.history.replaceState(null, "", `/game/${GAME_ID}?tab=plays`);
+    await renderLoadedGameDetail(liveSummary, DURING_LIVE_GAME);
+
+    const newestPlay = liveSummary.plays.at(-1);
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        ...liveSummary,
+        plays: [...liveSummary.plays, { ...newestPlay, id: "new-play-1" }],
+      }),
+    );
+    await waitOnePollingInterval();
+
+    expect(playRows()).toHaveLength(41);
+    expect(window.scrollY).toBe(0);
+  });
+});
