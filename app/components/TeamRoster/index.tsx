@@ -131,13 +131,16 @@ export default function TeamRoster({
                 <td className="px-3 py-2 font-medium">
                   <span className="flex items-center gap-2.5">
                     <Headshot headshotUrl={player.headshotUrl} />
-                    {player.name}
-                    {player.injuryStatus && (
-                      <InjuryStatus
-                        status={player.injuryStatus}
-                        comment={player.injuryComment}
-                      />
-                    )}
+                    {/* The status wraps under the name, so a long one like "Day-To-Day" doesn't widen the table past the side column. */}
+                    <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                      {player.name}
+                      {player.injuryStatus && (
+                        <InjuryStatus
+                          status={player.injuryStatus}
+                          comment={player.injuryComment}
+                        />
+                      )}
+                    </span>
                   </span>
                 </td>
                 <td className="px-3 py-2">{player.position}</td>

@@ -23,7 +23,7 @@ const PLAYOFFS_HEADING_ID = "team-schedule-playoffs";
 
 // The date, opponent, and trailing columns of the TeamPage and TeamPageDesktop artboards.
 const ROW_CLASS_NAME =
-  "grid min-h-14 grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[14px] border px-3 py-2.5 md:grid-cols-[110px_minmax(0,1fr)_auto] md:gap-4 md:px-3.5";
+  "grid min-h-14 grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[14px] border px-3 py-2.5 lg:grid-cols-[110px_minmax(0,1fr)_auto] lg:gap-4 lg:px-3.5";
 const DEFAULT_ROW_TONE_CLASS_NAME = "border-white/7 bg-white/3.5";
 const ROW_LINK_CLASS_NAME = `transition-colors hover:bg-white/7 ${FOCUS_RING_CLASS_NAME}`;
 const LIVE_ROW_TONE_CLASS_NAME =
@@ -64,7 +64,7 @@ function GameDay({
   );
 }
 
-// Mobile names the opponent by its short name, desktop by its full name, as in the artboards.
+// Up to lg the opponent goes by its short name, as in the TeamPage artboard, then by its full name, as in TeamPageDesktop.
 function Opponent({
   sideLabel,
   opponent,
@@ -81,8 +81,8 @@ function Opponent({
       </span>
       <TeamLogo logoUrl={opponent.logoUrl} size={LOGO_DISPLAY_SIZE} lazy />
       <span className="truncate text-[13px] font-bold md:text-sm">
-        <span className="md:hidden">{opponent.name}</span>
-        <span className="hidden md:inline">{opponent.displayName}</span>
+        <span className="lg:hidden">{opponent.name}</span>
+        <span className="hidden lg:inline">{opponent.displayName}</span>
       </span>
       {children}
     </span>
@@ -107,7 +107,7 @@ function LiveStatus({ game }: { game: TeamLiveGame }) {
         />
         {strings.gameStatus.live}
       </span>
-      <span className="hidden text-xs font-bold text-secondary md:inline">
+      <span className="hidden text-xs font-bold text-secondary lg:inline">
         {game.statusLabel}
       </span>
     </span>
@@ -117,12 +117,12 @@ function LiveStatus({ game }: { game: TeamLiveGame }) {
 // Score updates replace the text in place without a live region, so they are not announced.
 function LiveScore({ game }: { game: TeamLiveGame }) {
   return (
-    <span className="flex flex-col items-end text-right md:flex-row-reverse md:items-center md:gap-4">
+    <span className="flex flex-col items-end text-right lg:flex-row-reverse lg:items-center lg:gap-4">
       <span className="font-display text-lg tabular-nums md:text-[22px]">
         {game.score}
       </span>
-      <span className="text-[10px] text-muted md:hidden">{game.metaLabel}</span>
-      <span className="hidden text-xs text-muted md:inline">
+      <span className="text-[10px] text-muted lg:hidden">{game.metaLabel}</span>
+      <span className="hidden text-xs text-muted lg:inline">
         {game.channelLabel}
       </span>
     </span>
@@ -146,7 +146,7 @@ function LiveGameRow({ game }: { game: TeamLiveGame }) {
 
 function TipOff({ game }: { game: TeamUpcomingGame }) {
   return (
-    <span className="flex flex-col items-end text-right md:flex-row-reverse md:items-center md:gap-4">
+    <span className="flex flex-col items-end text-right lg:flex-row-reverse lg:items-center lg:gap-4">
       {game.isPostponed ? (
         <span className="text-[13px] font-bold text-warning md:text-sm">
           {strings.gameStatus.postponed}
@@ -282,8 +282,8 @@ function PlayoffSeries({ series }: { series: TeamPlayoffSeries }) {
               </span>
             )}
             <h3 className="truncate text-sm font-bold md:text-[15px]">
-              <span className="md:hidden">{series.opponent.name}</span>
-              <span className="hidden md:inline">
+              <span className="lg:hidden">{series.opponent.name}</span>
+              <span className="hidden lg:inline">
                 {series.opponent.displayName}
               </span>
             </h3>
