@@ -24,9 +24,8 @@ import { currentNbaDate } from "@/app/lib/time/nba-date";
 import { formatLocalTime, formatTipOffDay } from "@/app/lib/time/tip-off";
 
 const TEAMS_PATH_PREFIX = "/teams/";
-const STANDINGS_PATH = "/standings";
 const TAB_PARAM = "tab";
-const TEAM_TAB_IDS = ["schedule", "roster", "standings"] as const;
+const TEAM_TAB_IDS = ["schedule", "roster"] as const;
 const DEFAULT_TEAM_TAB = "schedule";
 const GAME_PATH_PREFIX = "/game/";
 // Each schedule list opens on this many games, as in the TeamPageDesktop artboard, then grows by a page per expansion.
@@ -201,8 +200,6 @@ export type TeamReadyScreen = {
   tiles: TeamTile[] | null;
   // The desktop header sums up the home and away tiles in one chip; null until the standings load.
   homeAwayLabel: string | null;
-  // The full standings, on the team's conference once it is known.
-  standingsHref: string;
   // Null until the schedule loads.
   schedule: TeamSchedule | null;
   // By position group, then jersey number; null until the roster loads.
@@ -319,13 +316,6 @@ function tilesOf({ row }: TeamStanding): TeamTile[] {
       value: row.lastTenRecord,
     },
   ];
-}
-
-// Matches the `?conf=` value the standings page reads, e.g. "west".
-function standingsHrefOf(standing: TeamStanding | null) {
-  return standing
-    ? `${STANDINGS_PATH}?conf=${standing.conference.abbreviation.toLowerCase()}`
-    : STANDINGS_PATH;
 }
 
 function followOf(teamId: string, favoriteTeamIds: string[]): TeamFollow {
@@ -563,7 +553,6 @@ function screenOf(
     homeAwayLabel:
       standing &&
       strings.team.homeAway(standing.row.homeRecord, standing.row.roadRecord),
-    standingsHref: standingsHrefOf(standing),
     schedule:
       schedule.games &&
       scheduleOf(

@@ -353,21 +353,6 @@ describe("buildTeamView", () => {
     });
   });
 
-  describe("standings link", () => {
-    it("opens the full standings on the team's conference", () => {
-      expect(readyScreenOf(viewFor().screen).standingsHref).toBe(
-        "/standings?conf=west",
-      );
-    });
-
-    it("opens the full standings until the conference is known", () => {
-      expect(
-        readyScreenOf(viewFor({ standingsQuery: { status: "error" } }).screen)
-          .standingsHref,
-      ).toBe("/standings");
-    });
-  });
-
   describe("screen", () => {
     it.each(["loading", "error"] as const)(
       "is %s while the team is",
@@ -910,21 +895,13 @@ describe("buildTeamView", () => {
             label: strings.team.tabs.roster,
             href: "/teams/lakers?tab=roster",
           },
-          {
-            id: "standings",
-            label: strings.team.tabs.standings,
-            href: "/teams/lakers?tab=standings",
-          },
         ],
       });
     });
 
-    it.each(["roster", "standings"] as const)(
-      "selects the %s tab from the query string",
-      (tab) => {
-        expect(viewFor({ tabParam: tab }).tabs.selected).toBe(tab);
-      },
-    );
+    it("selects the roster tab from the query string", () => {
+      expect(viewFor({ tabParam: "roster" }).tabs.selected).toBe("roster");
+    });
 
     it("falls back to the schedule for an unknown tab", () => {
       expect(viewFor({ tabParam: "stats" }).tabs.selected).toBe("schedule");

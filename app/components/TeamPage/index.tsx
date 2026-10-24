@@ -1,11 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
-import { PANEL_HEADING_CLASS_NAME } from "@/app/components/HomeSidebar/styles";
 import TeamRoster from "@/app/components/TeamRoster";
 import TeamSchedule from "@/app/components/TeamSchedule";
 import type { TeamSlug } from "@/app/lib/domain/team";
@@ -21,50 +18,19 @@ import {
   teamScheduleQueryOptions,
 } from "@/app/lib/queries/team";
 import type { StandingsQueryState } from "@/app/lib/standings/standings-view";
-import { strings } from "@/app/lib/strings";
 import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import {
   buildTeamView,
   type TeamQueryState,
-  type TeamReadyScreen,
   type TeamScheduleExpansions,
 } from "@/app/lib/team/team-view";
 import { TeamGlow, TeamHeader } from "./header";
 import { TeamSections } from "./sections";
 
-const STANDINGS_HEADING_ID = "team-conference-standings";
-
 type TeamPageProps = {
   teamId: string;
   slug: TeamSlug;
 };
-
-// Filled with the team's conference table in its own ticket; until then it links to the full standings.
-function ConferenceStandings({ screen }: { screen: TeamReadyScreen }) {
-  const conferenceName = screen.header.conferenceName;
-
-  return (
-    <section
-      aria-labelledby={STANDINGS_HEADING_ID}
-      className="flex items-center justify-between gap-3"
-    >
-      <h2 id={STANDINGS_HEADING_ID} className={PANEL_HEADING_CLASS_NAME}>
-        {conferenceName ?? strings.team.tabs.standings}
-      </h2>
-      <Link
-        href={screen.standingsHref}
-        aria-label={
-          conferenceName
-            ? strings.team.standings.fullTableLabel(conferenceName)
-            : undefined
-        }
-        className={`flex min-h-11 items-center rounded-full text-xs font-bold text-link ${FOCUS_RING_CLASS_NAME}`}
-      >
-        {strings.team.standings.fullTable}
-      </Link>
-    </section>
-  );
-}
 
 export function TeamPageContent({
   teamId,
@@ -145,7 +111,6 @@ export function TeamPageContent({
           )
         }
         roster={screen.roster && <TeamRoster players={screen.roster} />}
-        standings={<ConferenceStandings screen={screen} />}
       />
     </div>
   );

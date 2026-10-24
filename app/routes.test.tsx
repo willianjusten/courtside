@@ -591,12 +591,12 @@ describe("routes", () => {
   });
 
   it("restores the tab from the URL", async () => {
-    window.history.replaceState(null, "", "/teams/lakers?tab=standings");
+    window.history.replaceState(null, "", "/teams/lakers?tab=roster");
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
     expect(
       (
-        await screen.findByRole("tab", { name: strings.team.tabs.standings })
+        await screen.findByRole("tab", { name: strings.team.tabs.roster })
       ).getAttribute("aria-selected"),
     ).toBe("true");
   });

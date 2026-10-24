@@ -418,12 +418,6 @@ export const strings = {
       label: "Team sections",
       schedule: "Schedule",
       roster: "Roster",
-      standings: "Standings",
-    },
-    standings: {
-      fullTable: "Full table",
-      fullTableLabel: (conferenceName: string) =>
-        `Full ${conferenceName} standings`,
     },
     schedule: {
       upNext: "Up next",
