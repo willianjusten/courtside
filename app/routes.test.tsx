@@ -175,7 +175,7 @@ describe("routes", () => {
     const leaders = screen.getByRole("region", {
       name: strings.game.leaders.title,
     });
-    expect(within(leaders).getAllByText("L. Doncic")).not.toHaveLength(0);
+    expect(within(leaders).getByText("L. Doncic · LAL")).toBeDefined();
   });
 
   it("links both teams in the header to their team pages", async () => {

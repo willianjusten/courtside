@@ -831,18 +831,13 @@ describe("buildGameView", () => {
   });
 
   describe("game leaders", () => {
-    it("lists each team's points, rebounds, and assists leaders, away first", () => {
-      const teams = leadersFor(final)?.teams ?? [];
-
-      expect(teams.map(({ side, teamName }) => ({ side, teamName }))).toEqual([
-        { side: "away", teamName: "Warriors" },
-        { side: "home", teamName: "Lakers" },
-      ]);
-      expect(teams[1].leaders).toEqual([
+    it("shows the game's points, rebounds, and assists leaders across both teams", () => {
+      expect(leadersFor(final)?.leaders).toEqual([
         {
           stat: "points",
           label: "Points",
           athleteName: "L. Doncic",
+          teamAbbreviation: "LAL",
           headshotUrl:
             "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
           value: "28",
@@ -851,6 +846,7 @@ describe("buildGameView", () => {
           stat: "rebounds",
           label: "Rebounds",
           athleteName: "W. Kessler",
+          teamAbbreviation: "LAL",
           headshotUrl:
             "https://a.espncdn.com/i/headshots/nba/players/full/4433136.png",
           value: "9",
@@ -858,28 +854,70 @@ describe("buildGameView", () => {
         {
           stat: "assists",
           label: "Assists",
-          athleteName: "L. Doncic",
+          athleteName: "D. Green",
+          teamAbbreviation: "GS",
           headshotUrl:
-            "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
-          value: "7",
+            "https://a.espncdn.com/i/headshots/nba/players/full/6589.png",
+          value: "8",
         },
       ]);
     });
 
-    it("leaves out a category ESPN has no leader for", () => {
-      const teams =
+    it("picks the away leader on a tie, as the header reads away first", () => {
+      const tiedPoints = {
+        ...final,
+        leaders: {
+          ...final.leaders,
+          home: final.leaders.home.map((gameLeader) =>
+            gameLeader.stat === "points"
+              ? {
+                  ...gameLeader,
+                  leader: {
+                    ...gameLeader.leader,
+                    value: 23,
+                    displayValue: "23",
+                  },
+                }
+              : gameLeader,
+          ),
+        },
+      };
+
+      expect(leadersFor(tiedPoints)?.leaders[0]).toMatchObject({
+        athleteName: "S. Curry",
+        teamAbbreviation: "GS",
+      });
+    });
+
+    it("takes the only team's leader when the other has none in a category", () => {
+      const leaders =
         leadersFor({
           ...final,
           leaders: {
             ...final.leaders,
-            away: final.leaders.away.filter(({ stat }) => stat !== "assists"),
+            home: final.leaders.home.filter(({ stat }) => stat !== "points"),
           },
-        })?.teams ?? [];
+        })?.leaders ?? [];
 
-      expect(teams[0].leaders.map(({ stat }) => stat)).toEqual([
-        "points",
-        "rebounds",
-      ]);
+      expect(leaders[0]).toMatchObject({
+        athleteName: "S. Curry",
+        value: "23",
+      });
+    });
+
+    it("leaves out a category neither team has a leader for", () => {
+      const withoutAssists = (gameLeaders: GameSummary["leaders"]["home"]) =>
+        gameLeaders.filter(({ stat }) => stat !== "assists");
+      const leaders =
+        leadersFor({
+          ...final,
+          leaders: {
+            home: withoutAssists(final.leaders.home),
+            away: withoutAssists(final.leaders.away),
+          },
+        })?.leaders ?? [];
+
+      expect(leaders.map(({ stat }) => stat)).toEqual(["points", "rebounds"]);
     });
 
     it("shows no leaders until ESPN lists any", () => {

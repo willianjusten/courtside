@@ -66,7 +66,12 @@ function LeaderTile({ leader }: { leader: GameLeaderRow }) {
         >
           {leader.label}
         </span>
-        <span className="truncate text-[13px]">{leader.athleteName}</span>
+        <span className="truncate text-[13px]">
+          {strings.game.leaders.athlete(
+            leader.athleteName,
+            leader.teamAbbreviation,
+          )}
+        </span>
       </span>
       <span className="font-display text-[30px] leading-none">
         {leader.value}
@@ -79,24 +84,9 @@ export function GameLeaders({ leaders }: { leaders: GameLeadersView | null }) {
   return (
     <Section headingId="game-leaders" title={strings.game.leaders.title}>
       {leaders ? (
-        <ul className="flex flex-col gap-4">
-          {leaders.teams.map((team) => (
-            <li key={team.side} className="flex flex-col gap-2">
-              <h3 className="text-xs font-bold tracking-[0.04em] text-secondary">
-                {team.teamName}
-              </h3>
-              {team.leaders.length === 0 ? (
-                <p className="text-sm text-muted">
-                  {strings.game.leaders.empty}
-                </p>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {team.leaders.map((leader) => (
-                    <LeaderTile key={leader.stat} leader={leader} />
-                  ))}
-                </ul>
-              )}
-            </li>
+        <ul className="flex flex-col gap-2">
+          {leaders.leaders.map((leader) => (
+            <LeaderTile key={leader.stat} leader={leader} />
           ))}
         </ul>
       ) : (

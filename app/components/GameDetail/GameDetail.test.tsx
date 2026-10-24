@@ -353,28 +353,24 @@ describe("GameDetail team stats", () => {
 });
 
 describe("GameDetail game leaders", () => {
-  it("shows each team's points, rebounds, and assists leaders with headshots", async () => {
+  it("shows the game's points, rebounds, and assists leaders with their team and headshot", async () => {
     await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
 
     const leaders = screen.getByRole("region", {
       name: strings.game.leaders.title,
     });
-    const lakers = within(leaders)
-      .getByRole("heading", { name: "Lakers" })
-      .closest("li");
-    if (!lakers) throw new Error("Expected the Lakers leaders");
 
     expect(
-      within(lakers)
+      within(leaders)
         .getAllByRole("listitem")
         .map((item) => item.textContent),
     ).toEqual([
-      "PointsL. Doncic28",
-      "ReboundsW. Kessler9",
-      "AssistsL. Doncic7",
+      "PointsL. Doncic · LAL28",
+      "ReboundsW. Kessler · LAL9",
+      "AssistsD. Green · GS8",
     ]);
     expect(
-      within(lakers)
+      within(leaders)
         .getByRole("img", { name: "W. Kessler" })
         .getAttribute("src"),
     ).toContain("4433136.png");

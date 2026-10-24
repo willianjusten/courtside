@@ -204,20 +204,15 @@ export type GameLeaderRow = {
   stat: LeaderStat;
   label: string;
   athleteName: string;
+  teamAbbreviation: string;
   headshotUrl: string | null;
   value: string;
 };
 
-export type TeamLeadersView = {
-  side: TeamSide;
-  teamName: string;
-  // Points, rebounds, then assists, leaving out a category ESPN has no leader for.
-  leaders: GameLeaderRow[];
-};
-
 export type GameLeadersView = {
-  // Away first, as the header reads.
-  teams: TeamLeadersView[];
+  // The game's leader per stat across both teams: points, rebounds, then assists,
+  // leaving out a category neither team has a leader for.
+  leaders: GameLeaderRow[];
 };
 
 const GAME_TAB_IDS = ["summary", "box", "stats", "plays"] as const;
@@ -550,37 +545,40 @@ function teamStatsOf(summary: GameSummary): TeamStatsView | null {
   };
 }
 
-function teamLeadersOf(summary: GameSummary, side: TeamSide): TeamLeadersView {
-  const leaderByStat = new Map(
-    summary.leaders[side].map(({ stat, leader }) => [stat, leader]),
+function gameLeaderOf(
+  summary: GameSummary,
+  stat: LeaderStat,
+): GameLeaderRow | null {
+  // Away first, so a tie goes to the away leader, as the header reads.
+  const candidates = (["away", "home"] as const).flatMap((side) => {
+    const gameLeader = summary.leaders[side].find(
+      (candidate) => candidate.stat === stat,
+    );
+    return gameLeader ? [{ side, leader: gameLeader.leader }] : [];
+  });
+  const top = candidates.reduce<(typeof candidates)[number] | null>(
+    (best, candidate) =>
+      !best || candidate.leader.value > best.leader.value ? candidate : best,
+    null,
   );
+  if (!top) return null;
 
   return {
-    side,
-    teamName: summary.game[side].team.name,
-    leaders: LEADER_STATS.flatMap((stat): GameLeaderRow[] => {
-      const leader = leaderByStat.get(stat);
-      if (!leader) return [];
-      return [
-        {
-          stat,
-          label: strings.leaders.categories[stat].title,
-          athleteName: leader.athlete.shortName,
-          headshotUrl: leader.athlete.headshotUrl,
-          value: leader.displayValue,
-        },
-      ];
-    }),
+    stat,
+    label: strings.leaders.categories[stat].title,
+    athleteName: top.leader.athlete.shortName,
+    teamAbbreviation: summary.game[top.side].team.abbreviation,
+    headshotUrl: top.leader.athlete.headshotUrl,
+    value: top.leader.displayValue,
   };
 }
 
 function leadersOf(summary: GameSummary): GameLeadersView | null {
-  const { home, away } = summary.leaders;
-  if (home.length === 0 && away.length === 0) return null;
-
-  return {
-    teams: [teamLeadersOf(summary, "away"), teamLeadersOf(summary, "home")],
-  };
+  const leaders = LEADER_STATS.flatMap((stat) => {
+    const leader = gameLeaderOf(summary, stat);
+    return leader ? [leader] : [];
+  });
+  return leaders.length > 0 ? { leaders } : null;
 }
 
 function isGameTabId(tab: string): tab is GameTabId {

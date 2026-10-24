@@ -191,6 +191,8 @@ export const strings = {
     leaders: {
       title: "Game leaders",
       empty: "No leaders yet.",
+      athlete: (athleteName: string, teamAbbreviation: string) =>
+        `${athleteName} · ${teamAbbreviation}`,
     },
     boxScore: {
       title: "Box score",
