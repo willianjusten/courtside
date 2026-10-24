@@ -412,6 +412,8 @@ export const strings = {
     },
     homeAway: (homeRecord: string, awayRecord: string) =>
       `Home ${homeRecord} · Away ${awayRecord}`,
+    follow: "Follow",
+    following: "Following",
     tabs: {
       label: "Team sections",
       schedule: "Schedule",

@@ -52,17 +52,20 @@ function viewFor({
   query = { status: "success", team },
   standingsQuery = loadedStandings,
   tabParam = null,
+  favoriteTeamIds = [],
 }: {
   team?: TeamDetail;
   query?: TeamQueryState;
   standingsQuery?: StandingsQueryState;
   tabParam?: string | null;
+  favoriteTeamIds?: string[];
 } = {}) {
   return buildTeamView({
     slug: team.slug,
     query,
     standingsQuery,
     tabParam,
+    favoriteTeamIds,
   });
 }
 
@@ -227,6 +230,32 @@ describe("buildTeamView", () => {
       );
 
       expect(tiles?.map((tile) => tile.value)).toEqual(["1-0", "0-0", "1-0"]);
+    });
+  });
+
+  describe("follow", () => {
+    it("offers to follow a team that is not a favorite", () => {
+      const { follow } = readyScreenOf(
+        viewFor({ favoriteTeamIds: [knicks.id] }).screen,
+      );
+
+      expect(follow).toEqual({
+        teamId: lakers.id,
+        isFollowing: false,
+        label: strings.team.follow,
+      });
+    });
+
+    it("shows a favorite team as followed", () => {
+      const { follow } = readyScreenOf(
+        viewFor({ favoriteTeamIds: [knicks.id, lakers.id] }).screen,
+      );
+
+      expect(follow).toEqual({
+        teamId: lakers.id,
+        isFollowing: true,
+        label: strings.team.following,
+      });
     });
   });
 

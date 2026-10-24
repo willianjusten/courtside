@@ -1,8 +1,13 @@
+import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/app/components/TeamLogo";
 import type { StandingsZone } from "@/app/lib/standings/standings-view";
 import type { StreakKind } from "@/app/lib/standings/streak";
 import { strings } from "@/app/lib/strings";
-import type { TeamReadyScreen, TeamTile } from "@/app/lib/team/team-view";
+import type {
+  TeamFollow,
+  TeamReadyScreen,
+  TeamTile,
+} from "@/app/lib/team/team-view";
 
 const LOGO_SIZE = 120;
 
@@ -45,6 +50,38 @@ export function TeamGlow({ screen }: { screen: TeamReadyScreen }) {
   );
 }
 
+function FollowButton({
+  follow,
+  onToggleFollow,
+}: {
+  follow: TeamFollow;
+  onToggleFollow: () => void;
+}) {
+  const toneClassName = follow.isFollowing
+    ? "border-favorite/50 bg-favorite/14 text-favorite-soft"
+    : "border-white/16 bg-white/6 text-foreground hover:bg-white/10";
+
+  return (
+    <button
+      type="button"
+      aria-pressed={follow.isFollowing}
+      onClick={onToggleFollow}
+      className={`inline-flex min-h-11 cursor-pointer items-center gap-1.75 rounded-full border px-4 text-[13px] font-bold transition-colors md:min-h-12 md:gap-2 md:px-5.5 md:text-sm ${FOCUS_RING_CLASS_NAME} ${toneClassName}`}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        className={`size-4 shrink-0 stroke-favorite md:size-4.5 ${follow.isFollowing ? "fill-favorite" : "fill-none"}`}
+      >
+        <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />
+      </svg>
+      {follow.label}
+    </button>
+  );
+}
+
 // Mobile only: desktop sums up the home and away records in a header chip.
 function TeamTiles({ tiles }: { tiles: TeamTile[] }) {
   return (
@@ -67,12 +104,22 @@ function TeamTiles({ tiles }: { tiles: TeamTile[] }) {
   );
 }
 
-export function TeamHeader({ screen }: { screen: TeamReadyScreen }) {
-  const { header, tiles, homeAwayLabel } = screen;
+export function TeamHeader({
+  screen,
+  onToggleFollow,
+}: {
+  screen: TeamReadyScreen;
+  onToggleFollow: () => void;
+}) {
+  const { header, follow, tiles, homeAwayLabel } = screen;
 
   return (
     <div className="relative flex flex-col gap-3.5 md:gap-0">
-      <header className="flex items-center gap-3.5 md:gap-6">
+      <header className="flex flex-wrap items-center gap-3.5 md:gap-6">
+        {/* The mobile artboard puts the button in the top bar, so it takes a row of its own above a long team name. */}
+        <div className="order-first flex basis-full justify-end md:order-last md:ml-auto md:basis-auto">
+          <FollowButton follow={follow} onToggleFollow={onToggleFollow} />
+        </div>
         {/* One logo at the desktop size, shrunk on mobile, so the browser loads a single image. */}
         <span className="shrink-0 *:size-18 md:*:size-30">
           <TeamLogo logoUrl={header.logoUrl} size={LOGO_SIZE} />

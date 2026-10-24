@@ -6,6 +6,7 @@ import {
 } from "@testing-library/react";
 import type { ReactElement } from "react";
 import Providers from "./providers";
+import { favoritesStore } from "@/app/lib/favorites/use-favorite-team-ids";
 import {
   LEADERS_API_PATH,
   leadersQueryOptions,
@@ -41,6 +42,7 @@ const ATHLETE_URL_PATTERN = /\/athletes\/(\d+)$/;
 const FINAL_GAME_ID = "401909092";
 const LIVE_GAME_ID = "401909093";
 const PRE_GAME_ID = "401909094";
+const LAKERS_TEAM_ID = "13";
 
 // The sidebar is an async server component, which the client renderer here cannot render; it has its own tests.
 vi.mock("./components/HomeSidebar", () => ({ default: () => null }));
@@ -96,6 +98,7 @@ describe("routes", () => {
     getQueryClient().removeQueries({
       queryKey: standingsQueryOptions().queryKey,
     });
+    favoritesStore().remove(LAKERS_TEAM_ID);
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
     window.history.replaceState(null, "", "/");
@@ -647,6 +650,27 @@ describe("routes", () => {
       "https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/5113969.png&w=64&h=48",
     );
     expect(photo?.getAttribute("loading")).toBe("lazy");
+  });
+
+  it("follows and unfollows the team from its header", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const followButton = await screen.findByRole("button", {
+      name: strings.team.follow,
+    });
+    expect(followButton.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(followButton);
+
+    expect(favoritesStore().has(LAKERS_TEAM_ID)).toBe(true);
+    const followingButton = screen.getByRole("button", {
+      name: strings.team.following,
+    });
+    expect(followingButton.getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(followingButton);
+
+    expect(favoritesStore().has(LAKERS_TEAM_ID)).toBe(false);
   });
 
   it("returns not found for an unknown team slug", async () => {

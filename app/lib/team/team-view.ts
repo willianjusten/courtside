@@ -31,6 +31,7 @@ export type TeamViewInput = {
   standingsQuery: StandingsQueryState;
   // The raw `?tab=` value, which picks the mobile tab.
   tabParam: string | null;
+  favoriteTeamIds: string[];
 };
 
 export type TeamColors = {
@@ -69,9 +70,16 @@ export type TeamTile = {
   value: string;
 };
 
+export type TeamFollow = {
+  teamId: string;
+  isFollowing: boolean;
+  label: string;
+};
+
 export type TeamReadyScreen = {
   kind: "ready";
   header: TeamHeaderView;
+  follow: TeamFollow;
   // Null until the standings load.
   tiles: TeamTile[] | null;
   // The desktop header sums up the home and away tiles in one chip; null until the standings load.
@@ -199,9 +207,19 @@ function standingsHrefOf(standing: TeamStanding | null) {
     : STANDINGS_PATH;
 }
 
+function followOf(teamId: string, favoriteTeamIds: string[]): TeamFollow {
+  const isFollowing = favoriteTeamIds.includes(teamId);
+  return {
+    teamId,
+    isFollowing,
+    label: isFollowing ? strings.team.following : strings.team.follow,
+  };
+}
+
 function screenOf(
   query: TeamQueryState,
   standingsQuery: StandingsQueryState,
+  favoriteTeamIds: string[],
 ): TeamScreen {
   if (query.status === "loading" || query.status === "error") {
     return { kind: query.status };
@@ -211,6 +229,7 @@ function screenOf(
   return {
     kind: "ready",
     header: headerOf(query.team, standing),
+    follow: followOf(query.team.id, favoriteTeamIds),
     tiles: standing && tilesOf(standing),
     homeAwayLabel:
       standing &&
@@ -242,9 +261,10 @@ export function buildTeamView({
   query,
   standingsQuery,
   tabParam,
+  favoriteTeamIds,
 }: TeamViewInput): TeamView {
   return {
-    screen: screenOf(query, standingsQuery),
+    screen: screenOf(query, standingsQuery, favoriteTeamIds),
     tabs: tabsOf(slug, tabParam),
   };
 }

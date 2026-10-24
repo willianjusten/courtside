@@ -8,6 +8,10 @@ import { PANEL_HEADING_CLASS_NAME } from "@/app/components/HomeSidebar/styles";
 import TeamRoster from "@/app/components/TeamRoster";
 import TeamSchedule from "@/app/components/TeamSchedule";
 import type { TeamSlug } from "@/app/lib/domain/team";
+import {
+  favoritesStore,
+  useFavoriteTeamIds,
+} from "@/app/lib/favorites/use-favorite-team-ids";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import {
   teamDetailQueryOptions,
@@ -75,6 +79,7 @@ export function TeamPageContent({
   } = useQuery(standingsQueryOptions());
   const { data: games } = useQuery(teamScheduleQueryOptions(teamId));
   const { data: players } = useQuery(teamRosterQueryOptions(teamId));
+  const favoriteTeamIds = useFavoriteTeamIds();
 
   // Data is checked before the error: a failed refetch keeps the last team instead of hiding it.
   const query: TeamQueryState = team
@@ -96,6 +101,7 @@ export function TeamPageContent({
     query,
     standingsQuery,
     tabParam,
+    favoriteTeamIds,
   });
 
   // The loading and error states arrive with the team page screen states.
@@ -104,7 +110,10 @@ export function TeamPageContent({
   return (
     <div className="flex flex-col gap-4 md:gap-7">
       <TeamGlow screen={screen} />
-      <TeamHeader screen={screen} />
+      <TeamHeader
+        screen={screen}
+        onToggleFollow={() => favoritesStore().toggle(screen.follow.teamId)}
+      />
       <TeamSections
         tabs={tabs}
         // Replacing the entry keeps the tab in the URL without adding a history step per tab.
