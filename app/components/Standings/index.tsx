@@ -77,7 +77,8 @@ export default function Standings({ sideColumn }: { sideColumn: ReactNode }) {
           <ConferenceSwitch options={screen.conferenceOptions} />
         )}
       </div>
-      <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+      {/* Stacked on every width until the leaders ticket (#113) moves them into a desktop side column. */}
+      <div className="flex flex-col gap-8">
         <section
           aria-label={
             screen.kind === "ready"
