@@ -697,6 +697,24 @@ describe("routes", () => {
     ).toBeDefined();
   });
 
+  it("marks injured players with their status in the roster", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const roster = await screen.findByRole("region", {
+      name: strings.team.roster.title,
+    });
+    expect(
+      within(
+        within(roster).getByRole("row", { name: /Cameron Carr/ }),
+      ).getByText("Day-To-Day"),
+    ).toBeDefined();
+    expect(
+      within(
+        within(roster).getByRole("row", { name: /Luka Doncic/ }),
+      ).queryByText("Day-To-Day"),
+    ).toBeNull();
+  });
+
   it("shows each player's photo beside their name", async () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 

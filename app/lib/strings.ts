@@ -447,9 +447,8 @@ export const strings = {
       jersey: "#",
       player: "Player",
       position: "Pos",
-      height: "Ht",
-      weight: "Wt",
       age: "Age",
+      height: "Ht",
     },
   },
   playoffs: {

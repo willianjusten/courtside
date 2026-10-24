@@ -149,6 +149,8 @@ export type RawRosterAthlete = {
   displayWeight?: string;
   age?: number;
   headshot?: { href: string };
+  // Empty for a healthy player, e.g. [{ status: "Day-To-Day" }] for an injured one.
+  injuries?: { status: string }[];
 };
 
 export type RawTeamsList = {

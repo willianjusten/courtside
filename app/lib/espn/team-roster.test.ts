@@ -46,6 +46,18 @@ describe("fetchTeamRoster", () => {
       age: 27,
       headshotUrl:
         "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
+      injuryStatus: null,
+    });
+  });
+
+  it("maps the injury status ESPN sends for an injured player", async () => {
+    respondWith(lakersRoster);
+
+    const [cameronCarr] = await fetchTeamRoster("13");
+
+    expect(cameronCarr).toMatchObject({
+      displayName: "Cameron Carr",
+      injuryStatus: "Day-To-Day",
     });
   });
 
@@ -62,6 +74,7 @@ describe("fetchTeamRoster", () => {
         weight: null,
         age: null,
         headshotUrl: null,
+        injuryStatus: null,
       },
     ]);
   });

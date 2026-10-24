@@ -1,9 +1,10 @@
 import type { Game } from "@/app/lib/domain/game";
 import type { NbaDate } from "@/app/lib/domain/nba-date";
 import type { Standings } from "@/app/lib/domain/standings";
-import type { TeamDetail } from "@/app/lib/domain/team";
+import type { RosterPlayer, TeamDetail } from "@/app/lib/domain/team";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
 import lakersDetailFixture from "@/app/lib/espn/__fixtures__/team-detail-lakers.json";
+import lakersRosterFixture from "@/app/lib/espn/__fixtures__/team-roster-lakers.json";
 import lakersScheduleFixture from "@/app/lib/espn/__fixtures__/team-schedule-lakers.json";
 import lakersLiveScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-lakers-live-simulated.json";
 import lakersFinalScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-lakers-final.json";
@@ -11,11 +12,13 @@ import liveDayScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-liv
 import {
   mapConferenceStandings,
   mapGame,
+  mapRosterPlayer,
   mapScheduleGame,
   mapSeason,
   mapTeamDetail,
 } from "@/app/lib/espn/mappers";
 import type {
+  RawRosterResponse,
   RawScoreboard,
   RawStandingsResponse,
   RawTeamDetailResponse,
@@ -85,6 +88,26 @@ const warriorsBeforeTipOff: Game = {
 };
 const gamesBeforeTipOff = [warriorsBeforeTipOff, ...lakersGames.slice(1)];
 
+// In ESPN's order, which lists the players by last name.
+const lakersPlayers = (
+  (lakersRosterFixture as unknown as RawRosterResponse).athletes ?? []
+).map(mapRosterPlayer);
+
+function rosterPlayerOf(overrides: Partial<RosterPlayer>): RosterPlayer {
+  return {
+    id: "1",
+    displayName: "Player",
+    jersey: null,
+    position: null,
+    height: null,
+    weight: null,
+    age: null,
+    headshotUrl: null,
+    injuryStatus: null,
+    ...overrides,
+  };
+}
+
 const loadedStandings: StandingsQueryState = {
   status: "success",
   standings,
@@ -96,6 +119,7 @@ function viewFor({
   standingsQuery = loadedStandings,
   games = lakersGames,
   scoreboardGames = null,
+  players = lakersPlayers,
   timeZone = "America/Los_Angeles",
   scheduleExpansions = { upcoming: 0, results: 0 },
   tabParam = null,
@@ -106,6 +130,7 @@ function viewFor({
   standingsQuery?: StandingsQueryState;
   games?: Game[] | null;
   scoreboardGames?: Game[] | null;
+  players?: RosterPlayer[] | null;
   timeZone?: string | null;
   scheduleExpansions?: TeamScheduleExpansions;
   tabParam?: string | null;
@@ -117,11 +142,18 @@ function viewFor({
     standingsQuery,
     games,
     scoreboardGames,
+    players,
     timeZone,
     scheduleExpansions,
     tabParam,
     favoriteTeamIds,
   });
+}
+
+function rosterOf(options: Parameters<typeof viewFor>[0] = {}) {
+  const roster = readyScreenOf(viewFor(options).screen).roster;
+  if (!roster) throw new Error("Expected the roster to be loaded");
+  return roster;
 }
 
 function scheduleOf(options: Parameters<typeof viewFor>[0] = {}): TeamSchedule {
@@ -745,6 +777,104 @@ describe("buildTeamView", () => {
       const screen = viewFor({ games: null }).screen;
 
       expect(readyScreenOf(screen).schedule).toBeNull();
+    });
+  });
+
+  describe("roster", () => {
+    it("sorts the players by position group, then jersey number", () => {
+      expect(
+        rosterOf().map(({ jersey, position }) => `${position} ${jersey}`),
+      ).toEqual([
+        "G 4",
+        "G 5",
+        "G 7",
+        "G 9",
+        "G 10",
+        "G 15",
+        "G 30",
+        "G 43",
+        "G 77",
+        "F 1",
+        "F 2",
+        "F 11",
+        "F 12",
+        "F 31",
+        "F 47",
+        "F 54",
+        "F 55",
+        "C 14",
+      ]);
+    });
+
+    it("groups detailed positions by their main one", () => {
+      const roster = rosterOf({
+        players: [
+          rosterPlayerOf({ id: "center", position: "C", jersey: "1" }),
+          rosterPlayerOf({ id: "small-forward", position: "SF", jersey: "2" }),
+          rosterPlayerOf({ id: "point-guard", position: "PG", jersey: "3" }),
+          rosterPlayerOf({ id: "guard-forward", position: "G-F", jersey: "1" }),
+        ],
+      });
+
+      expect(roster.map(({ id }) => id)).toEqual([
+        "guard-forward",
+        "point-guard",
+        "small-forward",
+        "center",
+      ]);
+    });
+
+    it("puts players without a position or a jersey number last", () => {
+      const roster = rosterOf({
+        players: [
+          rosterPlayerOf({ id: "no-position", position: null, jersey: "0" }),
+          rosterPlayerOf({ id: "no-jersey", position: "G", jersey: null }),
+          rosterPlayerOf({ id: "double-zero", position: "G", jersey: "00" }),
+          rosterPlayerOf({ id: "zero", position: "G", jersey: "0" }),
+        ],
+      });
+
+      expect(roster.map(({ id }) => id)).toEqual([
+        "zero",
+        "double-zero",
+        "no-jersey",
+        "no-position",
+      ]);
+    });
+
+    it("shows each player's number, name, position, age, height, and headshot", () => {
+      const lukaDoncic = rosterOf().find(({ id }) => id === "3945274");
+
+      expect(lukaDoncic).toEqual({
+        id: "3945274",
+        jersey: "77",
+        name: "Luka Doncic",
+        position: "G",
+        age: 27,
+        height: `6' 8"`,
+        headshotUrl:
+          "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
+        injuryStatus: null,
+      });
+    });
+
+    it("marks injured players with their status", () => {
+      expect(
+        rosterOf()
+          .filter(({ injuryStatus }) => injuryStatus)
+          .map(({ name, injuryStatus }) => `${name}: ${injuryStatus}`),
+      ).toEqual([
+        "Collin Sexton: Day-To-Day",
+        "Cameron Carr: Day-To-Day",
+        "Adou Thiero: Day-To-Day",
+        "Jake LaRavia: Day-To-Day",
+      ]);
+    });
+
+    it("leaves the roster out until it loads", () => {
+      const screen = viewFor({ players: null }).screen;
+
+      expect(readyScreenOf(screen).roster).toBeNull();
     });
   });
 

@@ -1,6 +1,6 @@
-import type { RosterPlayer } from "@/app/lib/domain/team";
 import { resizedImageUrl } from "@/app/lib/espn";
 import { strings } from "@/app/lib/strings";
+import type { TeamRosterPlayer } from "@/app/lib/team/team-view";
 
 const HEADING_ID = "team-roster";
 // Close to the 1040x760 aspect ratio of ESPN headshots, cropped slightly to fill the box.
@@ -34,7 +34,19 @@ function Headshot({ headshotUrl }: { headshotUrl: string | null }) {
   );
 }
 
-export default function TeamRoster({ players }: { players: RosterPlayer[] }) {
+function InjuryStatus({ status }: { status: string }) {
+  return (
+    <span className="shrink-0 rounded-full border border-warning/32 bg-warning/8 px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-warning-soft">
+      {status}
+    </span>
+  );
+}
+
+export default function TeamRoster({
+  players,
+}: {
+  players: TeamRosterPlayer[];
+}) {
   const { roster } = strings.team;
 
   return (
@@ -49,9 +61,8 @@ export default function TeamRoster({ players }: { players: RosterPlayer[] }) {
               <th className="px-3 py-2">{roster.jersey}</th>
               <th className="px-3 py-2">{roster.player}</th>
               <th className="px-3 py-2">{roster.position}</th>
-              <th className="px-3 py-2">{roster.height}</th>
-              <th className="px-3 py-2">{roster.weight}</th>
               <th className="px-3 py-2">{roster.age}</th>
+              <th className="px-3 py-2">{roster.height}</th>
             </tr>
           </thead>
           <tbody>
@@ -61,13 +72,15 @@ export default function TeamRoster({ players }: { players: RosterPlayer[] }) {
                 <td className="px-3 py-2 font-medium">
                   <span className="flex items-center gap-2.5">
                     <Headshot headshotUrl={player.headshotUrl} />
-                    {player.displayName}
+                    {player.name}
+                    {player.injuryStatus && (
+                      <InjuryStatus status={player.injuryStatus} />
+                    )}
                   </span>
                 </td>
                 <td className="px-3 py-2">{player.position}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{player.height}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{player.weight}</td>
                 <td className="px-3 py-2 tabular-nums">{player.age}</td>
+                <td className="px-3 py-2 whitespace-nowrap">{player.height}</td>
               </tr>
             ))}
           </tbody>

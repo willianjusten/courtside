@@ -24,4 +24,6 @@ export type RosterPlayer = {
   weight: string | null;
   age: number | null;
   headshotUrl: string | null;
+  // As sent by ESPN, e.g. "Out" or "Day-To-Day"; null for a healthy player.
+  injuryStatus: string | null;
 };

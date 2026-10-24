@@ -110,6 +110,7 @@ export function TeamPageContent({
     standingsQuery,
     games: games ?? null,
     scoreboardGames,
+    players: players ?? null,
     timeZone,
     scheduleExpansions,
     tabParam,
@@ -143,7 +144,7 @@ export function TeamPageContent({
             />
           )
         }
-        roster={players && <TeamRoster players={players} />}
+        roster={screen.roster && <TeamRoster players={screen.roster} />}
         standings={<ConferenceStandings screen={screen} />}
       />
     </div>

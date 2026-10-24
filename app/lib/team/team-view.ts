@@ -4,7 +4,7 @@ import type {
   ConferenceStandings,
   StandingsRow,
 } from "@/app/lib/domain/standings";
-import type { TeamDetail, TeamSlug } from "@/app/lib/domain/team";
+import type { RosterPlayer, TeamDetail, TeamSlug } from "@/app/lib/domain/team";
 import { readableTeamColor } from "@/app/lib/home/team-colors";
 import {
   zoneOf,
@@ -32,6 +32,8 @@ const GAME_PATH_PREFIX = "/game/";
 // Each schedule list opens on this many games, as in the TeamPageDesktop artboard, then grows by a page per expansion.
 const SCHEDULE_INITIAL_COUNT = 4;
 const SCHEDULE_PAGE_SIZE = 5;
+// Guards, forwards, then centers; a player without a known position goes last.
+const POSITION_GROUP_ORDER = ["G", "F", "C"];
 
 export type TeamQueryState =
   | { status: "loading" }
@@ -48,6 +50,8 @@ export type TeamViewInput = {
   games: Game[] | null;
   // The scoreboard of the team's game day, which overrides the cached schedule; null until it loads or without a game that day.
   scoreboardGames: Game[] | null;
+  // Null until the roster loads.
+  players: RosterPlayer[] | null;
   // Null until the browser timezone is known, as when rendering on the server.
   timeZone: string | null;
   // How many times each schedule list was expanded.
@@ -174,6 +178,19 @@ export type TeamSchedule = {
   emptyUpcomingMessage: string | null;
 };
 
+export type TeamRosterPlayer = {
+  id: string;
+  jersey: string | null;
+  name: string;
+  position: string | null;
+  age: number | null;
+  // e.g. 6' 8".
+  height: string | null;
+  headshotUrl: string | null;
+  // e.g. "Out" or "Day-To-Day"; null for a healthy player.
+  injuryStatus: string | null;
+};
+
 export type TeamReadyScreen = {
   kind: "ready";
   header: TeamHeaderView;
@@ -186,6 +203,8 @@ export type TeamReadyScreen = {
   standingsHref: string;
   // Null until the schedule loads.
   schedule: TeamSchedule | null;
+  // By position group, then jersey number; null until the roster loads.
+  roster: TeamRosterPlayer[] | null;
 };
 
 export type TeamScreen =
@@ -483,6 +502,41 @@ function scheduleOf(
   };
 }
 
+// A detailed or combined position sorts with its main group, e.g. "PG" and "G-F" with the guards.
+function positionGroupRankOf(position: string | null) {
+  const mainPosition = position?.split("-")[0].at(-1);
+  const rank = mainPosition ? POSITION_GROUP_ORDER.indexOf(mainPosition) : -1;
+  return rank === -1 ? POSITION_GROUP_ORDER.length : rank;
+}
+
+// "0" before "00", and a player without a number last.
+function compareJerseys(first: string | null, second: string | null) {
+  if (first === null || second === null) {
+    return Number(first === null) - Number(second === null);
+  }
+  return Number(first) - Number(second) || first.length - second.length;
+}
+
+function rosterOf(players: RosterPlayer[]): TeamRosterPlayer[] {
+  return players
+    .toSorted(
+      (first, second) =>
+        positionGroupRankOf(first.position) -
+          positionGroupRankOf(second.position) ||
+        compareJerseys(first.jersey, second.jersey),
+    )
+    .map((player) => ({
+      id: player.id,
+      jersey: player.jersey,
+      name: player.displayName,
+      position: player.position,
+      age: player.age,
+      height: player.height,
+      headshotUrl: player.headshotUrl,
+      injuryStatus: player.injuryStatus,
+    }));
+}
+
 function screenOf(
   query: TeamQueryState,
   standingsQuery: StandingsQueryState,
@@ -490,6 +544,7 @@ function screenOf(
     TeamViewInput,
     "games" | "scoreboardGames" | "timeZone" | "scheduleExpansions"
   >,
+  players: RosterPlayer[] | null,
   favoriteTeamIds: string[],
 ): TeamScreen {
   if (query.status === "loading" || query.status === "error") {
@@ -515,6 +570,7 @@ function screenOf(
         schedule.timeZone,
         schedule.scheduleExpansions,
       ),
+    roster: players && rosterOf(players),
   };
 }
 
@@ -542,6 +598,7 @@ export function buildTeamView({
   standingsQuery,
   games,
   scoreboardGames,
+  players,
   timeZone,
   scheduleExpansions,
   tabParam,
@@ -552,6 +609,7 @@ export function buildTeamView({
       query,
       standingsQuery,
       { games, scoreboardGames, timeZone, scheduleExpansions },
+      players,
       favoriteTeamIds,
     ),
     tabs: tabsOf(slug, tabParam),

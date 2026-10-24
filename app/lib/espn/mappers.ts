@@ -399,6 +399,7 @@ export function mapRosterPlayer(athlete: RawRosterAthlete): RosterPlayer {
     weight: athlete.displayWeight ?? null,
     age: athlete.age ?? null,
     headshotUrl: athlete.headshot?.href ?? null,
+    injuryStatus: athlete.injuries?.[0]?.status ?? null,
   };
 }
 
