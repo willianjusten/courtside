@@ -200,13 +200,18 @@ export type TeamStatsView = {
 
 const LEADER_STATS: LeaderStat[] = ["points", "rebounds", "assists"];
 
+export type GameLeaderAthlete = {
+  name: string;
+  teamAbbreviation: string;
+  headshotUrl: string | null;
+};
+
 export type GameLeaderRow = {
   stat: LeaderStat;
   label: string;
-  athleteName: string;
-  teamAbbreviation: string;
-  headshotUrl: string | null;
   value: string;
+  // One athlete, or both teams' leaders on a tie, away first as the header reads.
+  athletes: GameLeaderAthlete[];
 };
 
 export type GameLeadersView = {
@@ -549,27 +554,28 @@ function gameLeaderOf(
   summary: GameSummary,
   stat: LeaderStat,
 ): GameLeaderRow | null {
-  // Away first, so a tie goes to the away leader, as the header reads.
   const candidates = (["away", "home"] as const).flatMap((side) => {
     const gameLeader = summary.leaders[side].find(
       (candidate) => candidate.stat === stat,
     );
     return gameLeader ? [{ side, leader: gameLeader.leader }] : [];
   });
-  const top = candidates.reduce<(typeof candidates)[number] | null>(
-    (best, candidate) =>
-      !best || candidate.leader.value > best.leader.value ? candidate : best,
-    null,
+  if (candidates.length === 0) return null;
+
+  const topValue = Math.max(...candidates.map(({ leader }) => leader.value));
+  const topCandidates = candidates.filter(
+    ({ leader }) => leader.value === topValue,
   );
-  if (!top) return null;
 
   return {
     stat,
     label: strings.leaders.categories[stat].title,
-    athleteName: top.leader.athlete.shortName,
-    teamAbbreviation: summary.game[top.side].team.abbreviation,
-    headshotUrl: top.leader.athlete.headshotUrl,
-    value: top.leader.displayValue,
+    value: topCandidates[0].leader.displayValue,
+    athletes: topCandidates.map(({ side, leader }) => ({
+      name: leader.athlete.shortName,
+      teamAbbreviation: summary.game[side].team.abbreviation,
+      headshotUrl: leader.athlete.headshotUrl,
+    })),
   };
 }
 

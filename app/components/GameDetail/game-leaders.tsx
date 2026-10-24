@@ -1,6 +1,10 @@
 import type { LeaderStat } from "@/app/lib/domain/leaders";
 import { resizedImageUrl } from "@/app/lib/espn";
-import type { GameLeaderRow, GameLeadersView } from "@/app/lib/game/game-view";
+import type {
+  GameLeaderAthlete,
+  GameLeaderRow,
+  GameLeadersView,
+} from "@/app/lib/game/game-view";
 import { strings } from "@/app/lib/strings";
 import { Section } from "./sections";
 
@@ -30,6 +34,32 @@ const LEADER_TONE_CLASS_NAMES: Record<
   },
 };
 
+function Headshot({ athlete }: { athlete: GameLeaderAthlete }) {
+  return athlete.headshotUrl ? (
+    <img
+      src={resizedImageUrl(
+        athlete.headshotUrl,
+        HEADSHOT_DISPLAY_WIDTH * HEADSHOT_REQUEST_SCALE,
+        HEADSHOT_DISPLAY_HEIGHT * HEADSHOT_REQUEST_SCALE,
+      )}
+      alt={athlete.name}
+      width={HEADSHOT_DISPLAY_WIDTH}
+      height={HEADSHOT_DISPLAY_HEIGHT}
+      loading="lazy"
+      className={HEADSHOT_CLASS_NAME}
+    />
+  ) : (
+    <span
+      aria-hidden="true"
+      className={HEADSHOT_CLASS_NAME}
+      style={{
+        width: HEADSHOT_DISPLAY_WIDTH,
+        height: HEADSHOT_DISPLAY_HEIGHT,
+      }}
+    />
+  );
+}
+
 function LeaderTile({ leader }: { leader: GameLeaderRow }) {
   const tone = LEADER_TONE_CLASS_NAMES[leader.stat];
 
@@ -37,41 +67,26 @@ function LeaderTile({ leader }: { leader: GameLeaderRow }) {
     <li
       className={`flex items-center gap-3 rounded-tile border px-3 py-2.5 ${tone.tile}`}
     >
-      {leader.headshotUrl ? (
-        <img
-          src={resizedImageUrl(
-            leader.headshotUrl,
-            HEADSHOT_DISPLAY_WIDTH * HEADSHOT_REQUEST_SCALE,
-            HEADSHOT_DISPLAY_HEIGHT * HEADSHOT_REQUEST_SCALE,
-          )}
-          alt={leader.athleteName}
-          width={HEADSHOT_DISPLAY_WIDTH}
-          height={HEADSHOT_DISPLAY_HEIGHT}
-          loading="lazy"
-          className={HEADSHOT_CLASS_NAME}
-        />
-      ) : (
-        <span
-          aria-hidden="true"
-          className={HEADSHOT_CLASS_NAME}
-          style={{
-            width: HEADSHOT_DISPLAY_WIDTH,
-            height: HEADSHOT_DISPLAY_HEIGHT,
-          }}
-        />
-      )}
+      {/* Tied leaders stack their headshots, as their names stack beside them. */}
+      <span className="flex shrink-0 flex-col gap-1">
+        {leader.athletes.map((athlete) => (
+          <Headshot key={athlete.name} athlete={athlete} />
+        ))}
+      </span>
       <span className="flex min-w-0 grow flex-col">
         <span
           className={`text-[9px] tracking-[0.16em] uppercase ${tone.label}`}
         >
           {leader.label}
         </span>
-        <span className="truncate text-[13px]">
-          {strings.game.leaders.athlete(
-            leader.athleteName,
-            leader.teamAbbreviation,
-          )}
-        </span>
+        {leader.athletes.map((athlete) => (
+          <span key={athlete.name} className="truncate text-[13px]">
+            {strings.game.leaders.athlete(
+              athlete.name,
+              athlete.teamAbbreviation,
+            )}
+          </span>
+        ))}
       </span>
       <span className="font-display text-[30px] leading-none">
         {leader.value}

@@ -375,4 +375,22 @@ describe("GameDetail game leaders", () => {
         .getAttribute("src"),
     ).toContain("4433136.png");
   });
+
+  it("shows both players when the game's leaders tie", async () => {
+    const tiedSummary = structuredClone(finalSummary);
+    const lakersPoints = tiedSummary.leaders
+      .find(({ team }) => team.abbreviation === "LAL")
+      ?.leaders.find(({ name }) => name === "points")?.leaders[0];
+    if (!lakersPoints) throw new Error("Expected the Lakers points leader");
+    lakersPoints.value = 23;
+    lakersPoints.displayValue = "23";
+    await renderLoadedGameDetail(tiedSummary, DURING_LIVE_GAME);
+
+    const points = within(
+      screen.getByRole("region", { name: strings.game.leaders.title }),
+    ).getAllByRole("listitem")[0];
+
+    expect(points.textContent).toBe("PointsS. Curry · GSL. Doncic · LAL23");
+    expect(within(points).getAllByRole("img")).toHaveLength(2);
+  });
 });

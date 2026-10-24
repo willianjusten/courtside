@@ -836,34 +836,46 @@ describe("buildGameView", () => {
         {
           stat: "points",
           label: "Points",
-          athleteName: "L. Doncic",
-          teamAbbreviation: "LAL",
-          headshotUrl:
-            "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
           value: "28",
+          athletes: [
+            {
+              name: "L. Doncic",
+              teamAbbreviation: "LAL",
+              headshotUrl:
+                "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
+            },
+          ],
         },
         {
           stat: "rebounds",
           label: "Rebounds",
-          athleteName: "W. Kessler",
-          teamAbbreviation: "LAL",
-          headshotUrl:
-            "https://a.espncdn.com/i/headshots/nba/players/full/4433136.png",
           value: "9",
+          athletes: [
+            {
+              name: "W. Kessler",
+              teamAbbreviation: "LAL",
+              headshotUrl:
+                "https://a.espncdn.com/i/headshots/nba/players/full/4433136.png",
+            },
+          ],
         },
         {
           stat: "assists",
           label: "Assists",
-          athleteName: "D. Green",
-          teamAbbreviation: "GS",
-          headshotUrl:
-            "https://a.espncdn.com/i/headshots/nba/players/full/6589.png",
           value: "8",
+          athletes: [
+            {
+              name: "D. Green",
+              teamAbbreviation: "GS",
+              headshotUrl:
+                "https://a.espncdn.com/i/headshots/nba/players/full/6589.png",
+            },
+          ],
         },
       ]);
     });
 
-    it("picks the away leader on a tie, as the header reads away first", () => {
+    it("shows both players on a tie, away first, as the header reads", () => {
       const tiedPoints = {
         ...final,
         leaders: {
@@ -883,10 +895,14 @@ describe("buildGameView", () => {
         },
       };
 
-      expect(leadersFor(tiedPoints)?.leaders[0]).toMatchObject({
-        athleteName: "S. Curry",
-        teamAbbreviation: "GS",
-      });
+      expect(
+        leadersFor(tiedPoints)?.leaders[0].athletes.map(
+          ({ name, teamAbbreviation }) => [name, teamAbbreviation],
+        ),
+      ).toEqual([
+        ["S. Curry", "GS"],
+        ["L. Doncic", "LAL"],
+      ]);
     });
 
     it("takes the only team's leader when the other has none in a category", () => {
@@ -900,8 +916,8 @@ describe("buildGameView", () => {
         })?.leaders ?? [];
 
       expect(leaders[0]).toMatchObject({
-        athleteName: "S. Curry",
         value: "23",
+        athletes: [{ name: "S. Curry", teamAbbreviation: "GS" }],
       });
     });
 
