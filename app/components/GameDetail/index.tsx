@@ -11,9 +11,10 @@ import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import { GameHeader, LineScore } from "./header";
 import { GameSections } from "./game-sections";
 import { BoxScore } from "./box-score";
+import { GameFlow } from "./game-flow";
 import { GameLeaders } from "./game-leaders";
 import { PlayByPlay } from "./play-by-play";
-import { PendingSection, WinProbability } from "./sections";
+import { PendingSection } from "./sections";
 import { TeamStats } from "./team-stats";
 import {
   GameDetailError,
@@ -74,33 +75,25 @@ export default function GameDetail({ gameId }: { gameId: string }) {
               isLive={screen.kind === "live"}
             />
           </GameHeader>
-          {/* Provisional sections, read from the summary until the game view covers them. */}
-          {summary && (
-            <GameSections
-              tabs={screen.tabs}
-              // Replacing the entry keeps the tab in the URL without adding a history step per tab.
-              onSelectTab={({ href }) =>
-                window.history.replaceState(null, "", href)
-              }
-              highlights={
-                <PendingSection
-                  headingId="game-highlights"
-                  title={strings.game.highlights.title}
-                  note={strings.game.highlights.pending}
-                />
-              }
-              leaders={<GameLeaders leaders={screen.leaders} />}
-              gameFlow={
-                <WinProbability
-                  game={summary.game}
-                  points={summary.winProbability}
-                />
-              }
-              boxScore={<BoxScore boxScore={screen.boxScore} />}
-              teamStats={<TeamStats teamStats={screen.teamStats} />}
-              plays={<PlayByPlay playByPlay={screen.playByPlay} />}
-            />
-          )}
+          <GameSections
+            tabs={screen.tabs}
+            // Replacing the entry keeps the tab in the URL without adding a history step per tab.
+            onSelectTab={({ href }) =>
+              window.history.replaceState(null, "", href)
+            }
+            highlights={
+              <PendingSection
+                headingId="game-highlights"
+                title={strings.game.highlights.title}
+                note={strings.game.highlights.pending}
+              />
+            }
+            leaders={<GameLeaders leaders={screen.leaders} />}
+            gameFlow={<GameFlow gameFlow={screen.gameFlow} />}
+            boxScore={<BoxScore boxScore={screen.boxScore} />}
+            teamStats={<TeamStats teamStats={screen.teamStats} />}
+            plays={<PlayByPlay playByPlay={screen.playByPlay} />}
+          />
         </div>
       );
   }

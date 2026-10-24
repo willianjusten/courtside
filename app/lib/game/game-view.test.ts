@@ -19,6 +19,7 @@ import {
   type GameHeader,
   type GameScreen,
   type GameSummaryQueryState,
+  type GameFlowView,
   type GameTabs,
   type LineScoreView,
   type PlayByPlayView,
@@ -105,6 +106,26 @@ function playByPlayFor(summary: GameSummary): PlayByPlayView {
     throw new Error(`Expected a live or final screen, got ${screen.kind}`);
   }
   return screen.playByPlay;
+}
+
+function gameFlowFor(summary: GameSummary): GameFlowView | null {
+  const screen = screenFor(summary);
+  if (screen.kind !== "live" && screen.kind !== "final") {
+    throw new Error(`Expected a live or final screen, got ${screen.kind}`);
+  }
+  return screen.gameFlow;
+}
+
+function requireGameFlow(summary: GameSummary): GameFlowView {
+  const gameFlow = gameFlowFor(summary);
+  if (!gameFlow) throw new Error("Expected a game flow");
+  return gameFlow;
+}
+
+function teamStatsOf(summary: GameSummary, side: "home" | "away") {
+  const teamStats = summary.teamStats[side];
+  if (!teamStats) throw new Error("Expected team statistics");
+  return teamStats;
 }
 
 function withTeamStats(
@@ -1076,6 +1097,210 @@ describe("buildGameView", () => {
         plays: [],
         periods: [],
       });
+    });
+  });
+
+  describe("game flow", () => {
+    // LAL won 112-108 at HOU in one overtime, after leading by 15; HOU's largest lead was 6.
+    const overtimeFlow = requireGameFlow(overtimePlayoff);
+    // SA won 122-115 at OKC in two overtimes, after leading by 10; OKC's largest lead was 3.
+    const doubleOvertimeFlow = requireGameFlow(doubleOvertimePlayoff);
+    // The overtime game cut at Q3 4:10, LAL up 70-66.
+    const liveFlow = requireGameFlow(live);
+
+    const OVERTIME_GAME_MINUTES = 48 + 5;
+    const DOUBLE_OVERTIME_GAME_MINUTES = 48 + 5 + 5;
+
+    it("places the period boundaries on an axis where quarters last 12 minutes and overtimes 5", () => {
+      expect(overtimeFlow.periods).toEqual([
+        { label: "Q1", start: 0, end: 12 / 53, marker: null },
+        { label: "Q2", start: 12 / 53, end: 24 / 53, marker: "quarter" },
+        { label: "Q3", start: 24 / 53, end: 36 / 53, marker: "half" },
+        { label: "Q4", start: 36 / 53, end: 48 / 53, marker: "quarter" },
+        { label: "OT", start: 48 / 53, end: 1, marker: "overtime" },
+      ]);
+      expect(
+        doubleOvertimeFlow.periods.slice(4).map(({ label, start, end }) => ({
+          label,
+          start,
+          end,
+        })),
+      ).toEqual([
+        { label: "OT", start: 48 / 58, end: 53 / 58 },
+        { label: "2OT", start: 53 / 58, end: 1 },
+      ]);
+    });
+
+    it("samples the margin at every elapsed minute, from tip-off to the final buzzer", () => {
+      const xs = overtimeFlow.lead.points.map(({ x }) => x);
+
+      for (let minute = 0; minute <= OVERTIME_GAME_MINUTES; minute++) {
+        expect(xs).toContain(minute / OVERTIME_GAME_MINUTES);
+      }
+      expect(xs[0]).toBe(0);
+      expect(xs.at(-1)).toBe(1);
+      expect(xs).toEqual(xs.toSorted((first, second) => first - second));
+      expect(doubleOvertimeFlow.lead.points.at(-1)?.x).toBe(1);
+      const doubleOvertimeXs = doubleOvertimeFlow.lead.points.map(({ x }) => x);
+      for (let minute = 0; minute <= DOUBLE_OVERTIME_GAME_MINUTES; minute++) {
+        expect(doubleOvertimeXs).toContain(
+          minute / DOUBLE_OVERTIME_GAME_MINUTES,
+        );
+      }
+    });
+
+    it("starts level and ends at the final margin, home above zero", () => {
+      expect(overtimeFlow.lead.points[0].y).toBe(0);
+      expect(overtimeFlow.lead.points.at(-1)?.y).toBe((108 - 112) / 15);
+      expect(doubleOvertimeFlow.lead.points.at(-1)?.y).toBe((115 - 122) / 10);
+    });
+
+    it("scales the margin symmetrically against the largest lead, rounded up to a clean step", () => {
+      expect(overtimeFlow.lead.scale).toBe(15);
+      expect(doubleOvertimeFlow.lead.scale).toBe(10);
+      // LAL led GS by 27 at most.
+      expect(requireGameFlow(final).lead.scale).toBe(30);
+      for (const { y } of overtimeFlow.lead.points) {
+        expect(Math.abs(y)).toBeLessThanOrEqual(1);
+      }
+      expect(Math.min(...overtimeFlow.lead.points.map(({ y }) => y))).toBe(-1);
+    });
+
+    it("adds a point on the zero line wherever the lead flips between samples, so each area meets the line", () => {
+      const { points } = overtimeFlow.lead;
+
+      for (let index = 1; index < points.length; index++) {
+        expect(points[index - 1].y * points[index].y).toBeGreaterThanOrEqual(0);
+      }
+    });
+
+    it("grows a live game's chart up to the current clock across regulation", () => {
+      expect(liveFlow.periods.map(({ label }) => label)).toEqual([
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4",
+      ]);
+      // Q3 4:10 is 31 minutes 50 seconds into the game.
+      expect(liveFlow.lead.points.at(-1)).toEqual({
+        x: (31 * 60 + 50) / (48 * 60),
+        y: (66 - 70) / 15,
+      });
+      expect(liveFlow.isLive).toBe(true);
+      expect(overtimeFlow.isLive).toBe(false);
+    });
+
+    it("labels both ends of the margin scale and the final result", () => {
+      expect(overtimeFlow.lead).toMatchObject({
+        topLabel: "HOU leads ↑ +15",
+        bottomLabel: "LAL leads ↓ +15",
+        caption: "LAL won by 4 in OT",
+      });
+      expect(requireGameFlow(final).lead.caption).toBe("LAL won by 22");
+    });
+
+    it("captions a live game with the current margin", () => {
+      expect(liveFlow.lead.caption).toBe("LAL +4 now");
+      expect(
+        requireGameFlow(
+          withGame(live, {
+            home: { ...live.game.home, score: 70 },
+          }),
+        ).lead.caption,
+      ).toBe("Tied now");
+    });
+
+    it("aligns the home win probability to the same axis, around 50%", () => {
+      const winProbability = overtimeFlow.winProbability;
+
+      expect(winProbability?.points[0].x).toBe(0);
+      expect(winProbability?.points.at(-1)).toEqual({ x: 1, y: -1 });
+      const winProbabilityXs = winProbability?.points.map(({ x }) => x);
+      for (let minute = 0; minute <= OVERTIME_GAME_MINUTES; minute++) {
+        expect(winProbabilityXs).toContain(minute / OVERTIME_GAME_MINUTES);
+      }
+      expect(liveFlow.winProbability?.points.at(-1)).toEqual({
+        x: (31 * 60 + 50) / (48 * 60),
+        y: (0.404 - 0.5) * 2,
+      });
+      expect(winProbability).toMatchObject({
+        topLabel: "HOU 100%",
+        bottomLabel: "LAL 100%",
+        caption: "Win probability",
+      });
+    });
+
+    it("captions a live game's win probability with the favored team", () => {
+      expect(liveFlow.winProbability?.caption).toBe("LAL 60% to win");
+    });
+
+    it("leaves the win probability out when ESPN has none", () => {
+      expect(
+        requireGameFlow({ ...overtimePlayoff, winProbability: [] })
+          .winProbability,
+      ).toBeNull();
+    });
+
+    it("finds each team's largest lead, matching ESPN's team stats", () => {
+      expect(overtimeFlow.largestLead).toEqual({
+        away: teamStatsOf(overtimePlayoff, "away").largestLead,
+        home: teamStatsOf(overtimePlayoff, "home").largestLead,
+        label: "LAL 15 · HOU 6",
+      });
+      expect(doubleOvertimeFlow.largestLead).toMatchObject({
+        away: 10,
+        home: 3,
+      });
+    });
+
+    it("counts the lead changes and the times the score was tied after tip-off", () => {
+      expect(overtimeFlow).toMatchObject({ leadChanges: 8, timesTied: 8 });
+      expect(doubleOvertimeFlow).toMatchObject({
+        leadChanges: 10,
+        timesTied: 8,
+      });
+    });
+
+    it("finds the best run of unanswered points with its team and score span", () => {
+      expect(overtimeFlow.bestRun).toEqual({
+        side: "away",
+        points: 11,
+        label: "LAL 11-0",
+        spanLabel: "23-23 to 34-23",
+      });
+      expect(doubleOvertimeFlow.bestRun).toEqual({
+        side: "home",
+        points: 8,
+        label: "OKC 8-0",
+        spanLabel: "17-12 to 17-20",
+      });
+    });
+
+    it("colors each side with the team's readable color", () => {
+      expect(overtimeFlow.home).toEqual({
+        abbreviation: "HOU",
+        color: teamStatsFor(overtimePlayoff)?.home.color,
+      });
+      expect(overtimeFlow.away).toEqual({
+        abbreviation: "LAL",
+        color: teamStatsFor(overtimePlayoff)?.away.color,
+      });
+    });
+
+    it("summarizes the chart in plain text for screen readers", () => {
+      expect(overtimeFlow.summary).toBe(
+        "Score margin chart. Largest lead: Los Angeles Lakers 15, Houston Rockets 6. 8 lead changes. Los Angeles Lakers won by 4 in overtime.",
+      );
+      expect(doubleOvertimeFlow.summary).toBe(
+        "Score margin chart. Largest lead: San Antonio Spurs 10, Oklahoma City Thunder 3. 10 lead changes. San Antonio Spurs won by 7 in 2 overtimes.",
+      );
+      expect(liveFlow.summary).toBe(
+        "Score margin chart. Largest lead: Los Angeles Lakers 15, Houston Rockets 2. 6 lead changes. Los Angeles Lakers lead by 4.",
+      );
+    });
+
+    it("has no game flow until ESPN sends any play", () => {
+      expect(gameFlowFor({ ...live, plays: [] })).toBeNull();
     });
   });
 });

@@ -1,13 +1,5 @@
 import type { ReactNode } from "react";
-import type { Game } from "@/app/lib/domain/game";
-import type { WinProbabilityPoint } from "@/app/lib/domain/game-summary";
-import { strings } from "@/app/lib/strings";
-import { SURFACE_CLASS_NAME, TILE_CLASS_NAME } from "./styles";
-
-const percentFormatter = new Intl.NumberFormat("en-US", {
-  style: "percent",
-  maximumFractionDigits: 0,
-});
+import { SURFACE_CLASS_NAME } from "./styles";
 
 export function Section({
   headingId,
@@ -60,44 +52,6 @@ export function PendingSection({
   return (
     <Section headingId={headingId} title={title}>
       <p className="text-sm text-muted">{note}</p>
-    </Section>
-  );
-}
-
-export function WinProbability({
-  game,
-  points,
-}: {
-  game: Game;
-  points: WinProbabilityPoint[];
-}) {
-  const latestPoint = points.at(-1);
-
-  return (
-    <Section
-      headingId="game-win-probability"
-      title={strings.game.winProbability.title}
-    >
-      {latestPoint ? (
-        <div className={`flex flex-col gap-2 text-sm ${TILE_CLASS_NAME}`}>
-          <p className="flex justify-between tabular-nums">
-            <span>
-              {strings.game.winProbability.chance(
-                game.away.team.abbreviation,
-                percentFormatter.format(1 - latestPoint.homeWinPercentage),
-              )}
-            </span>
-            <span>
-              {strings.game.winProbability.chance(
-                game.home.team.abbreviation,
-                percentFormatter.format(latestPoint.homeWinPercentage),
-              )}
-            </span>
-          </p>
-        </div>
-      ) : (
-        <p className="text-muted">{strings.game.winProbability.empty}</p>
-      )}
     </Section>
   );
 }

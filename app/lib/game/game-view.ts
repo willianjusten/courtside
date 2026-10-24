@@ -12,6 +12,7 @@ import type {
   TeamStatistics,
 } from "@/app/lib/domain/game-summary";
 import type { LeaderStat } from "@/app/lib/domain/leaders";
+import { gameFlowOf, type GameFlowView } from "@/app/lib/game/game-flow";
 import {
   channelLabelOf,
   finalLabel,
@@ -28,6 +29,8 @@ import { formatNbaDate, formatShortNbaDate } from "@/app/lib/time/nba-date";
 import { formatTipOff } from "@/app/lib/time/tip-off";
 
 const SEPARATOR = strings.game.header.separator;
+
+export type { GameFlowView } from "@/app/lib/game/game-flow";
 
 export type GameSummaryQueryState =
   | { status: "loading" }
@@ -287,6 +290,8 @@ export type GameScreen =
       boxScore: BoxScoreView | null;
       // Null until ESPN lists the statistics of both teams.
       teamStats: TeamStatsView | null;
+      // Null until ESPN sends any play.
+      gameFlow: GameFlowView | null;
       playByPlay: PlayByPlayView;
       tabs: GameTabs;
     }
@@ -300,6 +305,8 @@ export type GameScreen =
       boxScore: BoxScoreView | null;
       // Null until ESPN lists the statistics of both teams.
       teamStats: TeamStatsView | null;
+      // Null until ESPN sends any play.
+      gameFlow: GameFlowView | null;
       playByPlay: PlayByPlayView;
       tabs: GameTabs;
     };
@@ -709,6 +716,7 @@ function screenOf(
         leaders: leadersOf(summary),
         boxScore: boxScoreOf(summary),
         teamStats: teamStatsOf(summary),
+        gameFlow: gameFlowOf(summary),
         playByPlay: playByPlayOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
@@ -720,6 +728,7 @@ function screenOf(
         leaders: leadersOf(summary),
         boxScore: boxScoreOf(summary),
         teamStats: teamStatsOf(summary),
+        gameFlow: gameFlowOf(summary),
         playByPlay: playByPlayOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };

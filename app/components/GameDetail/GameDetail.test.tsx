@@ -352,6 +352,90 @@ describe("GameDetail team stats", () => {
   });
 });
 
+describe("GameDetail game flow", () => {
+  const flowRegion = () =>
+    screen.getByRole("region", { name: strings.game.flow.title });
+  const modeButton = (name: string) =>
+    within(flowRegion()).queryByRole("button", { name });
+  const statOf = (label: string) =>
+    within(flowRegion()).getByText(label).nextElementSibling?.textContent;
+
+  it("charts the margin with a text summary for screen readers", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(
+      within(flowRegion()).getByText(
+        "Score margin chart. Largest lead: Golden State Warriors 3, Los Angeles Lakers 27. 4 lead changes. Los Angeles Lakers won by 22.",
+      ).className,
+    ).toContain("sr-only");
+    expect(within(flowRegion()).getByText("LAL leads ↑ +30")).toBeDefined();
+    expect(within(flowRegion()).getByText("GS leads ↓ +30")).toBeDefined();
+    expect(within(flowRegion()).getByText("LAL won by 22")).toBeDefined();
+    expect(
+      Array.from(flowRegion().querySelectorAll("path")).map((path) =>
+        path.getAttribute("fill"),
+      ),
+    ).toHaveLength(3);
+  });
+
+  it("shows the largest lead per team, the lead changes, the times tied, and the best run", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(statOf(strings.game.flow.stats.largestLead)).toBe("GS 3 · LAL 27");
+    expect(statOf(strings.game.flow.stats.leadChanges)).toBe("4");
+    expect(statOf(strings.game.flow.stats.timesTied)).toBe("3");
+    expect(statOf(strings.game.flow.stats.bestRun)).toMatch(/^GS 8-0/);
+  });
+
+  it("switches to the win probability with a pressed-state toggle", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    const lead = modeButton(strings.game.flow.modes.lead);
+    const winProbability = modeButton(strings.game.flow.modes.winProbability);
+    expect(lead?.getAttribute("aria-pressed")).toBe("true");
+    expect(winProbability?.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(winProbability as HTMLElement);
+
+    expect(winProbability?.getAttribute("aria-pressed")).toBe("true");
+    expect(within(flowRegion()).getByText("LAL 100%")).toBeDefined();
+    expect(within(flowRegion()).getByText("GS 100%")).toBeDefined();
+    expect(
+      within(flowRegion()).getByText(strings.game.flow.winProbability),
+    ).toBeDefined();
+  });
+
+  it("hides the toggle when ESPN has no win probability", async () => {
+    await renderLoadedGameDetail(
+      { ...finalSummary, winprobability: [] },
+      DURING_LIVE_GAME,
+    );
+
+    expect(modeButton(strings.game.flow.modes.lead)).toBeNull();
+    expect(modeButton(strings.game.flow.modes.winProbability)).toBeNull();
+    expect(within(flowRegion()).getByText("LAL leads ↑ +30")).toBeDefined();
+  });
+
+  it("turns the chart's reveal off for fans who prefer reduced motion", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(flowRegion().querySelector("svg")?.getAttribute("class")).toContain(
+      "motion-reduce:animate-none",
+    );
+  });
+
+  it("notes that the game flow fills in before the first play", async () => {
+    await renderLoadedGameDetail(
+      { ...liveSummary, plays: [] },
+      DURING_LIVE_GAME,
+    );
+
+    expect(
+      within(flowRegion()).getByText(strings.game.flow.empty),
+    ).toBeDefined();
+  });
+});
+
 describe("GameDetail game leaders", () => {
   it("shows the game's points, rebounds, and assists leaders with their team and headshot", async () => {
     await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);

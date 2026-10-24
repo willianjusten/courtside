@@ -238,11 +238,68 @@ export const strings = {
       score: (awayScore: number, homeScore: number) =>
         `${awayScore}-${homeScore}`,
     },
-    winProbability: {
-      title: "Win probability",
-      empty: "Win probability is not available yet.",
-      chance: (teamAbbreviation: string, formattedPercent: string) =>
-        `${teamAbbreviation} ${formattedPercent}`,
+    flow: {
+      title: "Game flow",
+      empty: "The game flow fills in after the first plays.",
+      modeToggle: "Chart",
+      modes: { lead: "Lead", winProbability: "Win %" },
+      homeLeads: (abbreviation: string, scale: number) =>
+        `${abbreviation} leads ↑ +${scale}`,
+      awayLeads: (abbreviation: string, scale: number) =>
+        `${abbreviation} leads ↓ +${scale}`,
+      certain: (abbreviation: string) => `${abbreviation} 100%`,
+      marginNow: (abbreviation: string, margin: number) =>
+        `${abbreviation} +${margin} now`,
+      tiedNow: "Tied now",
+      wonBy: (
+        abbreviation: string,
+        margin: number,
+        overtimeLabel: string | null,
+      ) =>
+        `${abbreviation} won by ${margin}${overtimeLabel ? ` in ${overtimeLabel}` : ""}`,
+      toWin: (abbreviation: string, percent: number) =>
+        `${abbreviation} ${percent}% to win`,
+      winProbability: "Win probability",
+      stats: {
+        largestLead: "Largest lead",
+        leadChanges: "Lead changes",
+        timesTied: "Times tied",
+        bestRun: "Best run",
+      },
+      largestLeadValue: (
+        awayAbbreviation: string,
+        awayLead: number,
+        homeAbbreviation: string,
+        homeLead: number,
+      ) => `${awayAbbreviation} ${awayLead} · ${homeAbbreviation} ${homeLead}`,
+      run: (abbreviation: string, points: number) =>
+        `${abbreviation} ${points}-0`,
+      runSpan: (fromScore: string, toScore: string) =>
+        `${fromScore} to ${toScore}`,
+      noRun: "–",
+      screenReader: {
+        title: "Score margin chart.",
+        largestLead: (
+          awayTeamName: string,
+          awayLead: number,
+          homeTeamName: string,
+          homeLead: number,
+        ) =>
+          `Largest lead: ${awayTeamName} ${awayLead}, ${homeTeamName} ${homeLead}.`,
+        leadChanges: (count: number) =>
+          `${count} ${count === 1 ? "lead change" : "lead changes"}.`,
+        leads: (teamName: string, margin: number) =>
+          `${teamName} lead by ${margin}.`,
+        tied: "The game is tied.",
+        wonBy: (teamName: string, margin: number, overtimeCount: number) =>
+          `${teamName} won by ${margin}${
+            overtimeCount === 0
+              ? ""
+              : overtimeCount === 1
+                ? " in overtime"
+                : ` in ${overtimeCount} overtimes`
+          }.`,
+      },
     },
   },
   standings: {

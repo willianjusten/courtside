@@ -234,7 +234,7 @@ describe("routes", () => {
     ).toBeDefined();
   });
 
-  it("shows the plays and the win probability", async () => {
+  it("shows the plays and the game flow", async () => {
     render(await GamePage({ params: Promise.resolve({ id: FINAL_GAME_ID }) }));
 
     const plays = await screen.findByRole("region", {
@@ -248,14 +248,10 @@ describe("routes", () => {
         name: strings.game.plays.showAll(50),
       }),
     ).toBeDefined();
-    const winProbability = screen.getByRole("region", {
-      name: strings.game.winProbability.title,
+    const gameFlow = screen.getByRole("region", {
+      name: strings.game.flow.title,
     });
-    expect(
-      within(winProbability).getByText(
-        strings.game.winProbability.chance("LAL", "100%"),
-      ),
-    ).toBeDefined();
+    expect(within(gameFlow).getByText("LAL won by 22")).toBeDefined();
   });
 
   it("renders a live game with its period, clock, and latest plays", async () => {
