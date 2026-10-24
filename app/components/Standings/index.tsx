@@ -121,8 +121,7 @@ export default function Standings() {
           </div>
         )}
       </div>
-      {/* Tablets stack the leaders below the table; wide screens give them a side column. */}
-      <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+      <div className="flex flex-col gap-8 md:gap-10">
         <section
           aria-label={
             screen.kind === "ready"

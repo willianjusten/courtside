@@ -159,8 +159,7 @@ export default function LeagueLeaders({
       )}
       {leaders.kind === "ready" && (
         <>
-          {/* Cards fill the width below the table on tablets and stack in the side column on wide screens. */}
-          <div className="grid items-start gap-3 md:grid-cols-auto-fill md:gap-4 lg:grid-cols-1">
+          <div className="grid items-start gap-3 md:grid-cols-auto-fill md:gap-4">
             {leaders.categories.map((category) => (
               <LeaderCategoryCard key={category.stat} category={category} />
             ))}
