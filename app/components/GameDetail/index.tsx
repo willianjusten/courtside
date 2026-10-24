@@ -1,13 +1,22 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useGameSummary } from "@/app/lib/queries/use-game-summary";
 import {
   buildGameView,
   type GameSummaryQueryState,
 } from "@/app/lib/game/game-view";
+import { strings } from "@/app/lib/strings";
 import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import { GameHeader, LineScore } from "./header";
-import { BoxScore, GameLeaders, PlayByPlay, WinProbability } from "./sections";
+import { GameSections } from "./game-sections";
+import {
+  BoxScore,
+  GameLeaders,
+  PendingSection,
+  PlayByPlay,
+  WinProbability,
+} from "./sections";
 import {
   GameDetailError,
   GameDetailLoading,
@@ -24,6 +33,7 @@ export default function GameDetail({ gameId }: { gameId: string }) {
     refetch,
   } = useGameSummary(gameId);
   const timeZone = useBrowserTimeZone();
+  const tabParam = useSearchParams()?.get("tab") ?? null;
 
   // Data is checked before the error: a failed refetch keeps the last valid summary instead of hiding it.
   const query: GameSummaryQueryState = summary
@@ -33,7 +43,11 @@ export default function GameDetail({ gameId }: { gameId: string }) {
     : error
       ? { status: "error" }
       : { status: "loading" };
-  const { screen, staleNotice } = buildGameView({ query, timeZone });
+  const { screen, staleNotice } = buildGameView({
+    query,
+    timeZone,
+    tabParam,
+  });
 
   switch (screen.kind) {
     case "loading":
@@ -54,7 +68,7 @@ export default function GameDetail({ gameId }: { gameId: string }) {
     case "live":
     case "final":
       return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4 md:gap-6">
           {staleNotice && <StaleGameNotice message={staleNotice} />}
           <GameHeader header={screen.header}>
             <LineScore
@@ -64,22 +78,49 @@ export default function GameDetail({ gameId }: { gameId: string }) {
           </GameHeader>
           {/* Provisional sections, read from the summary until the game view covers them. */}
           {summary && (
-            <>
-              <GameLeaders game={summary.game} leaders={summary.leaders} />
-              <WinProbability
-                game={summary.game}
-                points={summary.winProbability}
-              />
-              <BoxScore
-                team={summary.game.away.team}
-                boxScore={summary.boxScore.away}
-              />
-              <BoxScore
-                team={summary.game.home.team}
-                boxScore={summary.boxScore.home}
-              />
-              <PlayByPlay game={summary.game} plays={summary.plays} />
-            </>
+            <GameSections
+              tabs={screen.tabs}
+              // Replacing the entry keeps the tab in the URL without adding a history step per tab.
+              onSelectTab={({ href }) =>
+                window.history.replaceState(null, "", href)
+              }
+              highlights={
+                <PendingSection
+                  headingId="game-highlights"
+                  title={strings.game.highlights.title}
+                  note={strings.game.highlights.pending}
+                />
+              }
+              leaders={
+                <GameLeaders game={summary.game} leaders={summary.leaders} />
+              }
+              gameFlow={
+                <WinProbability
+                  game={summary.game}
+                  points={summary.winProbability}
+                />
+              }
+              boxScore={
+                <>
+                  <BoxScore
+                    team={summary.game.away.team}
+                    boxScore={summary.boxScore.away}
+                  />
+                  <BoxScore
+                    team={summary.game.home.team}
+                    boxScore={summary.boxScore.home}
+                  />
+                </>
+              }
+              teamStats={
+                <PendingSection
+                  headingId="game-team-stats"
+                  title={strings.game.teamStats.title}
+                  note={strings.game.teamStats.pending}
+                />
+              }
+              plays={<PlayByPlay game={summary.game} plays={summary.plays} />}
+            />
           )}
         </div>
       );

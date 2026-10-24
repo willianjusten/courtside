@@ -33,6 +33,8 @@ export type GameViewInput = {
   query: GameSummaryQueryState;
   // The browser timezone; null while server rendering, where the viewer's timezone is unknown.
   timeZone: string | null;
+  // The raw `?tab=` value, which picks the mobile tab.
+  tabParam: string | null;
 };
 
 export type HeaderTeam = {
@@ -86,14 +88,41 @@ export type LineScoreView = {
   rows: LineScoreRow[];
 };
 
+const GAME_TAB_IDS = ["summary", "box", "stats", "plays"] as const;
+const DEFAULT_GAME_TAB = "summary";
+
+export type GameTabId = (typeof GAME_TAB_IDS)[number];
+
+export type GameTab = {
+  id: GameTabId;
+  label: string;
+  // The game center URL with the tab in the query string, so a refresh or a shared link keeps it.
+  href: string;
+};
+
+export type GameTabs = {
+  selected: GameTabId;
+  items: GameTab[];
+};
+
 export type GameScreen =
   | { kind: "loading" }
   | { kind: "error" }
   | { kind: "pre-game"; header: GameHeader; note: string }
   // Canceled games share the postponed screen; the status label tells them apart.
   | { kind: "postponed"; header: GameHeader; note: string }
-  | { kind: "live"; header: GameHeader; lineScore: LineScoreView }
-  | { kind: "final"; header: GameHeader; lineScore: LineScoreView };
+  | {
+      kind: "live";
+      header: GameHeader;
+      lineScore: LineScoreView;
+      tabs: GameTabs;
+    }
+  | {
+      kind: "final";
+      header: GameHeader;
+      lineScore: LineScoreView;
+      tabs: GameTabs;
+    };
 
 export type GameView = {
   screen: GameScreen;
@@ -236,7 +265,28 @@ function lineScoreOf(
   };
 }
 
-function screenOf(summary: GameSummary, timeZone: string | null): GameScreen {
+function isGameTabId(tab: string): tab is GameTabId {
+  return (GAME_TAB_IDS as readonly string[]).includes(tab);
+}
+
+function tabsOf(gameId: string, tabParam: string | null): GameTabs {
+  const gamePath = `/game/${gameId}`;
+
+  return {
+    selected: tabParam && isGameTabId(tabParam) ? tabParam : DEFAULT_GAME_TAB,
+    items: GAME_TAB_IDS.map((id) => ({
+      id,
+      label: strings.game.tabs[id],
+      href: id === DEFAULT_GAME_TAB ? gamePath : `${gamePath}?tab=${id}`,
+    })),
+  };
+}
+
+function screenOf(
+  summary: GameSummary,
+  timeZone: string | null,
+  tabParam: string | null,
+): GameScreen {
   const header = headerOf(summary, timeZone);
   const { status } = summary.game;
 
@@ -253,27 +303,36 @@ function screenOf(summary: GameSummary, timeZone: string | null): GameScreen {
         kind: "live",
         header,
         lineScore: lineScoreOf(summary, header.leadingSide),
+        tabs: tabsOf(summary.game.id, tabParam),
       };
     case "final":
       return {
         kind: "final",
         header,
         lineScore: lineScoreOf(summary, header.leadingSide),
+        tabs: tabsOf(summary.game.id, tabParam),
       };
   }
 }
 
-export function buildGameView({ query, timeZone }: GameViewInput): GameView {
+export function buildGameView({
+  query,
+  timeZone,
+  tabParam,
+}: GameViewInput): GameView {
   switch (query.status) {
     case "loading":
       return { screen: { kind: "loading" }, staleNotice: null };
     case "error":
       return { screen: { kind: "error" }, staleNotice: null };
     case "success":
-      return { screen: screenOf(query.summary, timeZone), staleNotice: null };
+      return {
+        screen: screenOf(query.summary, timeZone, tabParam),
+        staleNotice: null,
+      };
     case "stale":
       return {
-        screen: screenOf(query.summary, timeZone),
+        screen: screenOf(query.summary, timeZone, tabParam),
         staleNotice: strings.game.stale,
       };
   }

@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
 import liveSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game.json";
@@ -31,6 +31,33 @@ const liveGameEndedSummary = {
 };
 
 const fetchMock = vi.fn();
+
+// Next.js keeps useSearchParams in sync with native history calls; this stand-in does the same over happy-dom's history.
+vi.mock("next/navigation", async () => {
+  const { useSyncExternalStore } = await import("react");
+  const searchListeners = new Set<() => void>();
+  const notifySearchListeners = () =>
+    searchListeners.forEach((listener) => listener());
+
+  for (const method of ["pushState", "replaceState"] as const) {
+    const originalMethod = window.history[method].bind(window.history);
+    window.history[method] = (...args) => {
+      originalMethod(...args);
+      notifySearchListeners();
+    };
+  }
+
+  const subscribe = (listener: () => void) => {
+    searchListeners.add(listener);
+    return () => searchListeners.delete(listener);
+  };
+  return {
+    useSearchParams: () =>
+      new URLSearchParams(
+        useSyncExternalStore(subscribe, () => window.location.search),
+      ),
+  };
+});
 
 function jsonResponse(body: unknown) {
   return new Response(JSON.stringify(body), { status: 200 });
@@ -72,6 +99,7 @@ function setTabVisibility(visibilityState: DocumentVisibilityState) {
 }
 
 beforeEach(() => {
+  window.history.replaceState(null, "", `/game/${GAME_ID}`);
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
 });
@@ -169,5 +197,61 @@ describe("GameDetail live polling", () => {
       expect(screen.queryByText(strings.game.stale)).toBeNull(),
     );
     expect(screen.getByRole("heading", { level: 1 })).toBeDefined();
+  });
+});
+
+describe("GameDetail tabs", () => {
+  it("opens on Summary when the URL has no tab", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(
+      screen
+        .getByRole("tab", { name: strings.game.tabs.summary })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("restores the tab kept in the URL", async () => {
+    window.history.replaceState(null, "", `/game/${GAME_ID}?tab=plays`);
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(
+      screen
+        .getByRole("tab", { name: strings.game.tabs.plays })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("keeps the selected tab in the URL without adding history entries", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+    const historyLength = window.history.length;
+
+    fireEvent.mouseDown(
+      screen.getByRole("tab", { name: strings.game.tabs.box }),
+    );
+
+    expect(window.location.search).toBe("?tab=box");
+    expect(window.history.length).toBe(historyLength);
+    expect(
+      screen
+        .getByRole("tab", { name: strings.game.tabs.box })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
+  });
+
+  it("moves between tabs with the arrow keys", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+    const summaryTab = screen.getByRole("tab", {
+      name: strings.game.tabs.summary,
+    });
+
+    act(() => summaryTab.focus());
+    fireEvent.keyDown(summaryTab, { key: "ArrowRight" });
+
+    // Radix moves the focus on the next tick.
+    await vi.waitFor(() =>
+      expect(document.activeElement?.textContent).toBe(strings.game.tabs.box),
+    );
+    expect(window.location.search).toBe("?tab=box");
   });
 });

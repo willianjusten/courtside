@@ -141,6 +141,13 @@ export const strings = {
     retrying: "Trying again...",
     stale: "Game data may be out of date. Retrying automatically.",
     preGameNote: "The game flow and box score appear at tip-off.",
+    tabs: {
+      label: "Game sections",
+      summary: "Summary",
+      box: "Box score",
+      stats: "Team stats",
+      plays: "Plays",
+    },
     postponedNote: "This game has been postponed.",
     canceledNote: "This game has been canceled.",
     header: {
@@ -158,6 +165,14 @@ export const strings = {
       team: "Team",
       total: "T",
       notPlayed: "–",
+    },
+    highlights: {
+      title: "Highlights",
+      pending: "Highlights appear here soon.",
+    },
+    teamStats: {
+      title: "Team stats",
+      pending: "Team stats appear here soon.",
     },
     leaders: {
       title: "Game leaders",

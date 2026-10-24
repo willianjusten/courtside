@@ -10,7 +10,7 @@ import type {
 } from "@/app/lib/domain/game-summary";
 import { strings } from "@/app/lib/strings";
 import { periodLabel } from "@/app/lib/game/status";
-import { SURFACE_CLASS_NAME } from "./styles";
+import { SURFACE_CLASS_NAME, TILE_CLASS_NAME } from "./styles";
 
 const BOX_SCORE_COLUMNS = Object.keys(
   strings.game.boxScore.columns,
@@ -30,8 +30,14 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-2">
-      <h2 id={headingId} className="font-display text-2xl tracking-[0.06em]">
+    <section
+      aria-labelledby={headingId}
+      className={`flex min-w-0 flex-col gap-3 p-3.5 md:p-[18px] ${SURFACE_CLASS_NAME}`}
+    >
+      <h2
+        id={headingId}
+        className="font-display text-base tracking-[0.18em] text-muted uppercase md:text-lg"
+      >
         {title}
       </h2>
       {children}
@@ -39,9 +45,26 @@ function Section({
   );
 }
 
+// Holds a section's slot in the layout until its own ticket fills it.
+export function PendingSection({
+  headingId,
+  title,
+  note,
+}: {
+  headingId: string;
+  title: string;
+  note: string;
+}) {
+  return (
+    <Section headingId={headingId} title={title}>
+      <p className="text-sm text-muted">{note}</p>
+    </Section>
+  );
+}
+
 function TeamLeaders({ team, leaders }: { team: Team; leaders: GameLeader[] }) {
   return (
-    <div className={`flex flex-col gap-2 p-4 ${SURFACE_CLASS_NAME}`}>
+    <div className={`flex flex-col gap-2 ${TILE_CLASS_NAME}`}>
       <h3 className="font-bold">{team.displayName}</h3>
       {leaders.length === 0 ? (
         <p className="text-sm text-muted">{strings.game.leaders.empty}</p>
@@ -73,7 +96,7 @@ export function GameLeaders({
 }) {
   return (
     <Section headingId="game-leaders" title={strings.game.leaders.title}>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3">
         <TeamLeaders team={game.away.team} leaders={leaders.away} />
         <TeamLeaders team={game.home.team} leaders={leaders.home} />
       </div>
@@ -96,9 +119,7 @@ export function WinProbability({
       title={strings.game.winProbability.title}
     >
       {latestPoint ? (
-        <div
-          className={`flex flex-col gap-2 p-4 text-sm ${SURFACE_CLASS_NAME}`}
-        >
+        <div className={`flex flex-col gap-2 text-sm ${TILE_CLASS_NAME}`}>
           <p className="flex justify-between tabular-nums">
             <span>
               {strings.game.winProbability.chance(

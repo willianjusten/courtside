@@ -14,6 +14,7 @@ import {
   type GameHeader,
   type GameScreen,
   type GameSummaryQueryState,
+  type GameTabs,
   type LineScoreView,
 } from "./game-view";
 
@@ -34,8 +35,11 @@ function screenFor(
   summary: GameSummary,
   timeZone: string | null = "America/New_York",
 ): GameScreen {
-  return buildGameView({ query: { status: "success", summary }, timeZone })
-    .screen;
+  return buildGameView({
+    query: { status: "success", summary },
+    timeZone,
+    tabParam: null,
+  }).screen;
 }
 
 function headerOf(screen: GameScreen): GameHeader {
@@ -52,6 +56,18 @@ function lineScoreOf(screen: GameScreen): LineScoreView {
   return screen.lineScore;
 }
 
+function tabsFor(summary: GameSummary, tabParam: string | null): GameTabs {
+  const { screen } = buildGameView({
+    query: { status: "success", summary },
+    timeZone: "America/New_York",
+    tabParam,
+  });
+  if (screen.kind !== "live" && screen.kind !== "final") {
+    throw new Error(`Expected a live or final screen, got ${screen.kind}`);
+  }
+  return screen.tabs;
+}
+
 const headerFor = (summary: GameSummary, timeZone?: string | null) =>
   headerOf(screenFor(summary, timeZone));
 const lineScoreFor = (summary: GameSummary) => lineScoreOf(screenFor(summary));
@@ -60,13 +76,21 @@ describe("buildGameView", () => {
   describe("screen states", () => {
     it("shows a loading state while the summary is pending", () => {
       expect(
-        buildGameView({ query: { status: "loading" }, timeZone: null }),
+        buildGameView({
+          query: { status: "loading" },
+          timeZone: null,
+          tabParam: null,
+        }),
       ).toEqual({ screen: { kind: "loading" }, staleNotice: null });
     });
 
     it("shows an error when the summary fails to load", () => {
       expect(
-        buildGameView({ query: { status: "error" }, timeZone: null }),
+        buildGameView({
+          query: { status: "error" },
+          timeZone: null,
+          tabParam: null,
+        }),
       ).toEqual({ screen: { kind: "error" }, staleNotice: null });
     });
 
@@ -74,6 +98,7 @@ describe("buildGameView", () => {
       const view = buildGameView({
         query: { status: "success", summary: final },
         timeZone: null,
+        tabParam: null,
       });
 
       expect(view.screen.kind).toBe("final");
@@ -83,7 +108,7 @@ describe("buildGameView", () => {
     it("keeps the last game with a stale notice when a refetch fails", () => {
       const query: GameSummaryQueryState = { status: "stale", summary: live };
 
-      const view = buildGameView({ query, timeZone: null });
+      const view = buildGameView({ query, timeZone: null, tabParam: null });
 
       expect(view.screen).toEqual(screenFor(live, null));
       expect(view.screen.kind).toBe("live");
@@ -469,6 +494,35 @@ describe("buildGameView", () => {
           venueLabel: "Mortgage Matchup Center · Phoenix",
         },
       });
+    });
+  });
+
+  describe("tabs", () => {
+    it("lists the Summary, Box score, Team stats, and Plays tabs, each linking to its query string", () => {
+      const { items } = tabsFor(final, null);
+      const gamePath = `/game/${final.game.id}`;
+
+      expect(items).toEqual([
+        { id: "summary", label: "Summary", href: gamePath },
+        { id: "box", label: "Box score", href: `${gamePath}?tab=box` },
+        { id: "stats", label: "Team stats", href: `${gamePath}?tab=stats` },
+        { id: "plays", label: "Plays", href: `${gamePath}?tab=plays` },
+      ]);
+    });
+
+    it("selects Summary when the query string has no tab", () => {
+      expect(tabsFor(live, null).selected).toBe("summary");
+    });
+
+    it.each(["box", "stats", "plays"])(
+      "selects the %s tab from the query string",
+      (tab) => {
+        expect(tabsFor(live, tab).selected).toBe(tab);
+      },
+    );
+
+    it("falls back to Summary for an unknown tab", () => {
+      expect(tabsFor(final, "highlights").selected).toBe("summary");
     });
   });
 });
