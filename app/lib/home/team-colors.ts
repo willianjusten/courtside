@@ -65,17 +65,18 @@ function looksAlike(firstColor: string, secondColor: string) {
   );
 }
 
-// Readable options in rule order: the primary, the alternate, then the lightened primary.
+// Readable options in rule order: the primary, the alternate, then each lightened.
+// The lightened alternate is a last resort for an away team whose readable primary looks like the home color.
 function readableOptionsOf(team: Team): string[] {
   const [primary, alternate] = [team.color, team.alternateColor].map((color) =>
     color ? `#${color.toLowerCase()}` : null,
   );
-  const baseColor = primary ?? alternate;
-  if (!baseColor) return [NEUTRAL_TEAM_COLOR];
+  if (!primary && !alternate) return [NEUTRAL_TEAM_COLOR];
 
-  return [primary, alternate, lightenUntilReadable(baseColor)].filter(
-    (color): color is string => color !== null && isReadable(color),
-  );
+  const baseColors = [primary, alternate];
+  return baseColors
+    .concat(baseColors.map((color) => color && lightenUntilReadable(color)))
+    .filter((color): color is string => color !== null && isReadable(color));
 }
 
 export function readableTeamColors(

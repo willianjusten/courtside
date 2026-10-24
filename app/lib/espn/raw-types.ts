@@ -250,7 +250,7 @@ export type RawLeaderAthlete = {
 
 export type RawSummary = {
   header: RawSummaryHeader;
-  boxscore?: { players?: RawBoxScoreTeam[] };
+  boxscore?: { players?: RawBoxScoreTeam[]; teams?: RawBoxScoreTeamStats[] };
   leaders?: RawSummaryTeamLeaders[];
   // Missing before the game starts.
   plays?: RawPlay[];
@@ -288,6 +288,12 @@ export type RawSummaryCompetitor = {
 export type RawBoxScoreTeam = {
   team: { id: string };
   statistics: RawBoxScoreStatistics[];
+};
+
+// Game totals once the game starts; season averages under other names before it.
+export type RawBoxScoreTeamStats = {
+  team: { id: string };
+  statistics: { name: string; displayValue: string }[];
 };
 
 export type RawBoxScoreStatistics = {

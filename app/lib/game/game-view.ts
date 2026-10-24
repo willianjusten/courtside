@@ -8,7 +8,9 @@ import type {
   BoxScorePlayer,
   BoxScoreStats,
   GameSummary,
+  TeamStatistics,
 } from "@/app/lib/domain/game-summary";
+import type { LeaderStat } from "@/app/lib/domain/leaders";
 import {
   channelLabelOf,
   finalLabel,
@@ -18,7 +20,7 @@ import {
   periodLabel,
   REGULATION_PERIODS,
 } from "@/app/lib/game/status";
-import type { TeamSide } from "@/app/lib/home/team-colors";
+import { readableTeamColors, type TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
 import { teamPathOf } from "@/app/lib/team/team-path";
 import { formatNbaDate, formatShortNbaDate } from "@/app/lib/time/nba-date";
@@ -149,6 +151,75 @@ export type BoxScoreView = {
   teams: TeamBoxScoreView[];
 };
 
+const TEAM_STATS = [
+  "fieldGoalPercentage",
+  "threePointPercentage",
+  "freeThrowPercentage",
+  "rebounds",
+  "assists",
+  "turnovers",
+  "steals",
+  "blocks",
+  "pointsInPaint",
+  "fastBreakPoints",
+  "largestLead",
+] as const satisfies readonly (keyof TeamStatistics)[];
+
+export type TeamStat = (typeof TEAM_STATS)[number];
+
+const PERCENTAGE_STATS = new Set<TeamStat>([
+  "fieldGoalPercentage",
+  "threePointPercentage",
+  "freeThrowPercentage",
+]);
+const FEWER_IS_BETTER_STATS = new Set<TeamStat>(["turnovers"]);
+
+export type TeamStatRow = {
+  stat: TeamStat;
+  label: string;
+  away: string;
+  home: string;
+  // Null on a tie.
+  betterSide: TeamSide | null;
+  // Each side's percentage of the pair's sum, which sizes its bar; both 0 when the sum is 0.
+  awayShare: number;
+  homeShare: number;
+};
+
+export type TeamStatsTeam = {
+  abbreviation: string;
+  // Readable on the dark ground and apart from the other team's color.
+  color: string;
+};
+
+export type TeamStatsView = {
+  away: TeamStatsTeam;
+  home: TeamStatsTeam;
+  rows: TeamStatRow[];
+};
+
+const LEADER_STATS: LeaderStat[] = ["points", "rebounds", "assists"];
+
+export type GameLeaderRow = {
+  stat: LeaderStat;
+  label: string;
+  athleteName: string;
+  headshotUrl: string | null;
+  value: string;
+};
+
+export type TeamLeadersView = {
+  side: TeamSide;
+  teamName: string;
+  // Points, rebounds, then assists, leaving out a category ESPN has no leader for.
+  leaders: GameLeaderRow[];
+};
+
+export type GameLeadersView = {
+  // Away first, as the header reads.
+  teams: TeamLeadersView[];
+};
+
 const GAME_TAB_IDS = ["summary", "box", "stats", "plays"] as const;
 const DEFAULT_GAME_TAB = "summary";
 
@@ -176,16 +247,24 @@ export type GameScreen =
       kind: "live";
       header: GameHeader;
       lineScore: LineScoreView;
+      // Null until ESPN lists any leader.
+      leaders: GameLeadersView | null;
       // Null until ESPN lists any player.
       boxScore: BoxScoreView | null;
+      // Null until ESPN lists the statistics of both teams.
+      teamStats: TeamStatsView | null;
       tabs: GameTabs;
     }
   | {
       kind: "final";
       header: GameHeader;
       lineScore: LineScoreView;
+      // Null until ESPN lists any leader.
+      leaders: GameLeadersView | null;
       // Null until ESPN lists any player.
       boxScore: BoxScoreView | null;
+      // Null until ESPN lists the statistics of both teams.
+      teamStats: TeamStatsView | null;
       tabs: GameTabs;
     };
 
@@ -422,6 +501,88 @@ function boxScoreOf(summary: GameSummary): BoxScoreView | null {
   };
 }
 
+function betterSideOf(
+  stat: TeamStat,
+  away: number,
+  home: number,
+): TeamSide | null {
+  if (away === home) return null;
+  const isAwayHigher = away > home;
+  return isAwayHigher !== FEWER_IS_BETTER_STATS.has(stat) ? "away" : "home";
+}
+
+function shareOf(value: number, total: number) {
+  return total === 0 ? 0 : (value / total) * 100;
+}
+
+function teamStatValueOf(stat: TeamStat, value: number) {
+  return PERCENTAGE_STATS.has(stat)
+    ? strings.game.teamStats.percentage(value)
+    : String(value);
+}
+
+function teamStatsOf(summary: GameSummary): TeamStatsView | null {
+  const { home, away } = summary.teamStats;
+  if (!home || !away) return null;
+
+  const { game } = summary;
+  const colors = readableTeamColors(game.home.team, game.away.team);
+  const teamOf = (side: TeamSide): TeamStatsTeam => ({
+    abbreviation: game[side].team.abbreviation,
+    color: colors[side],
+  });
+
+  return {
+    away: teamOf("away"),
+    home: teamOf("home"),
+    rows: TEAM_STATS.map((stat) => {
+      const total = away[stat] + home[stat];
+      return {
+        stat,
+        label: strings.game.teamStats.labels[stat],
+        away: teamStatValueOf(stat, away[stat]),
+        home: teamStatValueOf(stat, home[stat]),
+        betterSide: betterSideOf(stat, away[stat], home[stat]),
+        awayShare: shareOf(away[stat], total),
+        homeShare: shareOf(home[stat], total),
+      };
+    }),
+  };
+}
+
+function teamLeadersOf(summary: GameSummary, side: TeamSide): TeamLeadersView {
+  const leaderByStat = new Map(
+    summary.leaders[side].map(({ stat, leader }) => [stat, leader]),
+  );
+
+  return {
+    side,
+    teamName: summary.game[side].team.name,
+    leaders: LEADER_STATS.flatMap((stat): GameLeaderRow[] => {
+      const leader = leaderByStat.get(stat);
+      if (!leader) return [];
+      return [
+        {
+          stat,
+          label: strings.leaders.categories[stat].title,
+          athleteName: leader.athlete.shortName,
+          headshotUrl: leader.athlete.headshotUrl,
+          value: leader.displayValue,
+        },
+      ];
+    }),
+  };
+}
+
+function leadersOf(summary: GameSummary): GameLeadersView | null {
+  const { home, away } = summary.leaders;
+  if (home.length === 0 && away.length === 0) return null;
+
+  return {
+    teams: [teamLeadersOf(summary, "away"), teamLeadersOf(summary, "home")],
+  };
+}
+
 function isGameTabId(tab: string): tab is GameTabId {
   return (GAME_TAB_IDS as readonly string[]).includes(tab);
 }
@@ -460,7 +621,9 @@ function screenOf(
         kind: "live",
         header,
         lineScore: lineScoreOf(summary, header.leadingSide),
+        leaders: leadersOf(summary),
         boxScore: boxScoreOf(summary),
+        teamStats: teamStatsOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
     case "final":
@@ -468,7 +631,9 @@ function screenOf(
         kind: "final",
         header,
         lineScore: lineScoreOf(summary, header.leadingSide),
+        leaders: leadersOf(summary),
         boxScore: boxScoreOf(summary),
+        teamStats: teamStatsOf(summary),
         tabs: tabsOf(summary.game.id, tabParam),
       };
   }

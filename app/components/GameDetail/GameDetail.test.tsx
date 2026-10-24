@@ -321,3 +321,62 @@ describe("GameDetail box score", () => {
     expect(teamButton("76ers").getAttribute("aria-pressed")).toBe("true");
   });
 });
+
+describe("GameDetail team stats", () => {
+  const statRow = (label: string) =>
+    within(screen.getByRole("region", { name: strings.game.teamStats.title }))
+      .getAllByRole("listitem")
+      .find((item) => within(item).queryByText(label));
+  const emphasizedValuesOf = (label: string) =>
+    Array.from(statRow(label)?.querySelectorAll("strong") ?? []).map(
+      (value) => value.textContent,
+    );
+
+  it("shows each statistic side by side, emphasizing the better value", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    expect(statRow("FG%")?.textContent).toBe("41%FG%57%");
+    expect(emphasizedValuesOf("FG%")).toEqual(["57%"]);
+    expect(emphasizedValuesOf("Turnovers")).toEqual(["16"]);
+  });
+
+  it("emphasizes neither value on a tie", async () => {
+    const tiedSummary = structuredClone(finalSummary);
+    for (const team of tiedSummary.boxscore.teams) {
+      const steals = team.statistics.find(({ name }) => name === "steals");
+      if (steals) steals.displayValue = "9";
+    }
+    await renderLoadedGameDetail(tiedSummary, DURING_LIVE_GAME);
+
+    expect(emphasizedValuesOf("Steals")).toEqual([]);
+  });
+});
+
+describe("GameDetail game leaders", () => {
+  it("shows each team's points, rebounds, and assists leaders with headshots", async () => {
+    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+
+    const leaders = screen.getByRole("region", {
+      name: strings.game.leaders.title,
+    });
+    const lakers = within(leaders)
+      .getByRole("heading", { name: "Lakers" })
+      .closest("li");
+    if (!lakers) throw new Error("Expected the Lakers leaders");
+
+    expect(
+      within(lakers)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual([
+      "PointsL. Doncic28",
+      "ReboundsW. Kessler9",
+      "AssistsL. Doncic7",
+    ]);
+    expect(
+      within(lakers)
+        .getByRole("img", { name: "W. Kessler" })
+        .getAttribute("src"),
+    ).toContain("4433136.png");
+  });
+});

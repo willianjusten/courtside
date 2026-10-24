@@ -1,11 +1,6 @@
 import type { ReactNode } from "react";
-import type { Game, Team } from "@/app/lib/domain/game";
-import type {
-  GameLeader,
-  GameSide,
-  Play,
-  WinProbabilityPoint,
-} from "@/app/lib/domain/game-summary";
+import type { Game } from "@/app/lib/domain/game";
+import type { Play, WinProbabilityPoint } from "@/app/lib/domain/game-summary";
 import { strings } from "@/app/lib/strings";
 import { periodLabel } from "@/app/lib/game/status";
 import { SURFACE_CLASS_NAME, TILE_CLASS_NAME } from "./styles";
@@ -66,48 +61,6 @@ export function PendingSection({
   return (
     <Section headingId={headingId} title={title}>
       <p className="text-sm text-muted">{note}</p>
-    </Section>
-  );
-}
-
-function TeamLeaders({ team, leaders }: { team: Team; leaders: GameLeader[] }) {
-  return (
-    <div className={`flex flex-col gap-2 ${TILE_CLASS_NAME}`}>
-      <h3 className="font-bold">{team.displayName}</h3>
-      {leaders.length === 0 ? (
-        <p className="text-sm text-muted">{strings.game.leaders.empty}</p>
-      ) : (
-        <ul className="flex flex-col gap-1 text-sm">
-          {leaders.map(({ stat, leader }) => (
-            <li key={stat} className="flex gap-2">
-              <span className="w-24 text-muted">
-                {strings.leaders.categories[stat].title}
-              </span>
-              <span className="grow font-medium">
-                {leader.athlete.displayName}
-              </span>
-              <span className="tabular-nums">{leader.displayValue}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-export function GameLeaders({
-  game,
-  leaders,
-}: {
-  game: Game;
-  leaders: GameSide<GameLeader[]>;
-}) {
-  return (
-    <Section headingId="game-leaders" title={strings.game.leaders.title}>
-      <div className="grid gap-3">
-        <TeamLeaders team={game.away.team} leaders={leaders.away} />
-        <TeamLeaders team={game.home.team} leaders={leaders.home} />
-      </div>
     </Section>
   );
 }

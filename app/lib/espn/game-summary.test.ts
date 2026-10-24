@@ -188,6 +188,44 @@ describe("fetchGameSummary", () => {
       expect(leaders.away[0].leader.displayValue).toBe("23");
     });
 
+    it("maps each team's statistics to its side", async () => {
+      respondWith(finalSummary);
+
+      const { teamStats } = await fetchGameSummary("401909092");
+
+      expect(teamStats.away).toEqual({
+        fieldGoalPercentage: 41,
+        threePointPercentage: 22,
+        freeThrowPercentage: 78,
+        rebounds: 36,
+        assists: 25,
+        turnovers: 16,
+        steals: 15,
+        blocks: 2,
+        pointsInPaint: 56,
+        fastBreakPoints: 17,
+        largestLead: 3,
+      });
+      expect(teamStats.home).toMatchObject({
+        fieldGoalPercentage: 57,
+        rebounds: 43,
+        turnovers: 18,
+      });
+    });
+
+    it("throws when ESPN leaves a team statistic out", async () => {
+      const missingStat = structuredClone(finalSummary);
+      missingStat.boxscore.teams[0].statistics =
+        missingStat.boxscore.teams[0].statistics.filter(
+          ({ name }) => name !== "pointsInPaint",
+        );
+      respondWith(missingStat);
+
+      await expect(fetchGameSummary("401909092")).rejects.toThrow(
+        "pointsInPaint",
+      );
+    });
+
     it("maps the plays in game order", async () => {
       respondWith(finalSummary);
 
@@ -280,6 +318,11 @@ describe("fetchGameSummary", () => {
         stat: "points",
         leader: { displayValue: "6" },
       });
+      expect(summary.teamStats.away).toMatchObject({
+        fieldGoalPercentage: 40,
+        pointsInPaint: 8,
+        largestLead: 4,
+      });
       expect(summary.plays).toHaveLength(40);
       expect(summary.plays.at(-1)).toMatchObject({
         text: "Joel Embiid defensive rebound",
@@ -316,6 +359,8 @@ describe("fetchGameSummary", () => {
         home: { players: [], totals: null },
         away: { players: [], totals: null },
       });
+      // ESPN sends season averages as the team statistics before the game.
+      expect(summary.teamStats).toEqual({ home: null, away: null });
       expect(summary.plays).toEqual([]);
       expect(summary.winProbability).toEqual([]);
     });

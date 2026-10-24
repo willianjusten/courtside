@@ -45,6 +45,22 @@ export type TeamBoxScore = {
   totals: BoxScoreStats | null;
 };
 
+// Whole numbers as ESPN sends them; percentages run from 0 to 100.
+export type TeamStatistics = {
+  fieldGoalPercentage: number;
+  threePointPercentage: number;
+  freeThrowPercentage: number;
+  rebounds: number;
+  assists: number;
+  // Team turnovers included.
+  turnovers: number;
+  steals: number;
+  blocks: number;
+  pointsInPaint: number;
+  fastBreakPoints: number;
+  largestLead: number;
+};
+
 export type GameLeader = {
   stat: LeaderStat;
   // Game totals once the game starts; season averages before it.
@@ -90,6 +106,8 @@ export type GameSummary = {
   // Points per period, overtimes included. Empty before the game starts.
   lineScore: GameSide<number[]>;
   boxScore: GameSide<TeamBoxScore>;
+  // Null before the game starts.
+  teamStats: GameSide<TeamStatistics | null>;
   leaders: GameSide<GameLeader[]>;
   // In game order. Empty before the game starts.
   plays: Play[];

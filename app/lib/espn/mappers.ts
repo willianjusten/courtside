@@ -7,6 +7,7 @@ import type {
   GameSummary,
   Play,
   TeamBoxScore,
+  TeamStatistics,
 } from "@/app/lib/domain/game-summary";
 import type { Leader, LeaderStat } from "@/app/lib/domain/leaders";
 import type {
@@ -37,6 +38,7 @@ import type {
   RawBoxScoreAthlete,
   RawBoxScoreStatistics,
   RawBoxScoreTeam,
+  RawBoxScoreTeamStats,
   RawBroadcast,
   RawCompetitor,
   RawConferenceStandings,
@@ -578,6 +580,38 @@ function mapTeamBoxScore(
   };
 }
 
+const TEAM_STATISTIC_NAMES: Record<keyof TeamStatistics, string> = {
+  fieldGoalPercentage: "fieldGoalPct",
+  threePointPercentage: "threePointFieldGoalPct",
+  freeThrowPercentage: "freeThrowPct",
+  rebounds: "totalRebounds",
+  assists: "assists",
+  // ESPN's "turnovers" leaves out the turnovers charged to the team rather than a player.
+  turnovers: "totalTurnovers",
+  steals: "steals",
+  blocks: "blocks",
+  pointsInPaint: "pointsInPaint",
+  fastBreakPoints: "fastBreakPoints",
+  largestLead: "largestLead",
+};
+
+function mapTeamStatistics({
+  statistics,
+}: RawBoxScoreTeamStats): TeamStatistics {
+  const statEntries = Object.entries(TEAM_STATISTIC_NAMES).map(
+    ([stat, espnName]) => {
+      const value = Number(
+        statistics.find(({ name }) => name === espnName)?.displayValue,
+      );
+      if (Number.isNaN(value)) {
+        throw new Error(`ESPN team statistics have no ${espnName} stat`);
+      }
+      return [stat, value];
+    },
+  );
+  return Object.fromEntries(statEntries) as TeamStatistics;
+}
+
 // Before the game starts ESPN names the season averages, e.g. "pointsPerGame".
 const LEADER_STAT_BY_CATEGORY_NAME: Record<string, LeaderStat> = {
   points: "points",
@@ -678,6 +712,23 @@ export function mapGameSummary(summary: RawSummary): GameSummary {
     (series) => series.type === "playoff",
   );
 
+  const boxScore = bySide(home, away, (competitor) =>
+    mapTeamBoxScore(
+      findByTeam<RawBoxScoreTeam>(summary.boxscore?.players, competitor)
+        ?.statistics[0],
+    ),
+  );
+  // Until the players check in, ESPN's team statistics are season averages, not this game's.
+  const teamStatsOf = (
+    competitor: RawSummaryCompetitor,
+    { players }: TeamBoxScore,
+  ) => {
+    const teamStats = findByTeam(summary.boxscore?.teams, competitor);
+    return teamStats && players.length > 0
+      ? mapTeamStatistics(teamStats)
+      : null;
+  };
+
   return {
     game: {
       id: header.id,
@@ -698,12 +749,11 @@ export function mapGameSummary(summary: RawSummary): GameSummary {
     },
     venueCity: summary.gameInfo?.venue?.address?.city ?? null,
     lineScore: bySide(home, away, mapLineScore),
-    boxScore: bySide(home, away, (competitor) =>
-      mapTeamBoxScore(
-        findByTeam<RawBoxScoreTeam>(summary.boxscore?.players, competitor)
-          ?.statistics[0],
-      ),
-    ),
+    boxScore,
+    teamStats: {
+      home: teamStatsOf(home, boxScore.home),
+      away: teamStatsOf(away, boxScore.away),
+    },
     leaders: bySide(home, away, (competitor) =>
       mapGameLeaders(
         findByTeam<RawSummaryTeamLeaders>(summary.leaders, competitor)?.leaders,

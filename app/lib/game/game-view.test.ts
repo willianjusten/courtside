@@ -1,5 +1,8 @@
 import type { Game } from "@/app/lib/domain/game";
-import type { GameSummary } from "@/app/lib/domain/game-summary";
+import type {
+  GameSummary,
+  TeamStatistics,
+} from "@/app/lib/domain/game-summary";
 import doubleOvertimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-double-overtime-playoff.json";
 import overtimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-overtime-playoff.json";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
@@ -12,11 +15,13 @@ import { strings } from "@/app/lib/strings";
 import {
   buildGameView,
   type BoxScoreView,
+  type GameLeadersView,
   type GameHeader,
   type GameScreen,
   type GameSummaryQueryState,
   type GameTabs,
   type LineScoreView,
+  type TeamStatsView,
 } from "./game-view";
 
 const summaryOf = (fixture: unknown) => mapGameSummary(fixture as RawSummary);
@@ -75,6 +80,37 @@ function boxScoreFor(summary: GameSummary): BoxScoreView | null {
     throw new Error(`Expected a live or final screen, got ${screen.kind}`);
   }
   return screen.boxScore;
+}
+
+function teamStatsFor(summary: GameSummary): TeamStatsView | null {
+  const screen = screenFor(summary);
+  if (screen.kind !== "live" && screen.kind !== "final") {
+    throw new Error(`Expected a live or final screen, got ${screen.kind}`);
+  }
+  return screen.teamStats;
+}
+
+function leadersFor(summary: GameSummary): GameLeadersView | null {
+  const screen = screenFor(summary);
+  if (screen.kind !== "live" && screen.kind !== "final") {
+    throw new Error(`Expected a live or final screen, got ${screen.kind}`);
+  }
+  return screen.leaders;
+}
+
+function withTeamStats(
+  summary: GameSummary,
+  teamStats: Partial<Record<"home" | "away", Partial<TeamStatistics>>>,
+): GameSummary {
+  const { home, away } = summary.teamStats;
+  if (!home || !away) throw new Error("Expected team statistics");
+  return {
+    ...summary,
+    teamStats: {
+      home: { ...home, ...teamStats.home },
+      away: { ...away, ...teamStats.away },
+    },
+  };
 }
 
 // The overtime playoff final played live, to cover an injured player during a live game.
@@ -700,6 +736,156 @@ describe("buildGameView", () => {
 
     it("shows no box score before the game", () => {
       expect(screenFor(preGame)).not.toHaveProperty("boxScore");
+    });
+  });
+
+  describe("team stats", () => {
+    it("pairs each team statistic, away first, with ESPN's values", () => {
+      const rows = teamStatsFor(final)?.rows ?? [];
+
+      expect(rows.map(({ label, away, home }) => [label, away, home])).toEqual([
+        ["FG%", "41%", "57%"],
+        ["3P%", "22%", "39%"],
+        ["FT%", "78%", "89%"],
+        ["Rebounds", "36", "43"],
+        ["Assists", "25", "28"],
+        ["Turnovers", "16", "18"],
+        ["Steals", "15", "11"],
+        ["Blocks", "2", "5"],
+        ["Points in paint", "56", "66"],
+        ["Fast break points", "17", "21"],
+        ["Largest lead", "3", "35"],
+      ]);
+    });
+
+    it("flags the higher value as the better side", () => {
+      const rows = teamStatsFor(final)?.rows ?? [];
+      const betterSideOf = (stat: string) =>
+        rows.find((row) => row.stat === stat)?.betterSide;
+
+      expect(betterSideOf("fieldGoalPercentage")).toBe("home");
+      expect(betterSideOf("steals")).toBe("away");
+      expect(betterSideOf("largestLead")).toBe("home");
+    });
+
+    it("flags the fewer turnovers as the better side", () => {
+      const rows = teamStatsFor(final)?.rows ?? [];
+
+      expect(rows.find(({ stat }) => stat === "turnovers")?.betterSide).toBe(
+        "away",
+      );
+    });
+
+    it("flags neither side on a tie", () => {
+      const rows =
+        teamStatsFor(
+          withTeamStats(final, {
+            away: { pointsInPaint: 48, turnovers: 12 },
+            home: { pointsInPaint: 48, turnovers: 12 },
+          }),
+        )?.rows ?? [];
+      const betterSideOf = (stat: string) =>
+        rows.find((row) => row.stat === stat)?.betterSide;
+
+      expect(betterSideOf("pointsInPaint")).toBeNull();
+      expect(betterSideOf("turnovers")).toBeNull();
+    });
+
+    it("splits each bar by the teams' share of the pair", () => {
+      const rows =
+        teamStatsFor(
+          withTeamStats(final, {
+            away: { rebounds: 30, steals: 0 },
+            home: { rebounds: 10, steals: 0 },
+          }),
+        )?.rows ?? [];
+      const sharesOf = (stat: string) => {
+        const row = rows.find((candidate) => candidate.stat === stat);
+        return [row?.awayShare, row?.homeShare];
+      };
+
+      expect(sharesOf("rebounds")).toEqual([75, 25]);
+      expect(sharesOf("steals")).toEqual([0, 0]);
+    });
+
+    it("heads the stats with each team's abbreviation and a readable team color", () => {
+      const teamStats = teamStatsFor(final);
+
+      expect(teamStats?.away).toEqual({
+        abbreviation: "GS",
+        color: expect.stringMatching(/^#[0-9a-f]{6}$/),
+      });
+      expect(teamStats?.home.abbreviation).toBe("LAL");
+      expect(teamStats?.away.color).not.toBe(teamStats?.home.color);
+    });
+
+    it("shows no team stats until ESPN lists them for both teams", () => {
+      expect(
+        teamStatsFor({ ...live, teamStats: { home: null, away: null } }),
+      ).toBeNull();
+    });
+
+    it("shows no team stats before the game", () => {
+      expect(screenFor(preGame)).not.toHaveProperty("teamStats");
+    });
+  });
+
+  describe("game leaders", () => {
+    it("lists each team's points, rebounds, and assists leaders, away first", () => {
+      const teams = leadersFor(final)?.teams ?? [];
+
+      expect(teams.map(({ side, teamName }) => ({ side, teamName }))).toEqual([
+        { side: "away", teamName: "Warriors" },
+        { side: "home", teamName: "Lakers" },
+      ]);
+      expect(teams[1].leaders).toEqual([
+        {
+          stat: "points",
+          label: "Points",
+          athleteName: "L. Doncic",
+          headshotUrl:
+            "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
+          value: "28",
+        },
+        {
+          stat: "rebounds",
+          label: "Rebounds",
+          athleteName: "W. Kessler",
+          headshotUrl:
+            "https://a.espncdn.com/i/headshots/nba/players/full/4433136.png",
+          value: "9",
+        },
+        {
+          stat: "assists",
+          label: "Assists",
+          athleteName: "L. Doncic",
+          headshotUrl:
+            "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
+          value: "7",
+        },
+      ]);
+    });
+
+    it("leaves out a category ESPN has no leader for", () => {
+      const teams =
+        leadersFor({
+          ...final,
+          leaders: {
+            ...final.leaders,
+            away: final.leaders.away.filter(({ stat }) => stat !== "assists"),
+          },
+        })?.teams ?? [];
+
+      expect(teams[0].leaders.map(({ stat }) => stat)).toEqual([
+        "points",
+        "rebounds",
+      ]);
+    });
+
+    it("shows no leaders until ESPN lists any", () => {
+      expect(
+        leadersFor({ ...live, leaders: { home: [], away: [] } }),
+      ).toBeNull();
     });
   });
 

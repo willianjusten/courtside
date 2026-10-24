@@ -11,12 +11,9 @@ import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import { GameHeader, LineScore } from "./header";
 import { GameSections } from "./game-sections";
 import { BoxScore } from "./box-score";
-import {
-  GameLeaders,
-  PendingSection,
-  PlayByPlay,
-  WinProbability,
-} from "./sections";
+import { GameLeaders } from "./game-leaders";
+import { PendingSection, PlayByPlay, WinProbability } from "./sections";
+import { TeamStats } from "./team-stats";
 import {
   GameDetailError,
   GameDetailLoading,
@@ -91,9 +88,7 @@ export default function GameDetail({ gameId }: { gameId: string }) {
                   note={strings.game.highlights.pending}
                 />
               }
-              leaders={
-                <GameLeaders game={summary.game} leaders={summary.leaders} />
-              }
+              leaders={<GameLeaders leaders={screen.leaders} />}
               gameFlow={
                 <WinProbability
                   game={summary.game}
@@ -101,13 +96,7 @@ export default function GameDetail({ gameId }: { gameId: string }) {
                 />
               }
               boxScore={<BoxScore boxScore={screen.boxScore} />}
-              teamStats={
-                <PendingSection
-                  headingId="game-team-stats"
-                  title={strings.game.teamStats.title}
-                  note={strings.game.teamStats.pending}
-                />
-              }
+              teamStats={<TeamStats teamStats={screen.teamStats} />}
               plays={<PlayByPlay game={summary.game} plays={summary.plays} />}
             />
           )}

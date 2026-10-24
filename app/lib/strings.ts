@@ -172,7 +172,21 @@ export const strings = {
     },
     teamStats: {
       title: "Team stats",
-      pending: "Team stats appear here soon.",
+      empty: "Team stats fill in once the players check in.",
+      percentage: (value: number) => `${value}%`,
+      labels: {
+        fieldGoalPercentage: "FG%",
+        threePointPercentage: "3P%",
+        freeThrowPercentage: "FT%",
+        rebounds: "Rebounds",
+        assists: "Assists",
+        turnovers: "Turnovers",
+        steals: "Steals",
+        blocks: "Blocks",
+        pointsInPaint: "Points in paint",
+        fastBreakPoints: "Fast break points",
+        largestLead: "Largest lead",
+      },
     },
     leaders: {
       title: "Game leaders",

@@ -830,6 +830,34 @@ describe("buildHomeView", () => {
         expect(contrastRatio(away, INK)).toBeGreaterThanOrEqual(3);
       });
 
+      it("lightens the away alternate when its primary looks like the home color", () => {
+        // GS at LAL: GS gold matches the LAL gold, and GS navy fails on Ink.
+        const game: Game = {
+          ...scheduledLate,
+          home: {
+            ...scheduledLate.home,
+            team: {
+              ...scheduledLate.home.team,
+              color: "552583",
+              alternateColor: "fdb927",
+            },
+          },
+          away: {
+            ...scheduledLate.away,
+            team: {
+              ...scheduledLate.away.team,
+              color: "fdb927",
+              alternateColor: "1d428a",
+            },
+          },
+        };
+        const { home, away } = cardFor(game).teamColors;
+
+        expect(home).toBe("#fdb927");
+        expect(away).not.toBe("#fdb927");
+        expect(contrastRatio(away, INK)).toBeGreaterThanOrEqual(3);
+      });
+
       it("uses a neutral color for a team without colors", () => {
         const { away } = cardFor(exhibitionGame).teamColors;
 
