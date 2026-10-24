@@ -634,6 +634,21 @@ describe("routes", () => {
     ).toBeDefined();
   });
 
+  it("shows each player's photo beside their name", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const roster = await screen.findByRole("region", {
+      name: strings.team.roster.title,
+    });
+    const photo = within(roster)
+      .getByRole("row", { name: /Cameron Carr/ })
+      .querySelector("img");
+    expect(photo?.getAttribute("src")).toBe(
+      "https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/5113969.png&w=64&h=48",
+    );
+    expect(photo?.getAttribute("loading")).toBe("lazy");
+  });
+
   it("returns not found for an unknown team slug", async () => {
     await expect(
       TeamPage({ params: Promise.resolve({ slug: "supersonics" }) }),

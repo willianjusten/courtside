@@ -1,7 +1,38 @@
 import type { RosterPlayer } from "@/app/lib/domain/team";
+import { resizedImageUrl } from "@/app/lib/espn";
 import { strings } from "@/app/lib/strings";
 
 const HEADING_ID = "team-roster";
+// Close to the 1040x760 aspect ratio of ESPN headshots, cropped slightly to fill the box.
+const HEADSHOT_WIDTH = 32;
+const HEADSHOT_HEIGHT = 24;
+// Requested at twice the display size so headshots stay sharp on high-density screens.
+const HEADSHOT_REQUEST_SCALE = 2;
+const HEADSHOT_CLASS_NAME =
+  "h-6 w-8 shrink-0 rounded-md bg-white/6 object-cover";
+
+function Headshot({ headshotUrl }: { headshotUrl: string | null }) {
+  if (!headshotUrl) {
+    return <span aria-hidden="true" className={HEADSHOT_CLASS_NAME} />;
+  }
+
+  return (
+    <img
+      src={resizedImageUrl(
+        headshotUrl,
+        HEADSHOT_WIDTH * HEADSHOT_REQUEST_SCALE,
+        HEADSHOT_HEIGHT * HEADSHOT_REQUEST_SCALE,
+      )}
+      // The name sits next to the photo, so the photo adds nothing for screen readers.
+      alt=""
+      width={HEADSHOT_WIDTH}
+      height={HEADSHOT_HEIGHT}
+      // The roster sits below the fold on desktop and in a hidden tab on mobile.
+      loading="lazy"
+      className={HEADSHOT_CLASS_NAME}
+    />
+  );
+}
 
 export default function TeamRoster({ players }: { players: RosterPlayer[] }) {
   const { roster } = strings.team;
@@ -27,7 +58,12 @@ export default function TeamRoster({ players }: { players: RosterPlayer[] }) {
             {players.map((player) => (
               <tr key={player.id} className="border-t border-white/10">
                 <td className="px-4 py-2 tabular-nums">{player.jersey}</td>
-                <td className="px-4 py-2 font-medium">{player.displayName}</td>
+                <td className="px-4 py-2 font-medium">
+                  <span className="flex items-center gap-2.5">
+                    <Headshot headshotUrl={player.headshotUrl} />
+                    {player.displayName}
+                  </span>
+                </td>
                 <td className="px-4 py-2">{player.position}</td>
                 <td className="px-4 py-2">{player.height}</td>
                 <td className="px-4 py-2">{player.weight}</td>
