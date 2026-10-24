@@ -9,6 +9,7 @@ import type {
   TeamResult,
   TeamResultOutcome,
   TeamSchedule as TeamScheduleView,
+  TeamScheduleListId,
   TeamUpcomingGame,
 } from "@/app/lib/team/team-view";
 
@@ -20,6 +21,7 @@ const RESULTS_HEADING_ID = "team-schedule-results";
 const ROW_CLASS_NAME =
   "grid min-h-14 grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[14px] border px-3 py-2.5 md:grid-cols-[110px_minmax(0,1fr)_auto] md:gap-4 md:px-3.5";
 const DEFAULT_ROW_TONE_CLASS_NAME = "border-white/7 bg-white/3.5";
+const ROW_LINK_CLASS_NAME = `transition-colors hover:bg-white/7 ${FOCUS_RING_CLASS_NAME}`;
 
 const OUTCOME_CLASS_NAME: Record<TeamResultOutcome, string> = {
   win: "bg-win/16 text-win-soft",
@@ -76,35 +78,38 @@ function UpcomingGameRow({ game }: { game: TeamUpcomingGame }) {
     : DEFAULT_ROW_TONE_CLASS_NAME;
 
   return (
-    <li
-      className={`${ROW_CLASS_NAME} ${toneClassName} ${game.isInDesktopUpNext ? "" : "md:hidden"}`}
-    >
-      <GameDay weekdayLabel={game.weekdayLabel} dateLabel={game.dateLabel} />
-      <Opponent sideLabel={game.sideLabel} opponent={game.opponent}>
-        {game.isNext && (
-          <span className="shrink-0 rounded-full bg-accent/16 px-2 py-0.5 text-[10px] font-bold tracking-[0.08em] text-accent-soft uppercase">
-            {strings.team.schedule.next}
+    <li>
+      <Link
+        href={game.href}
+        className={`${ROW_CLASS_NAME} ${toneClassName} ${ROW_LINK_CLASS_NAME}`}
+      >
+        <GameDay weekdayLabel={game.weekdayLabel} dateLabel={game.dateLabel} />
+        <Opponent sideLabel={game.sideLabel} opponent={game.opponent}>
+          {game.isNext && (
+            <span className="shrink-0 rounded-full bg-accent/16 px-2 py-0.5 text-[10px] font-bold tracking-[0.08em] text-accent-soft uppercase">
+              {strings.team.schedule.next}
+            </span>
+          )}
+        </Opponent>
+        <span className="flex flex-col items-end text-right md:flex-row-reverse md:items-center md:gap-4">
+          {game.isPostponed ? (
+            <span className="text-[13px] font-bold text-warning md:text-sm">
+              {strings.gameStatus.postponed}
+            </span>
+          ) : (
+            // Empty until the browser timezone is known, so the server markup carries no time.
+            <time
+              dateTime={game.startTime}
+              className="text-[13px] font-bold md:text-sm"
+            >
+              {game.timeLabel}
+            </time>
+          )}
+          <span className="text-[10px] text-muted md:text-xs">
+            {game.channelLabel}
           </span>
-        )}
-      </Opponent>
-      <span className="flex flex-col items-end text-right md:flex-row-reverse md:items-center md:gap-4">
-        {game.isPostponed ? (
-          <span className="text-[13px] font-bold text-warning md:text-sm">
-            {strings.gameStatus.postponed}
-          </span>
-        ) : (
-          // Empty until the browser timezone is known, so the server markup carries no time.
-          <time
-            dateTime={game.startTime}
-            className="text-[13px] font-bold md:text-sm"
-          >
-            {game.timeLabel}
-          </time>
-        )}
-        <span className="text-[10px] text-muted md:text-xs">
-          {game.channelLabel}
         </span>
-      </span>
+      </Link>
     </li>
   );
 }
@@ -114,7 +119,7 @@ function ResultRow({ result }: { result: TeamResult }) {
     <li>
       <Link
         href={result.href}
-        className={`${ROW_CLASS_NAME} ${DEFAULT_ROW_TONE_CLASS_NAME} transition-colors hover:bg-white/7 ${FOCUS_RING_CLASS_NAME}`}
+        className={`${ROW_CLASS_NAME} ${DEFAULT_ROW_TONE_CLASS_NAME} ${ROW_LINK_CLASS_NAME}`}
       >
         <GameDay
           weekdayLabel={result.weekdayLabel}
@@ -146,11 +151,15 @@ function ScheduleSection({
   headingId,
   title,
   emptyMessage,
+  showMoreLabel,
+  onShowMore,
   children,
 }: {
   headingId: string;
   title: string;
   emptyMessage: string | null;
+  showMoreLabel: string | null;
+  onShowMore: () => void;
   children: ReactNode[];
 }) {
   return (
@@ -170,15 +179,25 @@ function ScheduleSection({
       ) : (
         <p className="text-sm text-muted">{emptyMessage}</p>
       )}
+      {showMoreLabel && (
+        <button
+          type="button"
+          onClick={onShowMore}
+          className={`min-h-11 cursor-pointer rounded-[14px] border border-white/10 bg-white/4 text-xs font-bold text-link transition-colors hover:bg-white/8 ${FOCUS_RING_CLASS_NAME}`}
+        >
+          {showMoreLabel}
+        </button>
+      )}
     </section>
   );
 }
 
-// Mobile lists every upcoming game in the Schedule tab; desktop's "Up next" keeps the next few, as in the artboards.
 export default function TeamSchedule({
   schedule,
+  onShowMore,
 }: {
   schedule: TeamScheduleView;
+  onShowMore: (listId: TeamScheduleListId) => void;
 }) {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -186,8 +205,10 @@ export default function TeamSchedule({
         headingId={UP_NEXT_HEADING_ID}
         title={strings.team.schedule.upNext}
         emptyMessage={schedule.emptyUpcomingMessage}
+        showMoreLabel={schedule.upcoming.showMoreLabel}
+        onShowMore={() => onShowMore("upcoming")}
       >
-        {schedule.upcoming.map((game) => (
+        {schedule.upcoming.items.map((game) => (
           <UpcomingGameRow key={game.id} game={game} />
         ))}
       </ScheduleSection>
@@ -195,8 +216,10 @@ export default function TeamSchedule({
         headingId={RESULTS_HEADING_ID}
         title={strings.team.schedule.results}
         emptyMessage={strings.team.schedule.noResults}
+        showMoreLabel={schedule.results.showMoreLabel}
+        onShowMore={() => onShowMore("results")}
       >
-        {schedule.results.map((result) => (
+        {schedule.results.items.map((result) => (
           <ResultRow key={result.id} result={result} />
         ))}
       </ScheduleSection>

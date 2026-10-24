@@ -621,7 +621,7 @@ describe("routes", () => {
     ).toBeDefined();
   });
 
-  it("lists the team's upcoming games with their start times and channels", async () => {
+  it("lists the team's upcoming games with their start times, channels, and game links", async () => {
     render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
 
     const upNext = await screen.findByRole("region", {
@@ -637,6 +637,12 @@ describe("routes", () => {
     expect(
       upcomingGames[0].querySelector("time")?.getAttribute("dateTime"),
     ).toBe("2026-10-24T02:00Z");
+    expect(
+      within(upcomingGames[0]).getByRole("link").getAttribute("href"),
+    ).toBe("/game/401909851");
+    expect(
+      within(upNext).queryByRole("button", { name: /Show \d+ more/ }),
+    ).toBeNull();
   });
 
   it("shows the team's roster", async () => {

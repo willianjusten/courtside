@@ -23,6 +23,7 @@ import {
   type TeamQueryState,
   type TeamReadyScreen,
   type TeamSchedule,
+  type TeamScheduleExpansions,
   type TeamScreen,
 } from "./team-view";
 
@@ -73,6 +74,7 @@ function viewFor({
   standingsQuery = loadedStandings,
   games = lakersGames,
   timeZone = "America/Los_Angeles",
+  scheduleExpansions = { upcoming: 0, results: 0 },
   tabParam = null,
   favoriteTeamIds = [],
 }: {
@@ -81,6 +83,7 @@ function viewFor({
   standingsQuery?: StandingsQueryState;
   games?: Game[] | null;
   timeZone?: string | null;
+  scheduleExpansions?: TeamScheduleExpansions;
   tabParam?: string | null;
   favoriteTeamIds?: string[];
 } = {}) {
@@ -90,6 +93,7 @@ function viewFor({
     standingsQuery,
     games,
     timeZone,
+    scheduleExpansions,
     tabParam,
     favoriteTeamIds,
   });
@@ -329,7 +333,7 @@ describe("buildTeamView", () => {
 
   describe("schedule", () => {
     it("lists the upcoming games soonest first", () => {
-      const { upcoming } = scheduleOf({
+      const upcoming = scheduleOf({
         games: [
           clippersAway,
           blazersAtHome,
@@ -337,7 +341,7 @@ describe("buildTeamView", () => {
           jazzAway,
           clippersAtHome,
         ],
-      });
+      }).upcoming.items;
 
       expect(upcoming.map(({ id }) => id)).toEqual([
         clippersAtHome.id,
@@ -348,7 +352,7 @@ describe("buildTeamView", () => {
     });
 
     it("shows each upcoming game's date, local time, opponent, and side", () => {
-      const [clippersGame, jazzGame] = scheduleOf().upcoming;
+      const [clippersGame, jazzGame] = scheduleOf().upcoming.items;
 
       expect(clippersGame).toMatchObject({
         id: clippersAtHome.id,
@@ -372,7 +376,8 @@ describe("buildTeamView", () => {
     });
 
     it("shows the tip-off date and time in the browser timezone", () => {
-      const [clippersGame] = scheduleOf({ timeZone: "Asia/Tokyo" }).upcoming;
+      const [clippersGame] = scheduleOf({ timeZone: "Asia/Tokyo" }).upcoming
+        .items;
 
       expect(clippersGame).toMatchObject({
         weekdayLabel: "Sat",
@@ -382,7 +387,7 @@ describe("buildTeamView", () => {
     });
 
     it("shows the NBA date without a time until the browser timezone is known", () => {
-      const [clippersGame] = scheduleOf({ timeZone: null }).upcoming;
+      const [clippersGame] = scheduleOf({ timeZone: null }).upcoming.items;
 
       expect(clippersGame).toMatchObject({
         weekdayLabel: "Fri",
@@ -392,7 +397,7 @@ describe("buildTeamView", () => {
     });
 
     it("labels a game without ESPN or Prime Video as on NBA League Pass", () => {
-      const [clippersGame] = scheduleOf().upcoming;
+      const [clippersGame] = scheduleOf().upcoming.items;
 
       expect(clippersGame.channelLabel).toBe("NBA League Pass");
     });
@@ -403,13 +408,13 @@ describe("buildTeamView", () => {
         broadcasts: [{ name: "Prime Video", market: "national" }],
       };
 
-      const [game] = scheduleOf({ games: [primeVideoGame] }).upcoming;
+      const [game] = scheduleOf({ games: [primeVideoGame] }).upcoming.items;
 
       expect(game.channelLabel).toBe("Prime Video");
     });
 
     it("flags the soonest game as the next one", () => {
-      const { upcoming } = scheduleOf();
+      const upcoming = scheduleOf().upcoming.items;
 
       expect(upcoming.map(({ isNext }) => isNext)).toEqual([
         true,
@@ -427,25 +432,16 @@ describe("buildTeamView", () => {
 
       const [postponed, jazzGame] = scheduleOf({
         games: [postponedGame, jazzAway],
-      }).upcoming;
+      }).upcoming.items;
 
       expect(postponed).toMatchObject({ isPostponed: true, isNext: false });
       expect(jazzGame).toMatchObject({ isPostponed: false, isNext: true });
     });
 
-    it("shows the next four games in the desktop up next", () => {
-      const fifthGame: Game = {
-        ...clippersAway,
-        id: "fifth-game",
-        startTime: "2026-10-31T02:30Z",
-        nbaDate: "2026-10-30" as NbaDate,
-      };
+    it("links each upcoming game to its game page", () => {
+      const [clippersGame] = scheduleOf().upcoming.items;
 
-      const { upcoming } = scheduleOf({ games: [...lakersGames, fifthGame] });
-
-      expect(
-        upcoming.map(({ isInDesktopUpNext }) => isInDesktopUpNext),
-      ).toEqual([true, true, true, true, false]);
+      expect(clippersGame.href).toBe(`/game/${clippersAtHome.id}`);
     });
 
     it("lists the results newest first with a link to each game center", () => {
@@ -456,7 +452,8 @@ describe("buildTeamView", () => {
         nbaDate: "2026-10-22" as NbaDate,
       };
 
-      const { results } = scheduleOf({ games: [warriorsAtHome, laterWin] });
+      const results = scheduleOf({ games: [warriorsAtHome, laterWin] }).results
+        .items;
 
       expect(results.map(({ id, href }) => [id, href])).toEqual([
         ["later-win", "/game/later-win"],
@@ -465,7 +462,7 @@ describe("buildTeamView", () => {
     });
 
     it("shows a win with the team's score first", () => {
-      const [result] = scheduleOf().results;
+      const [result] = scheduleOf().results.items;
 
       expect(result).toMatchObject({
         weekdayLabel: "Wed",
@@ -489,7 +486,7 @@ describe("buildTeamView", () => {
         away: { ...jazzAway.away, score: 104, winner: false },
       };
 
-      const [result] = scheduleOf({ games: [awayLoss] }).results;
+      const [result] = scheduleOf({ games: [awayLoss] }).results.items;
 
       expect(result).toMatchObject({
         isHome: false,
@@ -512,7 +509,7 @@ describe("buildTeamView", () => {
           status: { kind: "final", period },
         };
 
-        const [result] = scheduleOf({ games: [overtimeWin] }).results;
+        const [result] = scheduleOf({ games: [overtimeWin] }).results.items;
 
         expect(result.overtimeLabel).toBe(overtimeLabel);
       },
@@ -530,13 +527,16 @@ describe("buildTeamView", () => {
 
       const schedule = scheduleOf({ games: [liveGame, canceledGame] });
 
-      expect([schedule.upcoming, schedule.results]).toEqual([[], []]);
+      expect([schedule.upcoming.items, schedule.results.items]).toEqual([
+        [],
+        [],
+      ]);
     });
 
     it("shows the offseason message when no games are left", () => {
       const schedule = scheduleOf({ games: [warriorsAtHome] });
 
-      expect(schedule.upcoming).toEqual([]);
+      expect(schedule.upcoming.items).toEqual([]);
       expect(schedule.emptyUpcomingMessage).toBe(
         strings.team.schedule.offseason,
       );
@@ -544,6 +544,86 @@ describe("buildTeamView", () => {
 
     it("leaves the offseason message out while games are left", () => {
       expect(scheduleOf().emptyUpcomingMessage).toBeNull();
+    });
+
+    describe("show more", () => {
+      // Ten games a day apart from the Clippers game, as either upcoming games or results.
+      function tenGamesLike(game: Game): Game[] {
+        return Array.from({ length: 10 }, (_, dayOffset) => ({
+          ...game,
+          id: `game-${dayOffset}`,
+          startTime: new Date(
+            Date.parse(game.startTime) + dayOffset * 24 * 60 * 60 * 1000,
+          ).toISOString(),
+        }));
+      }
+
+      it.each(["upcoming", "results"] as const)(
+        "shows the first four %s and offers five more",
+        (listId) => {
+          const games = tenGamesLike(
+            listId === "upcoming" ? clippersAtHome : warriorsAtHome,
+          );
+
+          const list = scheduleOf({ games })[listId];
+
+          expect(list.items).toHaveLength(4);
+          expect(list.showMoreLabel).toBe(strings.team.schedule.showMore(5));
+        },
+      );
+
+      it.each(["upcoming", "results"] as const)(
+        "adds five %s per expansion and offers only the ones left",
+        (listId) => {
+          const games = tenGamesLike(
+            listId === "upcoming" ? clippersAtHome : warriorsAtHome,
+          );
+          const scheduleExpansions = { upcoming: 0, results: 0, [listId]: 1 };
+
+          const list = scheduleOf({ games, scheduleExpansions })[listId];
+
+          expect(list.items).toHaveLength(9);
+          expect(list.showMoreLabel).toBe(strings.team.schedule.showMore(1));
+        },
+      );
+
+      it("stops offering more once every game shows", () => {
+        const games = tenGamesLike(clippersAtHome);
+
+        const { upcoming } = scheduleOf({
+          games,
+          scheduleExpansions: { upcoming: 2, results: 0 },
+        });
+
+        expect(upcoming.items).toHaveLength(10);
+        expect(upcoming.showMoreLabel).toBeNull();
+      });
+
+      it("offers nothing more for four games or fewer", () => {
+        const { upcoming, results } = scheduleOf();
+
+        expect([upcoming.showMoreLabel, results.showMoreLabel]).toEqual([
+          null,
+          null,
+        ]);
+      });
+
+      it("expands the upcoming games and the results separately", () => {
+        const games = [
+          ...tenGamesLike(clippersAtHome),
+          ...tenGamesLike(warriorsAtHome).map((game) => ({
+            ...game,
+            id: `result-${game.id}`,
+          })),
+        ];
+
+        const { upcoming, results } = scheduleOf({
+          games,
+          scheduleExpansions: { upcoming: 1, results: 0 },
+        });
+
+        expect([upcoming.items.length, results.items.length]).toEqual([9, 4]);
+      });
     });
 
     it("leaves the schedule out until it loads", () => {

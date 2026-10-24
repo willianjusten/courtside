@@ -21,8 +21,9 @@ const TAB_PARAM = "tab";
 const TEAM_TAB_IDS = ["schedule", "roster", "standings"] as const;
 const DEFAULT_TEAM_TAB = "schedule";
 const GAME_PATH_PREFIX = "/game/";
-// The desktop "Up next" lists this many upcoming games, as in the TeamPageDesktop artboard.
-const DESKTOP_UP_NEXT_COUNT = 4;
+// Each schedule list opens on this many games, as in the TeamPageDesktop artboard, then grows by a page per expansion.
+const SCHEDULE_INITIAL_COUNT = 4;
+const SCHEDULE_PAGE_SIZE = 5;
 
 export type TeamQueryState =
   | { status: "loading" }
@@ -39,6 +40,8 @@ export type TeamViewInput = {
   games: Game[] | null;
   // Null until the browser timezone is known, as when rendering on the server.
   timeZone: string | null;
+  // How many times each schedule list was expanded.
+  scheduleExpansions: TeamScheduleExpansions;
   // The raw `?tab=` value, which picks the mobile tab.
   tabParam: string | null;
   favoriteTeamIds: string[];
@@ -103,6 +106,8 @@ type TeamScheduleGame = {
   // "vs" at home, "@" away.
   sideLabel: string;
   opponent: TeamOpponent;
+  // The game page.
+  href: string;
 };
 
 export type TeamUpcomingGame = TeamScheduleGame & {
@@ -112,8 +117,6 @@ export type TeamUpcomingGame = TeamScheduleGame & {
   isPostponed: boolean;
   // The soonest game not postponed.
   isNext: boolean;
-  // Mobile lists every upcoming game; the desktop "Up next" only the first few.
-  isInDesktopUpNext: boolean;
 };
 
 export type TeamResultOutcome = "win" | "loss";
@@ -127,14 +130,24 @@ export type TeamResult = TeamScheduleGame & {
   score: string;
   // e.g. "OT" or "2OT"; null for a game decided in regulation.
   overtimeLabel: string | null;
-  href: string;
+};
+
+export type TeamScheduleListId = "upcoming" | "results";
+
+export type TeamScheduleExpansions = Record<TeamScheduleListId, number>;
+
+export type TeamScheduleList<Item> = {
+  // The games shown so far.
+  items: Item[];
+  // e.g. "Show 5 more"; null once every game shows.
+  showMoreLabel: string | null;
 };
 
 export type TeamSchedule = {
   // Soonest first.
-  upcoming: TeamUpcomingGame[];
+  upcoming: TeamScheduleList<TeamUpcomingGame>;
   // Newest first.
-  results: TeamResult[];
+  results: TeamScheduleList<TeamResult>;
   // Replaces the empty upcoming list once the season's games are all played.
   emptyUpcomingMessage: string | null;
 };
@@ -308,6 +321,7 @@ function scheduleGameOf(
     isHome,
     sideLabel: isHome ? strings.team.schedule.versus : strings.team.schedule.at,
     opponent: opponentOf(isHome ? game.away : game.home),
+    href: `${GAME_PATH_PREFIX}${game.id}`,
   };
 }
 
@@ -330,13 +344,12 @@ function upcomingGamesOf(
     ({ status }) => status.kind === "scheduled",
   );
 
-  return upcomingGames.map((game, index) => ({
+  return upcomingGames.map((game) => ({
     ...scheduleGameOf(game, teamId, timeZone),
     timeLabel: timeZone ? formatLocalTime(game.startTime, timeZone) : null,
     channelLabel: channelLabelOf(game),
     isPostponed: game.status.kind === "postponed",
     isNext: game === nextGame,
-    isInDesktopUpNext: index < DESKTOP_UP_NEXT_COUNT,
   }));
 }
 
@@ -370,20 +383,40 @@ function resultsOf(
         outcomeAccessibleLabel: accessibleLabel,
         score: strings.team.schedule.score(team.score, opponent.score),
         overtimeLabel: overtimeLabelOf(game.status.period),
-        href: `${GAME_PATH_PREFIX}${game.id}`,
       };
     });
+}
+
+function scheduleListOf<Item>(
+  items: Item[],
+  expansions: number,
+): TeamScheduleList<Item> {
+  const shownCount = SCHEDULE_INITIAL_COUNT + expansions * SCHEDULE_PAGE_SIZE;
+  const hiddenCount = Math.max(items.length - shownCount, 0);
+  return {
+    items: items.slice(0, shownCount),
+    showMoreLabel:
+      hiddenCount > 0
+        ? strings.team.schedule.showMore(
+            Math.min(hiddenCount, SCHEDULE_PAGE_SIZE),
+          )
+        : null,
+  };
 }
 
 function scheduleOf(
   games: Game[],
   teamId: string,
   timeZone: string | null,
+  expansions: TeamScheduleExpansions,
 ): TeamSchedule {
   const upcoming = upcomingGamesOf(games, teamId, timeZone);
   return {
-    upcoming,
-    results: resultsOf(games, teamId, timeZone),
+    upcoming: scheduleListOf(upcoming, expansions.upcoming),
+    results: scheduleListOf(
+      resultsOf(games, teamId, timeZone),
+      expansions.results,
+    ),
     emptyUpcomingMessage:
       upcoming.length === 0 ? strings.team.schedule.offseason : null,
   };
@@ -392,8 +425,7 @@ function scheduleOf(
 function screenOf(
   query: TeamQueryState,
   standingsQuery: StandingsQueryState,
-  games: Game[] | null,
-  timeZone: string | null,
+  schedule: Pick<TeamViewInput, "games" | "timeZone" | "scheduleExpansions">,
   favoriteTeamIds: string[],
 ): TeamScreen {
   if (query.status === "loading" || query.status === "error") {
@@ -410,7 +442,14 @@ function screenOf(
       standing &&
       strings.team.homeAway(standing.row.homeRecord, standing.row.roadRecord),
     standingsHref: standingsHrefOf(standing),
-    schedule: games && scheduleOf(games, query.team.id, timeZone),
+    schedule:
+      schedule.games &&
+      scheduleOf(
+        schedule.games,
+        query.team.id,
+        schedule.timeZone,
+        schedule.scheduleExpansions,
+      ),
   };
 }
 
@@ -438,11 +477,17 @@ export function buildTeamView({
   standingsQuery,
   games,
   timeZone,
+  scheduleExpansions,
   tabParam,
   favoriteTeamIds,
 }: TeamViewInput): TeamView {
   return {
-    screen: screenOf(query, standingsQuery, games, timeZone, favoriteTeamIds),
+    screen: screenOf(
+      query,
+      standingsQuery,
+      { games, timeZone, scheduleExpansions },
+      favoriteTeamIds,
+    ),
     tabs: tabsOf(slug, tabParam),
   };
 }

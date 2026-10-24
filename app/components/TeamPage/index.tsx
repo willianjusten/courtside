@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
 import { PANEL_HEADING_CLASS_NAME } from "@/app/components/HomeSidebar/styles";
@@ -25,6 +26,7 @@ import {
   buildTeamView,
   type TeamQueryState,
   type TeamReadyScreen,
+  type TeamScheduleExpansions,
 } from "@/app/lib/team/team-view";
 import { TeamGlow, TeamHeader } from "./header";
 import { TeamSections } from "./sections";
@@ -82,6 +84,8 @@ export function TeamPageContent({
   const { data: players } = useQuery(teamRosterQueryOptions(teamId));
   const favoriteTeamIds = useFavoriteTeamIds();
   const timeZone = useBrowserTimeZone();
+  const [scheduleExpansions, setScheduleExpansions] =
+    useState<TeamScheduleExpansions>({ upcoming: 0, results: 0 });
 
   // Data is checked before the error: a failed refetch keeps the last team instead of hiding it.
   const query: TeamQueryState = team
@@ -104,6 +108,7 @@ export function TeamPageContent({
     standingsQuery,
     games: games ?? null,
     timeZone,
+    scheduleExpansions,
     tabParam,
     favoriteTeamIds,
   });
@@ -123,7 +128,17 @@ export function TeamPageContent({
         // Replacing the entry keeps the tab in the URL without adding a history step per tab.
         onSelectTab={({ href }) => window.history.replaceState(null, "", href)}
         schedule={
-          screen.schedule && <TeamSchedule schedule={screen.schedule} />
+          screen.schedule && (
+            <TeamSchedule
+              schedule={screen.schedule}
+              onShowMore={(listId) =>
+                setScheduleExpansions((expansions) => ({
+                  ...expansions,
+                  [listId]: expansions[listId] + 1,
+                }))
+              }
+            />
+          )
         }
         roster={players && <TeamRoster players={players} />}
         standings={<ConferenceStandings screen={screen} />}
