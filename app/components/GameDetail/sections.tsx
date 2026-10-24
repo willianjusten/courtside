@@ -5,11 +5,13 @@ export function Section({
   headingId,
   title,
   action,
+  className = "",
   children,
 }: {
   headingId: string;
   title: string;
   action?: ReactNode;
+  className?: string;
   children: ReactNode;
 }) {
   const heading = (
@@ -24,7 +26,7 @@ export function Section({
   return (
     <section
       aria-labelledby={headingId}
-      className={`flex min-w-0 flex-col gap-3 p-3.5 md:p-[18px] ${SURFACE_CLASS_NAME}`}
+      className={`flex min-w-0 flex-col gap-3 p-3.5 md:p-[18px] ${SURFACE_CLASS_NAME} ${className}`}
     >
       {action ? (
         <div className="flex flex-wrap items-center justify-between gap-2.5">
@@ -32,7 +34,8 @@ export function Section({
           {action}
         </div>
       ) : (
-        heading
+        // As tall as a header with a toggle on desktop, so the headings of side-by-side cards line up.
+        <div className="md:flex md:min-h-11 md:items-center">{heading}</div>
       )}
       {children}
     </section>

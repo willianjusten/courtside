@@ -106,7 +106,7 @@ export function TeamStats({ teamStats }: { teamStats: TeamStatsView | null }) {
   return (
     <section
       aria-labelledby={HEADING_ID}
-      className={`flex min-w-0 flex-col gap-3.5 p-3.5 md:justify-between md:p-[18px] ${SURFACE_CLASS_NAME}`}
+      className={`flex min-w-0 flex-col gap-3.5 p-3.5 md:px-[18px] md:py-8 ${SURFACE_CLASS_NAME}`}
     >
       {/* The heading sits between the teams' abbreviations, as in the artboards. */}
       <div className="flex items-baseline justify-between font-display text-[15px] tracking-[0.14em] md:text-base">
@@ -125,7 +125,8 @@ export function TeamStats({ teamStats }: { teamStats: TeamStatsView | null }) {
         )}
       </div>
       {teamStats ? (
-        <ul className="flex flex-col gap-3.5">
+        // On desktop the card stretches to the box score beside it, so the rows spread over its height.
+        <ul className="flex flex-col gap-3.5 md:grow md:justify-between">
           {teamStats.rows.map((row, index) => (
             <StatRow
               key={row.stat}

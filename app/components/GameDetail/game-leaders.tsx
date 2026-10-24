@@ -65,7 +65,7 @@ function LeaderTile({ leader }: { leader: GameLeaderRow }) {
 
   return (
     <li
-      className={`flex items-center gap-3 rounded-tile border px-3 py-2.5 ${tone.tile}`}
+      className={`flex items-center gap-3 rounded-tile border px-6 py-2.5 ${tone.tile}`}
     >
       {/* Tied leaders stack their headshots, as their names stack beside them. */}
       <span className="flex shrink-0 flex-col gap-1">
@@ -97,7 +97,12 @@ function LeaderTile({ leader }: { leader: GameLeaderRow }) {
 
 export function GameLeaders({ leaders }: { leaders: GameLeadersView | null }) {
   return (
-    <Section headingId="game-leaders" title={strings.game.leaders.title}>
+    <Section
+      headingId="game-leaders"
+      title={strings.game.leaders.title}
+      // The top padding stays, so the heading lines up with the box score's beside it.
+      className="md:pb-6"
+    >
       {leaders ? (
         <ul className="flex flex-col gap-2">
           {leaders.leaders.map((leader) => (
