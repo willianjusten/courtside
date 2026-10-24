@@ -10,6 +10,8 @@ Files ending in `-simulated` are derived from `scoreboard-scheduled-day.json` by
 
 `summary-pre-game-tonight.json` (GS at PHX, captured on 2026-10-24 before tip-off), `summary-final-overtime-playoff.json` (LAL at HOU, Game 3 of the 2026 West 1st Round, one overtime), and `summary-final-double-overtime-playoff.json` (SA at OKC, Game 1 of the 2026 West Finals, two overtimes) are real game summaries trimmed to the same sections, keeping every play and win probability point.
 
+`summary-live-simulated.json` stands in for a live capture, since no game was live when the others were captured. It is `summary-final-overtime-playoff.json` cut at the last play of 4:10 in the 3rd quarter: the plays and win probability points after it are dropped, the status is ESPN's `STATUS_IN_PROGRESS` shape, the scores and line score are rebuilt from the plays, and the playoff series is set back to before the game (LAL 2-0). The box score and leaders are removed, since they hold the final totals. It should be replaced by a real live capture.
+
 `scoreboard-international-exhibition.json` is the real 2026-10-12 scoreboard trimmed to the London Lions exhibition, whose competitor has no logo.
 
 `scoreboard-header-week.json` is the real `site.web.api.espn.com` scoreboard header for 2026-10-17 to 2026-10-23, trimmed to the sport, the league, and each event's id, date, name, status, and season.

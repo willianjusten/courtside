@@ -3,7 +3,8 @@ import type { GameSummary } from "@/app/lib/domain/game-summary";
 import doubleOvertimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-double-overtime-playoff.json";
 import overtimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-overtime-playoff.json";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
-import liveSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
+import liveSimulatedSummary from "@/app/lib/espn/__fixtures__/summary-live-simulated.json";
+import liveFirstQuarterSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game-tonight.json";
 import { mapGameSummary } from "@/app/lib/espn/mappers";
 import type { RawSummary } from "@/app/lib/espn/raw-types";
@@ -19,7 +20,8 @@ import {
 const summaryOf = (fixture: unknown) => mapGameSummary(fixture as RawSummary);
 
 const final = summaryOf(finalSummary);
-const live = summaryOf(liveSummary);
+const live = summaryOf(liveSimulatedSummary);
+const liveFirstQuarter = summaryOf(liveFirstQuarterSummary);
 const preGame = summaryOf(preGameSummary);
 const overtimePlayoff = summaryOf(overtimePlayoffSummary);
 const doubleOvertimePlayoff = summaryOf(doubleOvertimePlayoffSummary);
@@ -158,9 +160,9 @@ describe("buildGameView", () => {
       const { away, home, leadingSide } = headerFor(live);
 
       expect(leadingSide).toBe("away");
-      expect(away).toMatchObject({ score: 11, isLeading: true });
+      expect(away).toMatchObject({ score: 70, isLeading: true });
       expect(home).toMatchObject({
-        score: 9,
+        score: 66,
         isLeading: false,
         isDimmed: false,
       });
@@ -168,7 +170,7 @@ describe("buildGameView", () => {
 
     it("emphasizes no side in a tied game", () => {
       const tied = withGame(live, {
-        home: { ...live.game.home, score: 11 },
+        home: { ...live.game.home, score: 70 },
       });
 
       const { away, home, leadingSide } = headerFor(tied);
@@ -232,7 +234,7 @@ describe("buildGameView", () => {
     });
 
     it("shows the period and clock of a live game", () => {
-      expect(headerFor(live).statusLabel).toBe("Q1 6:44");
+      expect(headerFor(live).statusLabel).toBe("Q3 4:10");
     });
 
     it("shows halftime", () => {
@@ -299,6 +301,7 @@ describe("buildGameView", () => {
 
   describe("series status", () => {
     it("shows the leading team and the series score on a playoff game", () => {
+      expect(headerFor(live).seriesLabel).toBe("LAL leads 2-0");
       expect(headerFor(doubleOvertimePlayoff).seriesLabel).toBe("SA leads 1-0");
       expect(headerFor(overtimePlayoff).seriesLabel).toBe("LAL leads 3-0");
     });
@@ -390,9 +393,32 @@ describe("buildGameView", () => {
     });
 
     it("keeps all regulation columns during a live game, leaving unplayed periods empty", () => {
-      const lineScore = lineScoreFor(live);
+      expect(lineScoreFor(live)).toEqual({
+        periodLabels: ["Q1", "Q2", "Q3", "Q4"],
+        rows: [
+          {
+            side: "away",
+            abbreviation: "LAL",
+            periodScores: [39, 24, 7, null],
+            total: 70,
+            isLeading: true,
+            isDimmed: false,
+          },
+          {
+            side: "home",
+            abbreviation: "HOU",
+            periodScores: [32, 20, 14, null],
+            total: 66,
+            isLeading: false,
+            isDimmed: false,
+          },
+        ],
+      });
+    });
 
-      expect(lineScore.periodLabels).toEqual(["Q1", "Q2", "Q3", "Q4"]);
+    it("leaves out periods ESPN lists past the current one of a live game", () => {
+      const lineScore = lineScoreFor(liveFirstQuarter);
+
       // ESPN listed this 1st quarter game under two periods; only the period played so far is shown.
       expect(lineScore.rows).toEqual([
         {
