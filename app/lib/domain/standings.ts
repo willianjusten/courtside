@@ -10,6 +10,9 @@ export type Season = {
   currentPhase: SeasonPhase;
 };
 
+// The postseason spot a team has secured or lost.
+export type Clincher = "playoffs" | "play-in" | "eliminated";
+
 export type StandingsRow = {
   team: ListedTeam;
   seed: number;
@@ -27,6 +30,8 @@ export type StandingsRow = {
   streak: string | null;
   // Average points scored minus allowed per game, e.g. 4.2.
   pointDifferential: number;
+  // null while the spot is still open.
+  clincher: Clincher | null;
 };
 
 export type ConferenceStandings = {

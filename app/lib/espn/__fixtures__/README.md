@@ -19,3 +19,5 @@ Files ending in `-simulated` are derived from `scoreboard-scheduled-day.json` by
 `scoreboard-international-exhibition.json` is the real 2026-10-12 scoreboard trimmed to the London Lions exhibition, whose competitor has no logo.
 
 `scoreboard-header-week.json` is the real `site.web.api.espn.com` scoreboard header for 2026-10-17 to 2026-10-23, trimmed to the sport, the league, and each event's id, date, name, status, and season.
+
+`standings-season-end.json` is the real regular season standings of the 2025-26 season (`season=2026`), captured on 2026-10-24 after the season ended, without the response's `links`. Every team carries ESPN's clincher stat, covering each code: `*`, `z`, `y`, `x`, `xp`, `pb`, and `e`.

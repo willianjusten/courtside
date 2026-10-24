@@ -1,4 +1,5 @@
 import type {
+  Clincher,
   ConferenceStandings,
   Standings,
   StandingsRow,
@@ -31,6 +32,13 @@ export type StandingsZone = "playoff" | "play-in" | "none";
 export type PointDifferentialKind = "positive" | "negative";
 type MarkedZone = Exclude<StandingsZone, "none">;
 
+export type ClincherMarker = {
+  kind: Clincher;
+  // e.g. "x", shown beside the team name.
+  symbol: string;
+  label: string;
+};
+
 export type StandingsTableRow = {
   teamId: string;
   seed: number;
@@ -59,6 +67,8 @@ export type StandingsTableRow = {
   zone: StandingsZone;
   // Conveys the zone in text, since its color alone does not reach screen readers; null outside the zones.
   zoneLabel: string | null;
+  // null while the team's postseason spot is still open.
+  clincher: ClincherMarker | null;
   isFavorite: boolean;
 };
 
@@ -82,6 +92,7 @@ export type StandingsReadyScreen = {
   conferenceLabel: string;
   rows: StandingsTableRow[];
   legend: StandingsLegendEntry[];
+  clincherLegend: ClincherMarker[];
 };
 
 export type StandingsScreen =
@@ -94,6 +105,7 @@ export type StandingsView = {
 };
 
 const MARKED_ZONES: MarkedZone[] = ["playoff", "play-in"];
+const CLINCHERS: Clincher[] = ["playoffs", "play-in", "eliminated"];
 
 function conferenceIdOf(conference: ConferenceStandings) {
   return conference.abbreviation.toLowerCase();
@@ -138,6 +150,10 @@ function formatPointDifferential(pointDifferential: number) {
   return { text: formatted, kind: null };
 }
 
+function clincherMarkerOf(clincher: Clincher): ClincherMarker {
+  return { kind: clincher, ...strings.standings.clinchers[clincher] };
+}
+
 function tableRowOf(
   row: StandingsRow,
   favoriteTeamIds: string[],
@@ -165,6 +181,7 @@ function tableRowOf(
     pointDifferentialKind: pointDifferential.kind,
     zone,
     zoneLabel: zone === "none" ? null : strings.standings.zones[zone].rowLabel,
+    clincher: row.clincher ? clincherMarkerOf(row.clincher) : null,
     isFavorite: favoriteTeamIds.includes(row.team.id),
   };
 }
@@ -198,6 +215,10 @@ function readyScreenOf(
     legend: MARKED_ZONES.filter((zone) =>
       rows.some((row) => row.zone === zone),
     ).map((zone) => ({ zone, label: strings.standings.zones[zone].legend })),
+    // Once any spot is decided, the legend explains every marker, as the design does.
+    clincherLegend: rows.some((row) => row.clincher)
+      ? CLINCHERS.map(clincherMarkerOf)
+      : [],
   };
 }
 

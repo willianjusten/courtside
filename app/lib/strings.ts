@@ -325,6 +325,11 @@ export const strings = {
         rowLabel: "Play-in zone",
       },
     },
+    clinchers: {
+      playoffs: { symbol: "x", label: "Clinched playoffs" },
+      "play-in": { symbol: "pi", label: "Clinched play-in" },
+      eliminated: { symbol: "e", label: "Eliminated" },
+    },
     loading: "Loading standings...",
     error: "We couldn't load the standings right now.",
     columns: {

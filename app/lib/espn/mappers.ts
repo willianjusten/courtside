@@ -23,6 +23,7 @@ import type {
   TopScorer,
 } from "@/app/lib/domain/game";
 import type {
+  Clincher,
   ConferenceStandings,
   Season,
   SeasonPhase,
@@ -451,6 +452,17 @@ function requiredStat(
   return stat;
 }
 
+// "*" (best league record), "z" (conference), "y" (division), and "xp" (won the play-in) all include a playoff berth.
+const CLINCHER_BY_CODE = new Map<string, Clincher>([
+  ["*", "playoffs"],
+  ["z", "playoffs"],
+  ["y", "playoffs"],
+  ["x", "playoffs"],
+  ["xp", "playoffs"],
+  ["pb", "play-in"],
+  ["e", "eliminated"],
+]);
+
 function mapStandingsRow({ team, stats }: RawStandingsEntry): StandingsRow {
   const numericStat = (name: string) => {
     const { value } = requiredStat(
@@ -493,6 +505,11 @@ function mapStandingsRow({ team, stats }: RawStandingsEntry): StandingsRow {
     streak: streak && streak !== "-" ? streak : null,
     // ESPN's "pointDifferential" is the season total; "differential" is the per-game average.
     pointDifferential: numericStat("differential"),
+    // ESPN only sends the clincher once a team has secured or lost a spot.
+    clincher:
+      CLINCHER_BY_CODE.get(
+        stats.find((stat) => stat.name === "clincher")?.displayValue ?? "",
+      ) ?? null,
   };
 }
 

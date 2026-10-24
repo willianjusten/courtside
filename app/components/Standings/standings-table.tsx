@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/app/components/TeamLogo";
+import type { Clincher } from "@/app/lib/domain/standings";
 import type {
+  ClincherMarker,
   PointDifferentialKind,
   StandingsLegendEntry,
   StandingsTableRow,
@@ -21,6 +23,12 @@ const SEED_CLASS_NAME: Record<StandingsZone, string> = {
 const LEGEND_SWATCH_CLASS_NAME: Record<StandingsLegendEntry["zone"], string> = {
   playoff: "bg-playoff",
   "play-in": "bg-play-in",
+};
+
+const CLINCHER_CLASS_NAME: Record<Clincher, string> = {
+  playoffs: "text-win",
+  "play-in": "text-play-in-soft",
+  eliminated: "text-loss",
 };
 
 const STREAK_CLASS_NAME: Record<StreakKind, string> = {
@@ -65,6 +73,17 @@ function FavoriteStar() {
   );
 }
 
+function ClincherSymbol({ marker }: { marker: ClincherMarker }) {
+  return (
+    <b
+      aria-hidden="true"
+      className={`text-[11px] font-bold ${CLINCHER_CLASS_NAME[marker.kind]}`}
+    >
+      {marker.symbol}
+    </b>
+  );
+}
+
 function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
   return (
     <tr className="group relative" data-favorite={row.isFavorite || undefined}>
@@ -94,6 +113,7 @@ function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
               </span>
               <span className="sr-only">{row.displayName}</span>
               {row.isFavorite && <FavoriteStar />}
+              {row.clincher && <ClincherSymbol marker={row.clincher} />}
             </span>
             <span
               className="truncate text-[10px] text-muted"
@@ -103,6 +123,9 @@ function StandingsTableRowView({ row }: { row: StandingsTableRow }) {
             </span>
           </span>
           {row.zoneLabel && <span className="sr-only">, {row.zoneLabel}</span>}
+          {row.clincher && (
+            <span className="sr-only">, {row.clincher.label}</span>
+          )}
         </Link>
       </th>
       <td
@@ -204,11 +227,17 @@ export function StandingsTable({
   );
 }
 
-export function ZoneLegend({ legend }: { legend: StandingsLegendEntry[] }) {
+export function StandingsLegend({
+  zoneLegend,
+  clincherLegend,
+}: {
+  zoneLegend: StandingsLegendEntry[];
+  clincherLegend: ClincherMarker[];
+}) {
   return (
     <div className="flex flex-col gap-2 card border-white/9 bg-white/4 p-3.5 md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:border-0 md:bg-transparent md:p-1">
       <ul className="contents">
-        {legend.map((entry) => (
+        {zoneLegend.map((entry) => (
           <li
             key={entry.zone}
             className="flex items-center gap-2.5 text-xs text-secondary"
@@ -218,6 +247,15 @@ export function ZoneLegend({ legend }: { legend: StandingsLegendEntry[] }) {
               className={`h-1.5 w-5.5 rounded-full ${LEGEND_SWATCH_CLASS_NAME[entry.zone]}`}
             />
             {entry.label}
+          </li>
+        ))}
+        {clincherLegend.map((marker) => (
+          <li
+            key={marker.kind}
+            className="flex items-center gap-1.5 text-xs text-secondary"
+          >
+            <ClincherSymbol marker={marker} />
+            {marker.label}
           </li>
         ))}
       </ul>

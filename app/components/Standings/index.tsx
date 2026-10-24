@@ -12,7 +12,7 @@ import {
   type StandingsQueryState,
 } from "@/app/lib/standings/standings-view";
 import { strings } from "@/app/lib/strings";
-import { StandingsTable, ZoneLegend } from "./standings-table";
+import { StandingsLegend, StandingsTable } from "./standings-table";
 
 function ConferenceSwitch({ options }: { options: ConferenceOption[] }) {
   return (
@@ -107,7 +107,10 @@ export default function Standings({ sideColumn }: { sideColumn: ReactNode }) {
                   rows={screen.rows}
                 />
               </div>
-              <ZoneLegend legend={screen.legend} />
+              <StandingsLegend
+                zoneLegend={screen.legend}
+                clincherLegend={screen.clincherLegend}
+              />
             </>
           )}
         </section>

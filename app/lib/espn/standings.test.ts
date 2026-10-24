@@ -1,5 +1,6 @@
 import { fetchStandings } from "@/app/lib/espn";
 import regularSeasonStandings from "./__fixtures__/standings-regular-season.json";
+import seasonEndStandings from "./__fixtures__/standings-season-end.json";
 
 const fetchMock = vi.fn();
 
@@ -113,6 +114,7 @@ describe("fetchStandings", () => {
       lastTenRecord: "1-0",
       streak: "W1",
       pointDifferential: 3,
+      clincher: null,
     });
   });
 
@@ -148,6 +150,53 @@ describe("fetchStandings", () => {
       .find((standingsRow) => standingsRow.team.id === firstEntry.team.id);
 
     expect(row?.pointDifferential).toBe(4.5);
+  });
+
+  it("maps each ESPN clincher code to the spot it secures", async () => {
+    respondWith(seasonEndStandings);
+
+    const { conferences } = await fetchStandings();
+    const clincherOf = (abbreviation: string) =>
+      conferences
+        .flatMap((conference) => conference.rows)
+        .find((row) => row.team.abbreviation === abbreviation)?.clincher;
+
+    expect({
+      // "*": best league record, "z": conference, "y": division, "x": playoff berth, "xp": won the play-in.
+      OKC: clincherOf("OKC"),
+      DET: clincherOf("DET"),
+      BOS: clincherOf("BOS"),
+      NY: clincherOf("NY"),
+      PHI: clincherOf("PHI"),
+      // "pb": play-in berth.
+      MIA: clincherOf("MIA"),
+      // "e": eliminated.
+      WSH: clincherOf("WSH"),
+    }).toEqual({
+      OKC: "playoffs",
+      DET: "playoffs",
+      BOS: "playoffs",
+      NY: "playoffs",
+      PHI: "playoffs",
+      MIA: "play-in",
+      WSH: "eliminated",
+    });
+  });
+
+  it("maps no clincher when ESPN sends an unknown code", async () => {
+    const withUnknownCode = structuredClone(seasonEndStandings);
+    const [firstEntry] = withUnknownCode.children[0].standings.entries;
+    for (const stat of firstEntry.stats) {
+      if (stat.name === "clincher") stat.displayValue = "q";
+    }
+    respondWith(withUnknownCode);
+
+    const { conferences } = await fetchStandings();
+    const row = conferences
+      .flatMap((conference) => conference.rows)
+      .find((standingsRow) => standingsRow.team.id === firstEntry.team.id);
+
+    expect(row?.clincher).toBeNull();
   });
 
   it("derives the current season from the response", async () => {

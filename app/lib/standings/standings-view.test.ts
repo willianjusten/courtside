@@ -1,5 +1,6 @@
 import type { Standings, StandingsRow } from "@/app/lib/domain/standings";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
+import seasonEndFixture from "@/app/lib/espn/__fixtures__/standings-season-end.json";
 import { mapConferenceStandings, mapSeason } from "@/app/lib/espn/mappers";
 import type { RawStandingsResponse } from "@/app/lib/espn/raw-types";
 import { strings } from "@/app/lib/strings";
@@ -9,11 +10,22 @@ import {
   type StandingsQueryState,
 } from "./standings-view";
 
-const rawStandings = standingsFixture as unknown as RawStandingsResponse;
-const standings: Standings = {
-  season: mapSeason(rawStandings, new Date("2026-10-23T12:00:00Z")),
-  conferences: (rawStandings.children ?? []).map(mapConferenceStandings),
-};
+function standingsFrom(fixture: unknown, now: Date): Standings {
+  const rawStandings = fixture as RawStandingsResponse;
+  return {
+    season: mapSeason(rawStandings, now),
+    conferences: (rawStandings.children ?? []).map(mapConferenceStandings),
+  };
+}
+
+const standings = standingsFrom(
+  standingsFixture,
+  new Date("2026-10-23T12:00:00Z"),
+);
+const seasonEndStandings = standingsFrom(
+  seasonEndFixture,
+  new Date("2026-04-20T12:00:00Z"),
+);
 
 const LAKERS_ID = "13";
 const KNICKS_ID = "18";
@@ -122,6 +134,56 @@ describe("buildStandingsView", () => {
         query: { status: "success", standings: shortStandings },
       }).legend.map((entry) => entry.zone),
     ).toEqual(["playoff"]);
+  });
+
+  it("marks the teams that clinched or were eliminated late in the season", () => {
+    const rows = readyScreenFor({
+      query: { status: "success", standings: seasonEndStandings },
+      conferenceParam: "east",
+    }).rows;
+    const clincherOf = (seed: number) =>
+      rows.find((row) => row.seed === seed)?.clincher;
+
+    expect(clincherOf(1)).toEqual({
+      kind: "playoffs",
+      ...strings.standings.clinchers.playoffs,
+    });
+    expect(clincherOf(9)).toEqual({
+      kind: "play-in",
+      ...strings.standings.clinchers["play-in"],
+    });
+    expect(clincherOf(15)).toEqual({
+      kind: "eliminated",
+      ...strings.standings.clinchers.eliminated,
+    });
+  });
+
+  it("explains every marker in the legend", () => {
+    expect(
+      readyScreenFor({
+        query: { status: "success", standings: seasonEndStandings },
+      }).clincherLegend,
+    ).toEqual([
+      { kind: "playoffs", ...strings.standings.clinchers.playoffs },
+      { kind: "play-in", ...strings.standings.clinchers["play-in"] },
+      { kind: "eliminated", ...strings.standings.clinchers.eliminated },
+    ]);
+  });
+
+  it("explains every marker once a single team carries one", () => {
+    expect(
+      readyScreenFor({
+        query: withPacersRow({ clincher: "eliminated" }),
+        conferenceParam: "east",
+      }).clincherLegend.map((entry) => entry.kind),
+    ).toEqual(["playoffs", "play-in", "eliminated"]);
+  });
+
+  it("marks no team and explains no marker before any spot is decided", () => {
+    const screen = readyScreenFor();
+
+    expect(screen.rows.every((row) => row.clincher === null)).toBe(true);
+    expect(screen.clincherLegend).toEqual([]);
   });
 
   it("formats the mobile columns and links each row to its team page", () => {
