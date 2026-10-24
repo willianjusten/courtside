@@ -3,6 +3,10 @@
 import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { FOCUS_RING_CLASS_NAME } from "@/app/components/DatePicker/DatePickerTrigger";
+import {
+  PANEL_HEADING_CLASS_NAME,
+  PANEL_SURFACE_CLASS_NAME,
+} from "@/app/components/HomeSidebar/styles";
 import { resizedImageUrl } from "@/app/lib/espn";
 import { strings } from "@/app/lib/strings";
 import type { TeamRosterPlayer } from "@/app/lib/team/team-view";
@@ -102,11 +106,14 @@ export default function TeamRoster({
   const { roster } = strings.team;
 
   return (
-    <section aria-labelledby={HEADING_ID} className="flex flex-col gap-2">
-      <h2 id={HEADING_ID} className="font-display text-2xl tracking-[0.06em]">
+    <section
+      aria-labelledby={HEADING_ID}
+      className={`flex flex-col gap-2 ${PANEL_SURFACE_CLASS_NAME}`}
+    >
+      <h2 id={HEADING_ID} className={PANEL_HEADING_CLASS_NAME}>
         {roster.title}
       </h2>
-      <div className="overflow-x-auto card border-white/10 bg-white/4.5">
+      <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="text-muted">
             <tr>
