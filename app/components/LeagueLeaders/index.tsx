@@ -159,7 +159,7 @@ export default function LeagueLeaders({
       )}
       {leaders.kind === "ready" && (
         <>
-          <div className="grid items-start gap-3 md:grid-cols-auto-fill md:gap-4">
+          <div className="grid items-start gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3">
             {leaders.categories.map((category) => (
               <LeaderCategoryCard key={category.stat} category={category} />
             ))}
