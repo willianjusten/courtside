@@ -272,8 +272,8 @@ export const strings = {
         homeAbbreviation: string,
         homeLead: number,
       ) => `${awayAbbreviation} ${awayLead} · ${homeAbbreviation} ${homeLead}`,
-      run: (abbreviation: string, points: number) =>
-        `${abbreviation} ${points}-0`,
+      run: (abbreviation: string, points: number, allowedPoints: number) =>
+        `${abbreviation} ${points}-${allowedPoints}`,
       runSpan: (fromScore: string, toScore: string) =>
         `${fromScore} to ${toScore}`,
       noRun: "–",

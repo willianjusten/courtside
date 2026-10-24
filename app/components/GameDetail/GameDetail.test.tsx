@@ -1,6 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
+import overtimeSummary from "@/app/lib/espn/__fixtures__/summary-final-overtime-playoff.json";
 import liveSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game.json";
 import { makeQueryClient } from "@/app/lib/query/make-query-client";
@@ -379,12 +380,14 @@ describe("GameDetail game flow", () => {
   });
 
   it("shows the largest lead per team, the lead changes, the times tied, and the best run", async () => {
-    await renderLoadedGameDetail(finalSummary, DURING_LIVE_GAME);
+    await renderLoadedGameDetail(overtimeSummary, DURING_LIVE_GAME);
 
-    expect(statOf(strings.game.flow.stats.largestLead)).toBe("GS 3 · LAL 27");
-    expect(statOf(strings.game.flow.stats.leadChanges)).toBe("4");
-    expect(statOf(strings.game.flow.stats.timesTied)).toBe("3");
-    expect(statOf(strings.game.flow.stats.bestRun)).toMatch(/^GS 8-0/);
+    expect(statOf(strings.game.flow.stats.largestLead)).toBe("LAL 15 · HOU 6");
+    expect(statOf(strings.game.flow.stats.leadChanges)).toBe("8");
+    expect(statOf(strings.game.flow.stats.timesTied)).toBe("8");
+    expect(statOf(strings.game.flow.stats.bestRun)).toBe(
+      "LAL 13-221-21 to 34-23",
+    );
   });
 
   it("switches to the win probability with a pressed-state toggle", async () => {

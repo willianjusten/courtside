@@ -1261,19 +1261,31 @@ describe("buildGameView", () => {
       });
     });
 
-    it("finds the best run of unanswered points with its team and score span", () => {
+    it("finds the best run, in which the other team scores at most one basket, with its team and score span", () => {
       expect(overtimeFlow.bestRun).toEqual({
         side: "away",
-        points: 11,
-        label: "LAL 11-0",
-        spanLabel: "23-23 to 34-23",
+        points: 13,
+        allowedPoints: 2,
+        label: "LAL 13-2",
+        spanLabel: "21-21 to 34-23",
       });
       expect(doubleOvertimeFlow.bestRun).toEqual({
-        side: "home",
-        points: 8,
-        label: "OKC 8-0",
-        spanLabel: "17-12 to 17-20",
+        side: "away",
+        points: 12,
+        allowedPoints: 3,
+        label: "SA 12-3",
+        spanLabel: "0-0 to 12-3",
       });
+    });
+
+    it("counts a run of unanswered points as allowing none", () => {
+      const run = requireGameFlow({
+        ...overtimePlayoff,
+        plays: overtimePlayoff.plays.slice(0, 3),
+      }).bestRun;
+
+      // HOU's three answered LAL's opening three.
+      expect(run).toMatchObject({ points: 3, allowedPoints: 0 });
     });
 
     it("colors each side with the team's readable color", () => {

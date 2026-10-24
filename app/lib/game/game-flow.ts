@@ -51,6 +51,8 @@ export type GameFlowTeam = {
 export type GameFlowRun = {
   side: TeamSide;
   points: number;
+  // The other team's points during the run, at most one basket.
+  allowedPoints: number;
   label: string;
   // The score, away first, before and after the run.
   spanLabel: string;
@@ -195,52 +197,95 @@ function leadNumbersOf(plays: Play[]) {
   return { leadChanges, timesTied, largestHomeLead, largestAwayLead };
 }
 
+// Points the other team may score inside a run: one basket, as in a 12-2 run.
+const MAX_RUN_ALLOWED_POINTS = 3;
+
+type Score = {
+  homeScore: number;
+  awayScore: number;
+};
+
+type Basket = {
+  side: TeamSide;
+  points: number;
+  scoreBefore: Score;
+  scoreAfter: Score;
+};
+
 type Run = {
   side: TeamSide;
   points: number;
-  fromScore: string;
-  toScore: string;
+  allowedPoints: number;
+  scoreBefore: Score;
+  scoreAfter: Score;
 };
 
-// A run is broken only when the other team scores; a play where both scores move ends it too.
-function bestRunOf(plays: Play[]): Run | null {
-  const { score } = strings.game.plays;
-  let previous = { homeScore: 0, awayScore: 0 };
-  let currentRun = null as Run | null;
-  let bestRun = null as Run | null;
+// Every score change as one team's basket; a play where both scores move counts the home points first.
+function basketsOf(plays: Play[]): Basket[] {
+  let previous: Score = { homeScore: 0, awayScore: 0 };
+  const baskets: Basket[] = [];
 
   for (const play of plays) {
-    const homePoints = play.homeScore - previous.homeScore;
-    const awayPoints = play.awayScore - previous.awayScore;
-    const scoringSide: TeamSide | null =
-      homePoints > 0 && awayPoints === 0
-        ? "home"
-        : awayPoints > 0 && homePoints === 0
-          ? "away"
-          : null;
-
-    if (scoringSide) {
-      if (currentRun?.side !== scoringSide) {
-        currentRun = {
-          side: scoringSide,
-          points: 0,
-          fromScore: score(previous.awayScore, previous.homeScore),
-          toScore: "",
-        };
-      }
-      currentRun.points += scoringSide === "home" ? homePoints : awayPoints;
-      currentRun.toScore = score(play.awayScore, play.homeScore);
-      if (!bestRun || currentRun.points > bestRun.points) {
-        bestRun = { ...currentRun };
-      }
-    } else if (homePoints > 0 && awayPoints > 0) {
-      currentRun = null;
+    const afterHome = { ...previous, homeScore: play.homeScore };
+    if (play.homeScore > previous.homeScore) {
+      baskets.push({
+        side: "home",
+        points: play.homeScore - previous.homeScore,
+        scoreBefore: previous,
+        scoreAfter: afterHome,
+      });
     }
-    previous = play;
+    if (play.awayScore > previous.awayScore) {
+      baskets.push({
+        side: "away",
+        points: play.awayScore - previous.awayScore,
+        scoreBefore: afterHome,
+        scoreAfter: { ...afterHome, awayScore: play.awayScore },
+      });
+    }
+    previous = { homeScore: play.homeScore, awayScore: play.awayScore };
+  }
+
+  return baskets;
+}
+
+const isBetterRun = (run: Run, bestRun: Run | null) =>
+  !bestRun ||
+  run.points > bestRun.points ||
+  (run.points === bestRun.points && run.allowedPoints < bestRun.allowedPoints);
+
+// The stretch where one team scores the most while the other scores at most one basket.
+// It starts and ends on the running team's baskets; on a tie, fewer points allowed, then the earlier run, win.
+function bestRunOf(plays: Play[]): Run | null {
+  const baskets = basketsOf(plays);
+  let bestRun: Run | null = null;
+
+  for (const [startIndex, firstBasket] of baskets.entries()) {
+    let points = 0;
+    let allowedPoints = 0;
+    for (const basket of baskets.slice(startIndex)) {
+      if (basket.side !== firstBasket.side) {
+        allowedPoints += basket.points;
+        if (allowedPoints > MAX_RUN_ALLOWED_POINTS) break;
+        continue;
+      }
+      points += basket.points;
+      const run: Run = {
+        side: firstBasket.side,
+        points,
+        allowedPoints,
+        scoreBefore: firstBasket.scoreBefore,
+        scoreAfter: basket.scoreAfter,
+      };
+      if (isBetterRun(run, bestRun)) bestRun = run;
+    }
   }
 
   return bestRun;
 }
+
+const scoreOf = ({ awayScore, homeScore }: Score) =>
+  strings.game.plays.score(awayScore, homeScore);
 
 export function gameFlowOf(summary: GameSummary): GameFlowView | null {
   const { game, plays } = summary;
@@ -388,8 +433,16 @@ export function gameFlowOf(summary: GameSummary): GameFlowView | null {
     bestRun: bestRun && {
       side: bestRun.side,
       points: bestRun.points,
-      label: flow.run(abbreviations[bestRun.side], bestRun.points),
-      spanLabel: flow.runSpan(bestRun.fromScore, bestRun.toScore),
+      allowedPoints: bestRun.allowedPoints,
+      label: flow.run(
+        abbreviations[bestRun.side],
+        bestRun.points,
+        bestRun.allowedPoints,
+      ),
+      spanLabel: flow.runSpan(
+        scoreOf(bestRun.scoreBefore),
+        scoreOf(bestRun.scoreAfter),
+      ),
     },
     summary: [
       flow.screenReader.title,
