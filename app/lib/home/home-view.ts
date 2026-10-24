@@ -9,6 +9,7 @@ import {
   channelLabelOf,
   finalLabel,
   hasScore,
+  inProgressLabelOf,
   isInProgress,
   leadingSideOf,
   periodLabel,
@@ -239,9 +240,8 @@ function statusLabelOf(game: Game, timeZone: string | null): string | null {
         ? formatTipOff(game.startTime, game.nbaDate, timeZone)
         : null;
     case "live":
-      return `${periodLabel(status.period)} ${status.clock}`;
     case "halftime":
-      return strings.gameStatus.halftime;
+      return inProgressLabelOf(status);
     case "final":
       return finalLabel(status.period);
     case "postponed":

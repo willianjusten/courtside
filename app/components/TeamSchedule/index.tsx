@@ -5,6 +5,7 @@ import { PANEL_HEADING_CLASS_NAME } from "@/app/components/HomeSidebar/styles";
 import TeamLogo from "@/app/components/TeamLogo";
 import { strings } from "@/app/lib/strings";
 import type {
+  TeamLiveGame,
   TeamOpponent,
   TeamResult,
   TeamResultOutcome,
@@ -69,6 +70,43 @@ function Opponent({
       </span>
       {children}
     </span>
+  );
+}
+
+// Score updates replace the text in place without a live region, so they are not announced.
+function LiveGameRow({ game }: { game: TeamLiveGame }) {
+  return (
+    <li>
+      <Link
+        href={game.href}
+        className={`${ROW_CLASS_NAME} border-live/34 bg-linear-to-r from-live/16 to-elevated/90 to-60% ${ROW_LINK_CLASS_NAME}`}
+      >
+        <span className="flex flex-col">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.12em] text-loss uppercase md:text-[11px]">
+            <span
+              aria-hidden="true"
+              className="size-1.5 animate-live-pulse rounded-full bg-live"
+            />
+            {strings.gameStatus.live}
+          </span>
+          <span className="hidden text-xs font-bold text-secondary md:inline">
+            {game.statusLabel}
+          </span>
+        </span>
+        <Opponent sideLabel={game.sideLabel} opponent={game.opponent} />
+        <span className="flex flex-col items-end text-right md:flex-row-reverse md:items-center md:gap-4">
+          <span className="font-display text-lg tabular-nums md:text-[22px]">
+            {game.score}
+          </span>
+          <span className="text-[10px] text-muted md:hidden">
+            {game.metaLabel}
+          </span>
+          <span className="hidden text-xs text-muted md:inline">
+            {game.channelLabel}
+          </span>
+        </span>
+      </Link>
+    </li>
   );
 }
 
@@ -208,9 +246,14 @@ export default function TeamSchedule({
         showMoreLabel={schedule.upcoming.showMoreLabel}
         onShowMore={() => onShowMore("upcoming")}
       >
-        {schedule.upcoming.items.map((game) => (
-          <UpcomingGameRow key={game.id} game={game} />
-        ))}
+        {[
+          ...(schedule.live
+            ? [<LiveGameRow key={schedule.live.id} game={schedule.live} />]
+            : []),
+          ...schedule.upcoming.items.map((game) => (
+            <UpcomingGameRow key={game.id} game={game} />
+          )),
+        ]}
       </ScheduleSection>
       <ScheduleSection
         headingId={RESULTS_HEADING_ID}

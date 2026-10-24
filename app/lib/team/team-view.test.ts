@@ -5,13 +5,18 @@ import type { TeamDetail } from "@/app/lib/domain/team";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
 import lakersDetailFixture from "@/app/lib/espn/__fixtures__/team-detail-lakers.json";
 import lakersScheduleFixture from "@/app/lib/espn/__fixtures__/team-schedule-lakers.json";
+import lakersLiveScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-lakers-live-simulated.json";
+import lakersFinalScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-lakers-final.json";
+import liveDayScoreboardFixture from "@/app/lib/espn/__fixtures__/scoreboard-live-day-simulated.json";
 import {
   mapConferenceStandings,
+  mapGame,
   mapScheduleGame,
   mapSeason,
   mapTeamDetail,
 } from "@/app/lib/espn/mappers";
 import type {
+  RawScoreboard,
   RawStandingsResponse,
   RawTeamDetailResponse,
   RawTeamScheduleResponse,
@@ -20,6 +25,7 @@ import type { StandingsQueryState } from "@/app/lib/standings/standings-view";
 import { strings } from "@/app/lib/strings";
 import {
   buildTeamView,
+  scoreboardDateOf,
   type TeamQueryState,
   type TeamReadyScreen,
   type TeamSchedule,
@@ -63,6 +69,22 @@ const lakersGames = [
   clippersAway,
 ];
 
+function scoreboardGamesOf(fixture: unknown): Game[] {
+  return ((fixture as RawScoreboard).events ?? []).map(mapGame);
+}
+
+// The Warriors game at 4:21 in the 3rd quarter, then final, as the scoreboard reports it.
+const [warriorsLive] = scoreboardGamesOf(lakersLiveScoreboardFixture);
+const [warriorsFinal] = scoreboardGamesOf(lakersFinalScoreboardFixture);
+// The schedule as cached before the Warriors game tipped off.
+const warriorsBeforeTipOff: Game = {
+  ...warriorsAtHome,
+  status: { kind: "scheduled" },
+  home: { ...warriorsAtHome.home, score: 0, winner: false },
+  away: { ...warriorsAtHome.away, score: 0, winner: false },
+};
+const gamesBeforeTipOff = [warriorsBeforeTipOff, ...lakersGames.slice(1)];
+
 const loadedStandings: StandingsQueryState = {
   status: "success",
   standings,
@@ -73,6 +95,7 @@ function viewFor({
   query = { status: "success", team },
   standingsQuery = loadedStandings,
   games = lakersGames,
+  scoreboardGames = null,
   timeZone = "America/Los_Angeles",
   scheduleExpansions = { upcoming: 0, results: 0 },
   tabParam = null,
@@ -82,6 +105,7 @@ function viewFor({
   query?: TeamQueryState;
   standingsQuery?: StandingsQueryState;
   games?: Game[] | null;
+  scoreboardGames?: Game[] | null;
   timeZone?: string | null;
   scheduleExpansions?: TeamScheduleExpansions;
   tabParam?: string | null;
@@ -92,6 +116,7 @@ function viewFor({
     query,
     standingsQuery,
     games,
+    scoreboardGames,
     timeZone,
     scheduleExpansions,
     tabParam,
@@ -533,6 +558,96 @@ describe("buildTeamView", () => {
       ]);
     });
 
+    describe("live game", () => {
+      it("shows the team's live game from the scoreboard over the cached schedule", () => {
+        const schedule = scheduleOf({
+          games: gamesBeforeTipOff,
+          scoreboardGames: [warriorsLive],
+        });
+
+        expect(schedule.live).toMatchObject({
+          id: warriorsAtHome.id,
+          isHome: true,
+          sideLabel: strings.team.schedule.versus,
+          opponent: { name: "Warriors" },
+          statusLabel: "Q3 4:21",
+          score: "88-64",
+          href: `/game/${warriorsAtHome.id}`,
+        });
+        expect(schedule.upcoming.items.map(({ id }) => id)).not.toContain(
+          warriorsAtHome.id,
+        );
+      });
+
+      it("labels the live game's channel next to its status", () => {
+        const { live } = scheduleOf({
+          games: gamesBeforeTipOff,
+          scoreboardGames: [warriorsLive],
+        });
+
+        expect(live).toMatchObject({
+          channelLabel: "ESPN",
+          metaLabel: "Q3 4:21 · ESPN",
+        });
+      });
+
+      it("shows halftime as the live game's status", () => {
+        const warriorsAtHalftime: Game = {
+          ...warriorsLive,
+          status: { kind: "halftime", period: 2 },
+        };
+
+        const { live } = scheduleOf({
+          games: gamesBeforeTipOff,
+          scoreboardGames: [warriorsAtHalftime],
+        });
+
+        expect(live?.statusLabel).toBe(strings.gameStatus.halftime);
+      });
+
+      it("moves the game to the results once the scoreboard reports it final", () => {
+        const cachedWhileLive: Game = {
+          ...warriorsLive,
+          status: { kind: "live", period: 2, clock: "5:00" },
+        };
+
+        const schedule = scheduleOf({
+          games: [cachedWhileLive, ...lakersGames.slice(1)],
+          scoreboardGames: [warriorsFinal],
+        });
+
+        expect(schedule.live).toBeNull();
+        expect(schedule.results.items[0]).toMatchObject({
+          id: warriorsAtHome.id,
+          score: "127-105",
+        });
+      });
+
+      it("shows the cached live game until the scoreboard loads", () => {
+        const cachedWhileLive: Game = {
+          ...warriorsLive,
+          status: { kind: "live", period: 2, clock: "5:00" },
+        };
+
+        const { live } = scheduleOf({
+          games: [cachedWhileLive, ...lakersGames.slice(1)],
+        });
+
+        expect(live?.statusLabel).toBe("Q2 5:00");
+      });
+
+      it("leaves the live game out while the team is not playing", () => {
+        const schedule = scheduleOf({
+          scoreboardGames: scoreboardGamesOf(liveDayScoreboardFixture),
+        });
+
+        expect(schedule.live).toBeNull();
+        expect(schedule.upcoming.items.map(({ id }) => id)).toEqual(
+          scheduleOf().upcoming.items.map(({ id }) => id),
+        );
+      });
+    });
+
     it("shows the offseason message when no games are left", () => {
       const schedule = scheduleOf({ games: [warriorsAtHome] });
 
@@ -674,5 +789,38 @@ describe("buildTeamView", () => {
           .selected,
       ).toBe("roster");
     });
+  });
+});
+
+describe("scoreboardDateOf", () => {
+  // The Clippers game tips off at 10 PM Eastern on Oct 23.
+  const clippersGameDay = new Date("2026-10-23T16:00:00Z");
+
+  it("reads today's scoreboard when the team plays today", () => {
+    expect(scoreboardDateOf(lakersGames, clippersGameDay)).toBe("2026-10-23");
+  });
+
+  it("reads no scoreboard when the team does not play today", () => {
+    expect(
+      scoreboardDateOf(lakersGames, new Date("2026-10-26T16:00:00Z")),
+    ).toBeNull();
+  });
+
+  it("keeps reading the scoreboard of a live game past midnight Eastern", () => {
+    const clippersLive: Game = {
+      ...clippersAtHome,
+      status: { kind: "live", period: 4, clock: "2:00" },
+    };
+
+    expect(
+      scoreboardDateOf(
+        [clippersLive, ...lakersGames.slice(2)],
+        new Date("2026-10-24T04:30:00Z"),
+      ),
+    ).toBe(clippersAtHome.nbaDate);
+  });
+
+  it("reads no scoreboard until the schedule loads", () => {
+    expect(scoreboardDateOf(null, clippersGameDay)).toBeNull();
   });
 });

@@ -1,4 +1,5 @@
 import type { Game, GameCompetitor } from "@/app/lib/domain/game";
+import type { NbaDate } from "@/app/lib/domain/nba-date";
 import type {
   ConferenceStandings,
   StandingsRow,
@@ -11,8 +12,15 @@ import {
   type StandingsZone,
 } from "@/app/lib/standings/standings-view";
 import { streakKindOf, type StreakKind } from "@/app/lib/standings/streak";
-import { channelLabelOf, overtimeLabelOf } from "@/app/lib/game/status";
+import {
+  channelLabelOf,
+  inProgressLabelOf,
+  isInProgress,
+  overtimeLabelOf,
+  type InProgressStatus,
+} from "@/app/lib/game/status";
 import { strings } from "@/app/lib/strings";
+import { currentNbaDate } from "@/app/lib/time/nba-date";
 import { formatLocalTime, formatTipOffDay } from "@/app/lib/time/tip-off";
 
 const TEAMS_PATH_PREFIX = "/teams/";
@@ -38,6 +46,8 @@ export type TeamViewInput = {
   standingsQuery: StandingsQueryState;
   // Null until the schedule loads.
   games: Game[] | null;
+  // The scoreboard of the team's game day, which overrides the cached schedule; null until it loads or without a game that day.
+  scoreboardGames: Game[] | null;
   // Null until the browser timezone is known, as when rendering on the server.
   timeZone: string | null;
   // How many times each schedule list was expanded.
@@ -119,6 +129,16 @@ export type TeamUpcomingGame = TeamScheduleGame & {
   isNext: boolean;
 };
 
+export type TeamLiveGame = TeamScheduleGame & {
+  // e.g. "Q3 4:21" or "Halftime".
+  statusLabel: string;
+  channelLabel: string;
+  // The status and the channel in one line, e.g. "Q3 4:21 · ESPN".
+  metaLabel: string;
+  // The team's score first, e.g. "88-64".
+  score: string;
+};
+
 export type TeamResultOutcome = "win" | "loss";
 
 export type TeamResult = TeamScheduleGame & {
@@ -144,6 +164,8 @@ export type TeamScheduleList<Item> = {
 };
 
 export type TeamSchedule = {
+  // Above the upcoming games; null while the team is not playing.
+  live: TeamLiveGame | null;
   // Soonest first.
   upcoming: TeamScheduleList<TeamUpcomingGame>;
   // Newest first.
@@ -325,6 +347,39 @@ function scheduleGameOf(
   };
 }
 
+function sidesOf(game: Game, isHome: boolean) {
+  return isHome
+    ? { team: game.home, opponent: game.away }
+    : { team: game.away, opponent: game.home };
+}
+
+type InProgressGame = Game & { status: InProgressStatus };
+
+function isInProgressGame(game: Game): game is InProgressGame {
+  return isInProgress(game.status);
+}
+
+function liveGameOf(
+  games: Game[],
+  teamId: string,
+  timeZone: string | null,
+): TeamLiveGame | null {
+  const game = games.find(isInProgressGame);
+  if (!game) return null;
+
+  const scheduleGame = scheduleGameOf(game, teamId, timeZone);
+  const statusLabel = inProgressLabelOf(game.status);
+  const channelLabel = channelLabelOf(game);
+  const { team, opponent } = sidesOf(game, scheduleGame.isHome);
+  return {
+    ...scheduleGame,
+    statusLabel,
+    channelLabel,
+    metaLabel: [statusLabel, channelLabel].join(strings.broadcast.separator),
+    score: strings.team.schedule.score(team.score, opponent.score),
+  };
+}
+
 function byStartTime(first: Game, second: Game) {
   return Date.parse(first.startTime) - Date.parse(second.startTime);
 }
@@ -369,8 +424,7 @@ function resultsOf(
     .toSorted((first, second) => byStartTime(second, first))
     .map((game) => {
       const scheduleGame = scheduleGameOf(game, teamId, timeZone);
-      const team = scheduleGame.isHome ? game.home : game.away;
-      const opponent = scheduleGame.isHome ? game.away : game.home;
+      const { team, opponent } = sidesOf(game, scheduleGame.isHome);
       // Derived from the scores, since ESPN can leave the winner flag out of a final game.
       const outcome: TeamResultOutcome =
         team.score > opponent.score ? "win" : "loss";
@@ -399,14 +453,26 @@ function scheduleListOf<Item>(
   };
 }
 
+// The scoreboard refreshes every few seconds while the schedule is cached for minutes, so its copy of a game wins.
+function withScoreboard(games: Game[], scoreboardGames: Game[] | null) {
+  if (!scoreboardGames) return games;
+  const scoreboardGamesById = new Map(
+    scoreboardGames.map((game) => [game.id, game]),
+  );
+  return games.map((game) => scoreboardGamesById.get(game.id) ?? game);
+}
+
 function scheduleOf(
-  games: Game[],
+  cachedGames: Game[],
+  scoreboardGames: Game[] | null,
   teamId: string,
   timeZone: string | null,
   expansions: TeamScheduleExpansions,
 ): TeamSchedule {
+  const games = withScoreboard(cachedGames, scoreboardGames);
   const upcoming = upcomingGamesOf(games, teamId, timeZone);
   return {
+    live: liveGameOf(games, teamId, timeZone),
     upcoming: scheduleListOf(upcoming, expansions.upcoming),
     results: scheduleListOf(
       resultsOf(games, teamId, timeZone),
@@ -420,7 +486,10 @@ function scheduleOf(
 function screenOf(
   query: TeamQueryState,
   standingsQuery: StandingsQueryState,
-  schedule: Pick<TeamViewInput, "games" | "timeZone" | "scheduleExpansions">,
+  schedule: Pick<
+    TeamViewInput,
+    "games" | "scoreboardGames" | "timeZone" | "scheduleExpansions"
+  >,
   favoriteTeamIds: string[],
 ): TeamScreen {
   if (query.status === "loading" || query.status === "error") {
@@ -441,6 +510,7 @@ function screenOf(
       schedule.games &&
       scheduleOf(
         schedule.games,
+        schedule.scoreboardGames,
         query.team.id,
         schedule.timeZone,
         schedule.scheduleExpansions,
@@ -471,6 +541,7 @@ export function buildTeamView({
   query,
   standingsQuery,
   games,
+  scoreboardGames,
   timeZone,
   scheduleExpansions,
   tabParam,
@@ -480,9 +551,23 @@ export function buildTeamView({
     screen: screenOf(
       query,
       standingsQuery,
-      { games, timeZone, scheduleExpansions },
+      { games, scoreboardGames, timeZone, scheduleExpansions },
       favoriteTeamIds,
     ),
     tabs: tabsOf(slug, tabParam),
   };
+}
+
+// The NBA date whose scoreboard carries the team's game: a game still live past midnight Eastern keeps its own date.
+export function scoreboardDateOf(
+  games: Game[] | null,
+  now: Date,
+): NbaDate | null {
+  if (!games) return null;
+
+  const liveGame = games.find(isInProgressGame);
+  if (liveGame) return liveGame.nbaDate;
+
+  const today = currentNbaDate(now);
+  return games.some(({ nbaDate }) => nbaDate === today) ? today : null;
 }

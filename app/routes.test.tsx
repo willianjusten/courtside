@@ -29,6 +29,7 @@ import teamsList from "./lib/espn/__fixtures__/teams-list.json";
 import lakersDetail from "./lib/espn/__fixtures__/team-detail-lakers.json";
 import lakersSchedule from "./lib/espn/__fixtures__/team-schedule-lakers.json";
 import lakersRoster from "./lib/espn/__fixtures__/team-roster-lakers.json";
+import lakersLiveScoreboard from "./lib/espn/__fixtures__/scoreboard-lakers-live-simulated.json";
 import standings from "./lib/espn/__fixtures__/standings-regular-season.json";
 import currentSeason from "./lib/espn/__fixtures__/season-current.json";
 import regularSeasonLeaders from "./lib/espn/__fixtures__/leaders-regular-season.json";
@@ -98,6 +99,8 @@ describe("routes", () => {
     getQueryClient().removeQueries({
       queryKey: standingsQueryOptions().queryKey,
     });
+    // The team page test answers the scoreboard with a live Lakers game, which would otherwise keep polling.
+    getQueryClient().removeQueries({ queryKey: ["scoreboard"] });
     favoritesStore().remove(LAKERS_TEAM_ID);
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
@@ -644,6 +647,41 @@ describe("routes", () => {
       within(upNext).queryByRole("button", {
         name: strings.team.schedule.showMore,
       }),
+    ).toBeNull();
+  });
+
+  it("shows the team's live game from the scoreboard at the top of Up next, linked to its game center and not announced", async () => {
+    // The Lakers host the Warriors that night, while the cached schedule already lists the game as final.
+    vi.useFakeTimers({
+      toFake: ["Date"],
+      now: new Date("2026-10-22T03:00:00Z"),
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        url.endsWith("/scoreboard?dates=20261021")
+          ? new Response(JSON.stringify(lakersLiveScoreboard))
+          : responseFor(url),
+      ),
+    );
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const upNext = await screen.findByRole("region", {
+      name: strings.team.schedule.upNext,
+    });
+    const liveGame = await within(upNext).findByText("88-64");
+    vi.useRealTimers();
+
+    const liveRow = liveGame.closest("li");
+    if (!liveRow) throw new Error("Expected the live game in a list item");
+    expect(within(upNext).getAllByRole("listitem")[0]).toBe(liveRow);
+    expect(within(liveRow).getByText(strings.gameStatus.live)).toBeDefined();
+    expect(within(liveRow).getByText("Q3 4:21 · ESPN")).toBeDefined();
+    expect(within(liveRow).getByRole("link").getAttribute("href")).toBe(
+      `/game/${FINAL_GAME_ID}`,
+    );
+    expect(
+      upNext.querySelector("[aria-live], [role=status], [role=alert]"),
     ).toBeNull();
   });
 

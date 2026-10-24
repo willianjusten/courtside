@@ -13,7 +13,12 @@ export function hasScore(status: GameStatus) {
   return !STATUSES_WITHOUT_SCORE.includes(status.kind);
 }
 
-export function isInProgress(status: GameStatus) {
+export type InProgressStatus = Extract<
+  GameStatus,
+  { kind: "live" | "halftime" }
+>;
+
+export function isInProgress(status: GameStatus): status is InProgressStatus {
   return status.kind === "live" || status.kind === "halftime";
 }
 
@@ -29,6 +34,13 @@ export function periodLabel(period: number) {
   return wentToOvertime(period)
     ? strings.gameStatus.overtime(period - REGULATION_PERIODS)
     : strings.gameStatus.quarter(period);
+}
+
+// e.g. "Q3 4:21" or "Halftime".
+export function inProgressLabelOf(status: InProgressStatus) {
+  return status.kind === "live"
+    ? `${periodLabel(status.period)} ${status.clock}`
+    : strings.gameStatus.halftime;
 }
 
 export function finalLabel(period: number) {

@@ -14,6 +14,7 @@ import {
   useFavoriteTeamIds,
 } from "@/app/lib/favorites/use-favorite-team-ids";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
+import { useTeamScoreboard } from "@/app/lib/queries/use-team-scoreboard";
 import {
   teamDetailQueryOptions,
   teamRosterQueryOptions,
@@ -81,6 +82,7 @@ export function TeamPageContent({
     isRefetchError: isStandingsRefetchError,
   } = useQuery(standingsQueryOptions());
   const { data: games } = useQuery(teamScheduleQueryOptions(teamId));
+  const scoreboardGames = useTeamScoreboard(teamId, games ?? null);
   const { data: players } = useQuery(teamRosterQueryOptions(teamId));
   const favoriteTeamIds = useFavoriteTeamIds();
   const timeZone = useBrowserTimeZone();
@@ -107,6 +109,7 @@ export function TeamPageContent({
     query,
     standingsQuery,
     games: games ?? null,
+    scoreboardGames,
     timeZone,
     scheduleExpansions,
     tabParam,
