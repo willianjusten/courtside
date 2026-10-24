@@ -132,7 +132,7 @@ describe("GameDetail live polling", () => {
     fetchMock.mockResolvedValue(jsonResponse(liveGameEndedSummary));
     await waitOnePollingInterval();
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(screen.getByText(strings.gameStatus.final)).toBeDefined();
+    expect(screen.getAllByText(strings.gameStatus.final)).not.toHaveLength(0);
 
     await waitOnePollingInterval();
     await waitOnePollingInterval();

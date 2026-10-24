@@ -10,6 +10,7 @@ import type {
 } from "@/app/lib/domain/game-summary";
 import { strings } from "@/app/lib/strings";
 import { periodLabel } from "@/app/lib/game/status";
+import { SURFACE_CLASS_NAME } from "./styles";
 
 const BOX_SCORE_COLUMNS = Object.keys(
   strings.game.boxScore.columns,
@@ -40,7 +41,7 @@ function Section({
 
 function TeamLeaders({ team, leaders }: { team: Team; leaders: GameLeader[] }) {
   return (
-    <div className="flex flex-col gap-2 card p-4">
+    <div className={`flex flex-col gap-2 p-4 ${SURFACE_CLASS_NAME}`}>
       <h3 className="font-bold">{team.displayName}</h3>
       {leaders.length === 0 ? (
         <p className="text-sm text-muted">{strings.game.leaders.empty}</p>
@@ -95,7 +96,9 @@ export function WinProbability({
       title={strings.game.winProbability.title}
     >
       {latestPoint ? (
-        <div className="flex flex-col gap-2 card p-4 text-sm">
+        <div
+          className={`flex flex-col gap-2 p-4 text-sm ${SURFACE_CLASS_NAME}`}
+        >
           <p className="flex justify-between tabular-nums">
             <span>
               {strings.game.winProbability.chance(

@@ -6,6 +6,7 @@ import type {
 } from "@/app/lib/domain/game";
 import type { NbaDate } from "@/app/lib/domain/nba-date";
 import {
+  channelLabelOf,
   finalLabel,
   hasScore,
   isInProgress,
@@ -298,9 +299,7 @@ function cardOf(
   favoriteTeamIds: ReadonlySet<string>,
 ): HomeCard {
   const favoriteSides = favoriteSidesOf(game, favoriteTeamIds);
-  const channelLabel = game.broadcasts
-    .map((broadcast) => broadcast.name)
-    .join(META_SEPARATOR);
+  const channelLabel = channelLabelOf(game);
 
   return {
     game,

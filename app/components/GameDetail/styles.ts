@@ -1,0 +1,5 @@
+// The translucent surface of the home design, which the game center sections share.
+export const SURFACE_CLASS_NAME = "card border-white/10 bg-white/4.5";
+// The same surface from the md breakpoint up, spelled out so Tailwind detects the classes.
+export const DESKTOP_SURFACE_CLASS_NAME =
+  "md:card md:border-white/10 md:bg-white/4.5";

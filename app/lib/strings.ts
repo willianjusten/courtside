@@ -131,7 +131,6 @@ export const strings = {
   broadcast: {
     label: "Broadcast: ",
     separator: " · ",
-    localTv: "Local TV",
   },
   game: {
     title: (awayTeamName: string, homeTeamName: string) =>
@@ -146,6 +145,7 @@ export const strings = {
     canceledNote: "This game has been canceled.",
     header: {
       separator: " · ",
+      back: (dateLabel: string) => `Back to games on ${dateLabel}`,
       sides: { away: "away", home: "home" },
       seriesLeads: (abbreviation: string, wins: number, losses: number) =>
         `${abbreviation} leads ${wins}-${losses}`,

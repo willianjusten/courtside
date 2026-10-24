@@ -6,6 +6,7 @@ import type {
 } from "@/app/lib/domain/game";
 import type { GameSummary } from "@/app/lib/domain/game-summary";
 import {
+  channelLabelOf,
   finalLabel,
   hasScore,
   isInProgress,
@@ -16,6 +17,7 @@ import {
 import type { TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
 import { teamPathOf } from "@/app/lib/team/team-path";
+import { formatNbaDate, formatShortNbaDate } from "@/app/lib/time/nba-date";
 import { formatTipOff } from "@/app/lib/time/tip-off";
 
 const SEPARATOR = strings.game.header.separator;
@@ -46,8 +48,16 @@ export type HeaderTeam = {
   isDimmed: boolean;
 };
 
+export type BackLink = {
+  href: string;
+  label: string;
+};
+
 export type GameHeader = {
   title: string;
+  // The games page of the game's NBA date.
+  back: BackLink;
+  dateLabel: string;
   status: GameStatus;
   startTime: string;
   // Null only for a scheduled game until the browser timezone is known.
@@ -135,15 +145,6 @@ function headerTeamOf(
   };
 }
 
-function channelLabelOf(game: Game) {
-  const nationalChannels = game.broadcasts
-    .filter((broadcast) => broadcast.market === "national")
-    .map((broadcast) => broadcast.name);
-  return nationalChannels.length > 0
-    ? nationalChannels.join(SEPARATOR)
-    : strings.broadcast.localTv;
-}
-
 function venueLabelOf(venue: string | null, city: string | null) {
   if (!venue) return null;
   return city ? [venue, city].join(SEPARATOR) : venue;
@@ -177,6 +178,11 @@ function headerOf(summary: GameSummary, timeZone: string | null): GameHeader {
       game.away.team.displayName,
       game.home.team.displayName,
     ),
+    back: {
+      href: `/games/${game.nbaDate}`,
+      label: formatNbaDate(game.nbaDate),
+    },
+    dateLabel: formatShortNbaDate(game.nbaDate),
     status: game.status,
     startTime: game.startTime,
     statusLabel: statusLabelOf(game, timeZone),

@@ -11,8 +11,9 @@ import type {
 import { isInProgress } from "@/app/lib/game/status";
 import type { TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
+import { DESKTOP_SURFACE_CLASS_NAME, SURFACE_CLASS_NAME } from "./styles";
 
-const HEADER_LOGO_SIZE = 56;
+const HEADER_LOGO_SIZE = 52;
 const SCORE_CLASS_NAME = "font-display text-[52px] leading-[0.9] md:text-7xl";
 
 function TeamLink({ team, side }: { team: HeaderTeam; side: TeamSide }) {
@@ -35,7 +36,9 @@ function TeamLink({ team, side }: { team: HeaderTeam; side: TeamSide }) {
         >
           {team.name}
         </span>
-        <span className="text-meta text-muted">{team.recordLabel}</span>
+        <span className="text-meta whitespace-nowrap text-muted">
+          {team.recordLabel}
+        </span>
       </span>
     </Link>
   );
@@ -78,22 +81,69 @@ function Scoreboard({ header }: { header: GameHeaderView }) {
   );
 }
 
-function StatusLine({ header }: { header: GameHeaderView }) {
-  const { status, statusLabel, startTime } = header;
-  const isLive = isInProgress(status);
-
+function BackArrow({ className }: { className: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <GameStatusChip
-        status={status}
-        label={statusLabel}
-        startTime={startTime}
-      />
-      {isLive && (
-        <span className="text-meta font-medium text-secondary">
-          {statusLabel}
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
+function StatusChip({ header }: { header: GameHeaderView }) {
+  return (
+    <GameStatusChip
+      status={header.status}
+      label={header.statusLabel}
+      startTime={header.startTime}
+    />
+  );
+}
+
+function ChannelLabel({ channelLabel }: { channelLabel: string }) {
+  return (
+    <span>
+      <span className="sr-only">{strings.broadcast.label}</span>
+      {channelLabel}
+    </span>
+  );
+}
+
+function Separator() {
+  return <span aria-hidden="true">{strings.game.header.separator}</span>;
+}
+
+// On mobile the venue, date, channel, and status sit in a top bar beside the back button, as in the GameDetail artboard.
+function MobileTopBar({ header }: { header: GameHeaderView }) {
+  return (
+    <div className="flex items-center gap-3 md:hidden">
+      <Link
+        href={header.back.href}
+        aria-label={strings.game.header.back(header.back.label)}
+        className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] border border-white/12 bg-white/6 ${FOCUS_RING_CLASS_NAME}`}
+      >
+        <BackArrow className="size-[19px]" />
+      </Link>
+      <div className="flex min-w-0 grow flex-col">
+        {header.venueLabel && (
+          <span className="truncate text-meta text-muted uppercase">
+            {header.venueLabel}
+          </span>
+        )}
+        <span className="truncate text-[13px] font-medium">
+          {header.dateLabel}
+          <Separator />
+          <ChannelLabel channelLabel={header.channelLabel} />
         </span>
-      )}
+      </div>
+      <StatusChip header={header} />
     </div>
   );
 }
@@ -106,41 +156,55 @@ export function GameHeader({
   children?: ReactNode;
 }) {
   return (
-    <section
-      aria-labelledby="game-title"
-      className="flex flex-col gap-4 card p-4 md:px-7 md:py-6"
-    >
+    <section aria-labelledby="game-title" className="flex flex-col gap-4">
       <h1 id="game-title" className="sr-only">
         {header.title}
       </h1>
-      <div className="flex items-center gap-2.5 md:gap-6">
-        <TeamLink team={header.away} side="away" />
-        <div className="flex shrink-0 flex-col items-center gap-2">
-          <StatusLine header={header} />
-          <Scoreboard header={header} />
+      <MobileTopBar header={header} />
+      <Link
+        href={header.back.href}
+        aria-label={strings.game.header.back(header.back.label)}
+        className={`hidden min-h-11 items-center gap-2 self-start rounded-tile text-[13px] font-bold text-link md:inline-flex ${FOCUS_RING_CLASS_NAME}`}
+      >
+        <BackArrow className="size-4" />
+        {header.back.label}
+      </Link>
+      <div
+        className={`flex flex-col gap-4 md:px-7 md:py-6 ${DESKTOP_SURFACE_CLASS_NAME}`}
+      >
+        <div className="flex items-end gap-2.5 md:items-center md:gap-6">
+          <TeamLink team={header.away} side="away" />
+          <div className="flex shrink-0 flex-col items-center gap-1.5 pb-1.5 md:gap-2 md:pb-0">
+            <div className="hidden md:block">
+              <StatusChip header={header} />
+            </div>
+            <Scoreboard header={header} />
+            {isInProgress(header.status) && (
+              <span className="text-meta text-secondary">
+                {header.statusLabel}
+              </span>
+            )}
+          </div>
+          <TeamLink team={header.home} side="home" />
         </div>
-        <TeamLink team={header.home} side="home" />
-      </div>
-      <div className="flex flex-col items-center gap-1 text-center">
-        <p className="text-meta text-muted uppercase">
-          {header.venueLabel && (
-            <>
-              <span>{header.venueLabel}</span>
-              <span aria-hidden="true">{strings.game.header.separator}</span>
-            </>
-          )}
-          <span>
-            <span className="sr-only">{strings.broadcast.label}</span>
-            {header.channelLabel}
-          </span>
-        </p>
-        {header.seriesLabel && (
-          <p className="text-meta font-bold text-accent-soft uppercase">
-            {header.seriesLabel}
+        <div className="flex flex-col items-center gap-1 text-center">
+          <p className="hidden text-meta text-muted uppercase md:block">
+            {header.venueLabel && (
+              <>
+                <span>{header.venueLabel}</span>
+                <Separator />
+              </>
+            )}
+            <ChannelLabel channelLabel={header.channelLabel} />
           </p>
-        )}
+          {header.seriesLabel && (
+            <p className="text-meta font-bold text-accent-soft uppercase">
+              {header.seriesLabel}
+            </p>
+          )}
+        </div>
+        {children}
       </div>
-      {children}
     </section>
   );
 }
@@ -153,8 +217,11 @@ export function LineScore({
   isLive: boolean;
 }) {
   return (
-    <div className="overflow-x-auto border-t border-white/8 pt-4">
-      <table className="w-full min-w-80 text-sm tabular-nums">
+    // A card of its own on mobile; inside the header card, under a divider, on desktop.
+    <div
+      className={`overflow-x-auto px-3.5 py-2.5 md:rounded-none md:border-0 md:border-t md:border-white/8 md:bg-transparent md:px-0 md:pt-4 md:pb-0 ${SURFACE_CLASS_NAME}`}
+    >
+      <table className="w-full text-sm tabular-nums">
         <caption className="sr-only">{strings.game.lineScore.title}</caption>
         <thead>
           <tr className="text-meta text-muted">

@@ -37,3 +37,10 @@ export function leadingSideOf({ status, home, away }: Game): TeamSide | null {
   if (!hasScore(status) || home.score === away.score) return null;
   return home.score > away.score ? "home" : "away";
 }
+
+// The mapper keeps only ESPN, Prime Video, and NBA League Pass, falling back to League Pass, so the label is never empty.
+export function channelLabelOf({ broadcasts }: Game) {
+  return broadcasts
+    .map((broadcast) => broadcast.name)
+    .join(strings.broadcast.separator);
+}

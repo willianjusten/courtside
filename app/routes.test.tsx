@@ -158,9 +158,19 @@ describe("routes", () => {
         name: strings.game.title("Golden State Warriors", "Los Angeles Lakers"),
       }),
     ).toBeDefined();
-    expect(screen.getByText(strings.gameStatus.final)).toBeDefined();
-    expect(screen.getByText("ESPN")).toBeDefined();
-    expect(screen.getByText("crypto.com Arena · Los Angeles")).toBeDefined();
+    // The mobile top bar and the desktop header each carry the status, channel, and venue; CSS shows one of them.
+    expect(screen.getAllByText(strings.gameStatus.final)).not.toHaveLength(0);
+    expect(screen.getAllByText("ESPN")).not.toHaveLength(0);
+    expect(
+      screen.getAllByText("crypto.com Arena · Los Angeles"),
+    ).not.toHaveLength(0);
+    expect(
+      screen
+        .getAllByRole("link", {
+          name: "Back to games on Wednesday, October 21",
+        })
+        .map((link) => link.getAttribute("href")),
+    ).toContain("/games/2026-10-21");
     const leaders = screen.getByRole("region", {
       name: strings.game.leaders.title,
     });

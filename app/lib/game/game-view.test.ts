@@ -186,6 +186,13 @@ describe("buildGameView", () => {
       expect(leadingSide).toBeNull();
     });
 
+    it("dates the game and links back to its day's games", () => {
+      expect(headerFor(final)).toMatchObject({
+        dateLabel: "Wed, Oct 21",
+        back: { href: "/games/2026-10-21", label: "Wednesday, October 21" },
+      });
+    });
+
     it("shows the venue and its city", () => {
       expect(headerFor(final).venueLabel).toBe(
         "crypto.com Arena · Los Angeles",
@@ -270,7 +277,7 @@ describe("buildGameView", () => {
   });
 
   describe("channel label", () => {
-    it("shows the national channel", () => {
+    it("shows the channel", () => {
       expect(headerFor(final).channelLabel).toBe("ESPN");
     });
 
@@ -278,7 +285,7 @@ describe("buildGameView", () => {
       expect(headerFor(preGame).channelLabel).toBe("NBA League Pass");
     });
 
-    it("joins several national channels", () => {
+    it("joins several channels", () => {
       const twoChannels = withGame(final, {
         broadcasts: [
           { name: "ESPN", market: "national" },
@@ -287,14 +294,6 @@ describe("buildGameView", () => {
       });
 
       expect(headerFor(twoChannels).channelLabel).toBe("ESPN · Prime Video");
-    });
-
-    it("shows Local TV when the game has no national channel", () => {
-      const localOnly = withGame(final, {
-        broadcasts: [{ name: "ESPN", market: "home" }],
-      });
-
-      expect(headerFor(localOnly).channelLabel).toBe("Local TV");
     });
   });
 
