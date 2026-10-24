@@ -11,17 +11,16 @@ import type {
   TeamStatistics,
 } from "@/app/lib/domain/game-summary";
 import type { GameLeaderStat, Leader } from "@/app/lib/domain/leaders";
-import {
-  LEAGUE_PASS_NAME,
-  type Broadcast,
-  type BroadcastMarket,
-  type Game,
-  type GameCompetitor,
-  type GameStatus,
-  type PlayoffSeries,
-  type SeasonType,
-  type Team,
-  type TopScorer,
+import type {
+  Broadcast,
+  BroadcastMarket,
+  Game,
+  GameCompetitor,
+  GameStatus,
+  PlayoffSeries,
+  SeasonType,
+  Team,
+  TopScorer,
 } from "@/app/lib/domain/game";
 import type {
   Clincher,
@@ -227,7 +226,7 @@ const SUPPORTED_BROADCAST_NAMES = new Set([
 ]);
 // League Pass carries every game, so a game without a supported channel is still watchable there.
 const FALLBACK_BROADCAST: Broadcast = {
-  name: LEAGUE_PASS_NAME,
+  name: "NBA League Pass",
   market: "national",
 };
 

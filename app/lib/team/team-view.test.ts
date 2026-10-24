@@ -391,22 +391,19 @@ describe("buildTeamView", () => {
       });
     });
 
-    it("labels a game without a national channel as on local TV", () => {
+    it("labels a game without ESPN or Prime Video as on NBA League Pass", () => {
       const [clippersGame] = scheduleOf().upcoming;
 
-      expect(clippersGame.channelLabel).toBe(strings.broadcast.localTv);
+      expect(clippersGame.channelLabel).toBe("NBA League Pass");
     });
 
-    it("labels a game by its national channels", () => {
-      const nationalGame: Game = {
+    it("labels a game by its channels", () => {
+      const primeVideoGame: Game = {
         ...clippersAtHome,
-        broadcasts: [
-          { name: "Prime Video", market: "national" },
-          { name: "NBA League Pass", market: "national" },
-        ],
+        broadcasts: [{ name: "Prime Video", market: "national" }],
       };
 
-      const [game] = scheduleOf({ games: [nationalGame] }).upcoming;
+      const [game] = scheduleOf({ games: [primeVideoGame] }).upcoming;
 
       expect(game.channelLabel).toBe("Prime Video");
     });

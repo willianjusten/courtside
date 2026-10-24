@@ -633,9 +633,7 @@ describe("routes", () => {
     expect(
       within(upcomingGames[0]).getByText(strings.team.schedule.next),
     ).toBeDefined();
-    expect(
-      within(upcomingGames[0]).getByText(strings.broadcast.localTv),
-    ).toBeDefined();
+    expect(within(upcomingGames[0]).getByText("NBA League Pass")).toBeDefined();
     expect(
       upcomingGames[0].querySelector("time")?.getAttribute("dateTime"),
     ).toBe("2026-10-24T02:00Z");

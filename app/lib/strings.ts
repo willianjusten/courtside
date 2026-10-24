@@ -133,7 +133,6 @@ export const strings = {
   broadcast: {
     label: "Broadcast: ",
     separator: " · ",
-    localTv: "Local TV",
   },
   game: {
     title: (awayTeamName: string, homeTeamName: string) =>

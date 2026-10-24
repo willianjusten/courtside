@@ -11,7 +11,7 @@ import {
   type StandingsZone,
 } from "@/app/lib/standings/standings-view";
 import { streakKindOf, type StreakKind } from "@/app/lib/standings/streak";
-import { nationalChannelLabelOf, overtimeLabelOf } from "@/app/lib/game/status";
+import { channelLabelOf, overtimeLabelOf } from "@/app/lib/game/status";
 import { strings } from "@/app/lib/strings";
 import { formatLocalTime, formatTipOffDay } from "@/app/lib/time/tip-off";
 
@@ -108,7 +108,6 @@ type TeamScheduleGame = {
 export type TeamUpcomingGame = TeamScheduleGame & {
   // The local tip-off time, e.g. "7:00 PM"; null until the browser timezone is known.
   timeLabel: string | null;
-  // The national channels, or "Local TV" for a game without one.
   channelLabel: string;
   isPostponed: boolean;
   // The soonest game not postponed.
@@ -334,7 +333,7 @@ function upcomingGamesOf(
   return upcomingGames.map((game, index) => ({
     ...scheduleGameOf(game, teamId, timeZone),
     timeLabel: timeZone ? formatLocalTime(game.startTime, timeZone) : null,
-    channelLabel: nationalChannelLabelOf(game),
+    channelLabel: channelLabelOf(game),
     isPostponed: game.status.kind === "postponed",
     isNext: game === nextGame,
     isInDesktopUpNext: index < DESKTOP_UP_NEXT_COUNT,

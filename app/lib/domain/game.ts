@@ -32,9 +32,6 @@ export type GameCompetitor = {
 
 export type BroadcastMarket = "national" | "home" | "away";
 
-// League Pass carries every game, so it is the fallback broadcast and never a national channel of its own.
-export const LEAGUE_PASS_NAME = "NBA League Pass";
-
 export type Broadcast = {
   name: string;
   market: BroadcastMarket;
