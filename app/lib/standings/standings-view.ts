@@ -28,6 +28,7 @@ export type StandingsViewInput = {
 };
 
 export type StandingsZone = "playoff" | "play-in" | "none";
+export type PointDifferentialKind = "positive" | "negative";
 type MarkedZone = Exclude<StandingsZone, "none">;
 
 export type StandingsTableRow = {
@@ -43,8 +44,18 @@ export type StandingsTableRow = {
   record: string;
   // e.g. ".750", or "1.000" for an unbeaten team.
   winPercent: string;
+  // e.g. "1.5", or "-" for the conference leader.
+  gamesBehind: string;
+  // Win-loss strings, e.g. "3-1".
+  homeRecord: string;
+  roadRecord: string;
+  lastTenRecord: string;
   streak: string;
   streakKind: StreakKind | null;
+  // Signed, e.g. "+4.2" or "-1.8"; "0.0" when even.
+  pointDifferential: string;
+  // null when even.
+  pointDifferentialKind: PointDifferentialKind | null;
   zone: StandingsZone;
   // Conveys the zone in text, since its color alone does not reach screen readers; null outside the zones.
   zoneLabel: string | null;
@@ -111,11 +122,28 @@ function formatWinPercent(winPercent: number) {
   return winPercent.toFixed(3).replace(/^0/, "");
 }
 
+function formatGamesBehind(gamesBehind: number) {
+  return gamesBehind === 0
+    ? strings.standings.leaderGamesBehind
+    : gamesBehind.toFixed(1);
+}
+
+function formatPointDifferential(pointDifferential: number) {
+  const rounded = Number(pointDifferential.toFixed(1));
+  // Adding 0 turns a -0 from rounding into 0, so an even team never prints "-0.0".
+  const formatted = (rounded + 0).toFixed(1);
+
+  if (rounded > 0) return { text: `+${formatted}`, kind: "positive" as const };
+  if (rounded < 0) return { text: formatted, kind: "negative" as const };
+  return { text: formatted, kind: null };
+}
+
 function tableRowOf(
   row: StandingsRow,
   favoriteTeamIds: string[],
 ): StandingsTableRow {
   const zone = zoneOf(row.seed);
+  const pointDifferential = formatPointDifferential(row.pointDifferential);
 
   return {
     teamId: row.team.id,
@@ -127,8 +155,14 @@ function tableRowOf(
     href: `${TEAMS_PATH_PREFIX}${row.team.slug}`,
     record: `${row.wins}-${row.losses}`,
     winPercent: formatWinPercent(row.winPercent),
+    gamesBehind: formatGamesBehind(row.gamesBehind),
+    homeRecord: row.homeRecord,
+    roadRecord: row.roadRecord,
+    lastTenRecord: row.lastTenRecord,
     streak: row.streak ?? strings.standings.noStreak,
     streakKind: streakKindOf(row.streak),
+    pointDifferential: pointDifferential.text,
+    pointDifferentialKind: pointDifferential.kind,
     zone,
     zoneLabel: zone === "none" ? null : strings.standings.zones[zone].rowLabel,
     isFavorite: favoriteTeamIds.includes(row.team.id),

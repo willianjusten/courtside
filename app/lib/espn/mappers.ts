@@ -491,6 +491,8 @@ function mapStandingsRow({ team, stats }: RawStandingsEntry): StandingsRow {
     lastTenRecord:
       stats.find((stat) => stat.type === "lasttengames")?.summary ?? "0-0",
     streak: streak && streak !== "-" ? streak : null,
+    // ESPN's "pointDifferential" is the season total; "differential" is the per-game average.
+    pointDifferential: numericStat("differential"),
   };
 }
 

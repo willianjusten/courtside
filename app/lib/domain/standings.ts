@@ -25,6 +25,8 @@ export type StandingsRow = {
   lastTenRecord: string;
   // e.g. "W3" or "L1"; null before the team has played.
   streak: string | null;
+  // Average points scored minus allowed per game, e.g. 4.2.
+  pointDifferential: number;
 };
 
 export type ConferenceStandings = {

@@ -112,6 +112,7 @@ describe("fetchStandings", () => {
       roadRecord: "1-0",
       lastTenRecord: "1-0",
       streak: "W1",
+      pointDifferential: 3,
     });
   });
 
@@ -130,6 +131,23 @@ describe("fetchStandings", () => {
       lastTenRecord: "0-0",
       streak: null,
     });
+  });
+
+  it("maps the per-game point differential, not the season total", async () => {
+    const afterTwoGames = structuredClone(regularSeasonStandings);
+    const [firstEntry] = afterTwoGames.children[0].standings.entries;
+    for (const stat of firstEntry.stats) {
+      if (stat.name === "differential") stat.value = 4.5;
+      if (stat.name === "pointDifferential") stat.value = 9;
+    }
+    respondWith(afterTwoGames);
+
+    const { conferences } = await fetchStandings();
+    const row = conferences
+      .flatMap((conference) => conference.rows)
+      .find((standingsRow) => standingsRow.team.id === firstEntry.team.id);
+
+    expect(row?.pointDifferential).toBe(4.5);
   });
 
   it("derives the current season from the response", async () => {

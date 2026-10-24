@@ -324,7 +324,7 @@ describe("routes", () => {
     ).toBeDefined();
   });
 
-  it("shows each team's seed, record, percentage, and streak in the standings", async () => {
+  it("shows each team's standings columns", async () => {
     render(await StandingsPage());
 
     const leaderRow = await screen.findByRole("row", {
@@ -334,7 +334,7 @@ describe("routes", () => {
       within(leaderRow)
         .getAllByRole("cell")
         .map((cell) => cell.textContent),
-    ).toEqual(["1", "1-0", "1.000", "W1"]);
+    ).toEqual(["1", "1-0", "1.000", "-", "0-0", "1-0", "1-0", "W1", "+25.0"]);
     expect(within(leaderRow).getByText(/Playoff zone/)).toBeDefined();
   });
 

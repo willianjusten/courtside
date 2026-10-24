@@ -1,4 +1,4 @@
-import type { Standings } from "@/app/lib/domain/standings";
+import type { Standings, StandingsRow } from "@/app/lib/domain/standings";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
 import { mapConferenceStandings, mapSeason } from "@/app/lib/espn/mappers";
 import type { RawStandingsResponse } from "@/app/lib/espn/raw-types";
@@ -48,6 +48,22 @@ function withRowsReversed(source: Standings): Standings {
       ...conference,
       rows: [...conference.rows].reverse(),
     })),
+  };
+}
+
+// The East with its leader, the Pacers, changed.
+function withPacersRow(changes: Partial<StandingsRow>): StandingsQueryState {
+  return {
+    status: "success",
+    standings: {
+      ...standings,
+      conferences: standings.conferences.map((conference) => ({
+        ...conference,
+        rows: conference.rows.map((row) =>
+          row.team.id === PACERS_ID ? { ...row, ...changes } : row,
+        ),
+      })),
+    },
   };
 }
 
@@ -133,6 +149,60 @@ describe("buildStandingsView", () => {
       streakKind: "loss",
     });
   });
+
+  it("formats the desktop columns", () => {
+    const [leader, , , , , , , , , , , , , , last] = readyScreenFor({
+      conferenceParam: "east",
+    }).rows;
+
+    expect(leader).toMatchObject({
+      gamesBehind: "-",
+      homeRecord: "0-0",
+      roadRecord: "1-0",
+      lastTenRecord: "1-0",
+      pointDifferential: "+3.0",
+      pointDifferentialKind: "positive",
+    });
+    expect(last).toMatchObject({
+      gamesBehind: "1.0",
+      pointDifferential: "-43.0",
+      pointDifferentialKind: "negative",
+    });
+  });
+
+  it.each([
+    [2.5, "2.5"],
+    [0.5, "0.5"],
+    [12, "12.0"],
+  ])("prints %d games behind as %s", (gamesBehind, expected) => {
+    expect(
+      readyScreenFor({
+        query: withPacersRow({ gamesBehind }),
+        conferenceParam: "east",
+      }).rows[0].gamesBehind,
+    ).toBe(expected);
+  });
+
+  it.each([
+    [4.2, "+4.2", "positive"],
+    [-1.8, "-1.8", "negative"],
+    [0, "0.0", null],
+    // A differential that rounds to zero is even, not "-0.0".
+    [-0.04, "0.0", null],
+  ])(
+    "prints a point differential of %d as %s",
+    (pointDifferential, expected, expectedKind) => {
+      expect(
+        readyScreenFor({
+          query: withPacersRow({ pointDifferential }),
+          conferenceParam: "east",
+        }).rows[0],
+      ).toMatchObject({
+        pointDifferential: expected,
+        pointDifferentialKind: expectedKind,
+      });
+    },
+  );
 
   it("shows a dash for a team that has not played", () => {
     const cavaliers = readyScreenFor({ conferenceParam: "east" }).rows.find(
