@@ -63,6 +63,7 @@ export const strings = {
     pickerTitle: "Follow teams",
     follow: (teamName: string) => `Follow ${teamName}`,
     favorite: "Favorite",
+    more: (count: number) => `${count} more ${count === 1 ? "team" : "teams"}`,
     loading: "Loading teams...",
     error: "Couldn't load the teams",
     unpersisted: "Favorites won't be saved in this browser.",

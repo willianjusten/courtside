@@ -9,11 +9,11 @@ import { myTeamsOf, type MyTeamLink } from "@/app/lib/favorites/my-teams";
 import { useFavoriteTeamIds } from "@/app/lib/favorites/use-favorite-team-ids";
 import { teamsQueryOptions } from "@/app/lib/queries/teams";
 import { strings } from "@/app/lib/strings";
-
-// The site header on desktop, below the date heading on the mobile home page.
-export type MyTeamsPlacement = "header" | "home";
+import MyTeamsOverflow from "./MyTeamsOverflow";
 
 const LOGO_SIZE = 28;
+// Past this many, the rest collapse into a +N chip so the strip fits the mobile header.
+const VISIBLE_TEAM_COUNT = 3;
 
 function MyTeamLogoLink({ team }: { team: MyTeamLink }) {
   return (
@@ -27,11 +27,7 @@ function MyTeamLogoLink({ team }: { team: MyTeamLink }) {
   );
 }
 
-export default function MyTeamsStrip({
-  placement,
-}: {
-  placement: MyTeamsPlacement;
-}) {
+export default function MyTeamsStrip() {
   const favoriteTeamIds = useFavoriteTeamIds();
   // Only favorites need the teams list here, to resolve their names and logos.
   const { data: teams, isError } = useQuery({
@@ -44,12 +40,15 @@ export default function MyTeamsStrip({
   return (
     <nav
       aria-label={strings.myTeams.label}
-      className={`min-h-11 items-center gap-2 ${placement === "header" ? "hidden md:flex" : "flex overflow-x-auto md:hidden"}`}
+      className="flex min-h-11 items-center gap-2"
     >
       <TeamPicker />
-      {myTeams?.map((team) => (
+      {myTeams?.slice(0, VISIBLE_TEAM_COUNT).map((team) => (
         <MyTeamLogoLink key={team.teamId} team={team} />
       ))}
+      {myTeams && myTeams.length > VISIBLE_TEAM_COUNT && (
+        <MyTeamsOverflow teams={myTeams.slice(VISIBLE_TEAM_COUNT)} />
+      )}
     </nav>
   );
 }
