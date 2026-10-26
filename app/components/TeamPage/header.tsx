@@ -68,18 +68,19 @@ function FollowButton({
       type="button"
       aria-pressed={follow.isFollowing}
       onClick={onToggleFollow}
-      className={`inline-flex min-h-11 cursor-pointer items-center gap-1.75 rounded-full border px-4 text-[13px] font-bold transition-colors md:min-h-12 md:gap-2 md:px-5.5 md:text-sm ${FOCUS_RING_CLASS_NAME} ${toneClassName}`}
+      className={`inline-flex size-11 cursor-pointer items-center justify-center rounded-full border text-sm font-bold transition-colors md:h-auto md:min-h-12 md:w-auto md:gap-2 md:px-5.5 ${FOCUS_RING_CLASS_NAME} ${toneClassName}`}
     >
       <svg
         viewBox="0 0 24 24"
         aria-hidden="true"
         strokeWidth="1.8"
         strokeLinejoin="round"
-        className={`size-4 shrink-0 stroke-favorite md:size-4.5 ${follow.isFollowing ? "fill-favorite" : "fill-none"}`}
+        className={`size-5 shrink-0 stroke-favorite md:size-4.5 ${follow.isFollowing ? "fill-favorite" : "fill-none"}`}
       >
         <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />
       </svg>
-      {follow.label}
+      {/* Phones show just the star, which keeps the label as its accessible name. */}
+      <span className="sr-only md:not-sr-only">{follow.label}</span>
     </button>
   );
 }
@@ -117,11 +118,7 @@ export function TeamHeader({
 
   return (
     <div className="relative flex flex-col gap-3.5 md:gap-0">
-      <header className="flex flex-wrap items-center gap-3.5 md:gap-6">
-        {/* The mobile artboard puts the button in the top bar, so it takes a row of its own above a long team name. */}
-        <div className="order-first flex basis-full justify-end md:order-last md:ml-auto md:basis-auto">
-          <FollowButton follow={follow} onToggleFollow={onToggleFollow} />
-        </div>
+      <header className="flex items-center gap-3.5 md:gap-6">
         <span className="shrink-0 *:size-18 md:*:size-30">
           <TeamLogo
             logoUrl={header.logoUrl}
@@ -162,6 +159,9 @@ export function TeamHeader({
               </Chip>
             )}
           </div>
+        </div>
+        <div className="ml-auto shrink-0">
+          <FollowButton follow={follow} onToggleFollow={onToggleFollow} />
         </div>
       </header>
       {tiles && <TeamTiles tiles={tiles} />}
