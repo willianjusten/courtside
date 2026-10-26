@@ -1,0 +1,1463 @@
+{
+  "boxscore": {
+    "teams": [
+      {
+        "team": {
+          "id": "9",
+          "uid": "s:40~l:46~t:9",
+          "slug": "golden-state-warriors",
+          "location": "Golden State",
+          "name": "Warriors",
+          "abbreviation": "GS",
+          "displayName": "Golden State Warriors",
+          "shortDisplayName": "Warriors",
+          "color": "fdb927",
+          "alternateColor": "1d428a",
+          "logo": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png"
+        },
+        "statistics": [
+          {
+            "name": "streak",
+            "displayValue": "L2",
+            "abbreviation": "STRK",
+            "label": "Streak"
+          },
+          {
+            "name": "avgPointsAgainst",
+            "displayValue": "119.0",
+            "abbreviation": "OPP PPG",
+            "label": "Points Against"
+          },
+          {
+            "name": "Last Ten Games",
+            "displayValue": "0-2",
+            "abbreviation": "L10",
+            "label": "Last Ten Games"
+          },
+          {
+            "name": "avgPoints",
+            "displayValue": "106.5",
+            "abbreviation": "PTS",
+            "label": "Points Per Game"
+          },
+          {
+            "name": "fieldGoalPct",
+            "displayValue": "41",
+            "abbreviation": "FG%",
+            "label": "Field Goal %"
+          },
+          {
+            "name": "threePointFieldGoalPct",
+            "displayValue": "29",
+            "abbreviation": "3P%",
+            "label": "Three Point %"
+          },
+          {
+            "name": "avgRebounds",
+            "displayValue": "38.5",
+            "abbreviation": "REB",
+            "label": "Rebounds Per Game"
+          },
+          {
+            "name": "avgAssists",
+            "displayValue": "24.0",
+            "abbreviation": "AST",
+            "label": "Assists Per Game"
+          },
+          {
+            "name": "avgBlocks",
+            "displayValue": "4.0",
+            "abbreviation": "BLK",
+            "label": "Blocks Per Game"
+          },
+          {
+            "name": "avgSteals",
+            "displayValue": "13.5",
+            "abbreviation": "STL",
+            "label": "Steals Per Game"
+          },
+          {
+            "name": "avgTeamTurnovers",
+            "displayValue": "0.5",
+            "abbreviation": "TTO",
+            "label": "Team Turnovers Per Game"
+          },
+          {
+            "name": "avgTotalTurnovers",
+            "displayValue": "17.5",
+            "abbreviation": "ToTO",
+            "label": "Total Turnovers Per Game"
+          }
+        ],
+        "displayOrder": 1,
+        "homeAway": "away"
+      },
+      {
+        "team": {
+          "id": "21",
+          "uid": "s:40~l:46~t:21",
+          "slug": "phoenix-suns",
+          "location": "Phoenix",
+          "name": "Suns",
+          "abbreviation": "PHX",
+          "displayName": "Phoenix Suns",
+          "shortDisplayName": "Suns",
+          "color": "29127a",
+          "alternateColor": "e56020",
+          "logo": "https://a.espncdn.com/i/teamlogos/nba/500/phx.png"
+        },
+        "statistics": [
+          {
+            "name": "streak",
+            "displayValue": "L1",
+            "abbreviation": "STRK",
+            "label": "Streak"
+          },
+          {
+            "name": "avgPointsAgainst",
+            "displayValue": "124.0",
+            "abbreviation": "OPP PPG",
+            "label": "Points Against"
+          },
+          {
+            "name": "Last Ten Games",
+            "displayValue": "0-1",
+            "abbreviation": "L10",
+            "label": "Last Ten Games"
+          },
+          {
+            "name": "avgPoints",
+            "displayValue": "83.0",
+            "abbreviation": "PTS",
+            "label": "Points Per Game"
+          },
+          {
+            "name": "fieldGoalPct",
+            "displayValue": "36",
+            "abbreviation": "FG%",
+            "label": "Field Goal %"
+          },
+          {
+            "name": "threePointFieldGoalPct",
+            "displayValue": "19",
+            "abbreviation": "3P%",
+            "label": "Three Point %"
+          },
+          {
+            "name": "avgRebounds",
+            "displayValue": "39.0",
+            "abbreviation": "REB",
+            "label": "Rebounds Per Game"
+          },
+          {
+            "name": "avgAssists",
+            "displayValue": "14.0",
+            "abbreviation": "AST",
+            "label": "Assists Per Game"
+          },
+          {
+            "name": "avgBlocks",
+            "displayValue": "6.0",
+            "abbreviation": "BLK",
+            "label": "Blocks Per Game"
+          },
+          {
+            "name": "avgSteals",
+            "displayValue": "10.0",
+            "abbreviation": "STL",
+            "label": "Steals Per Game"
+          },
+          {
+            "name": "avgTeamTurnovers",
+            "displayValue": "1.0",
+            "abbreviation": "TTO",
+            "label": "Team Turnovers Per Game"
+          },
+          {
+            "name": "avgTotalTurnovers",
+            "displayValue": "16.0",
+            "abbreviation": "ToTO",
+            "label": "Total Turnovers Per Game"
+          }
+        ],
+        "displayOrder": 2,
+        "homeAway": "home"
+      }
+    ]
+  },
+  "format": {
+    "regulation": {
+      "periods": 4,
+      "displayName": "Quarter",
+      "slug": "quarter",
+      "clock": 720.0
+    },
+    "overtime": {
+      "displayName": "Quarter",
+      "slug": "quarter",
+      "clock": 300.0
+    }
+  },
+  "gameInfo": {
+    "venue": {
+      "id": "1949",
+      "guid": "ccb1de16-b831-3b8a-8166-425fbc7f3bd8",
+      "fullName": "Mortgage Matchup Center",
+      "shortName": "Talking Stick Resort Arena",
+      "address": {
+        "city": "Phoenix",
+        "state": "AZ"
+      },
+      "grass": false,
+      "images": [
+        {
+          "href": "https://a.espncdn.com/i/venues/nba/day/1949.jpg",
+          "width": 2000,
+          "height": 1125,
+          "alt": "",
+          "rel": ["full", "day"]
+        }
+      ]
+    }
+  },
+  "leaders": [
+    {
+      "team": {
+        "id": "21",
+        "uid": "s:40~l:46~t:21",
+        "displayName": "Phoenix Suns",
+        "abbreviation": "PHX",
+        "links": [
+          {
+            "href": "https://www.espn.com/nba/team/_/name/phx/phoenix-suns",
+            "text": "Clubhouse"
+          },
+          {
+            "href": "https://www.espn.com/nba/team/schedule/_/name/phx",
+            "text": "Schedule"
+          }
+        ],
+        "logo": "https://a.espncdn.com/i/teamlogos/nba/500/phx.png",
+        "logos": [
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500/phx.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "default"],
+            "lastUpdated": "2024-06-25T21:17Z"
+          },
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/phx.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "dark"],
+            "lastUpdated": "2024-06-25T21:13Z"
+          },
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/phx.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "scoreboard"],
+            "lastUpdated": "2024-06-25T21:18Z"
+          },
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/phx.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "scoreboard", "dark"],
+            "lastUpdated": "2024-06-25T21:14Z"
+          }
+        ]
+      },
+      "leaders": [
+        {
+          "name": "pointsPerGame",
+          "displayName": "Points",
+          "leaders": [
+            {
+              "displayValue": "23.0",
+              "value": 23.0,
+              "athlete": {
+                "id": "3136193",
+                "uid": "s:40~l:46~a:3136193",
+                "guid": "493046d7-fa60-d8a1-1397-b9a6dca8dedf",
+                "lastName": "Booker",
+                "fullName": "Devin Booker",
+                "displayName": "Devin Booker",
+                "shortName": "D. Booker",
+                "links": [
+                  {
+                    "rel": ["playercard", "desktop", "athlete"],
+                    "href": "https://www.espn.com/nba/player/_/id/3136193/devin-booker",
+                    "text": "Player Card"
+                  }
+                ],
+                "headshot": {
+                  "href": "https://a.espncdn.com/i/headshots/nba/players/full/3136193.png",
+                  "alt": "Devin Booker"
+                },
+                "jersey": "15",
+                "position": {
+                  "name": "Guard",
+                  "displayName": "Guard",
+                  "abbreviation": "G"
+                },
+                "status": {
+                  "id": "1",
+                  "name": "Active",
+                  "type": "active",
+                  "abbreviation": "Active"
+                }
+              },
+              "statistics": [
+                {
+                  "name": "avgPoints",
+                  "displayName": "Points Per Game",
+                  "shortDisplayName": "PPG",
+                  "description": "The average number of points scored per game.",
+                  "abbreviation": "PTS",
+                  "value": 23.0,
+                  "displayValue": "23.0"
+                },
+                {
+                  "name": "fieldGoalPct",
+                  "displayName": "Field Goal Percentage",
+                  "shortDisplayName": "FG%",
+                  "description": "The ratio of field goals made to field goals attempted: FGM / FGA",
+                  "abbreviation": "FG%",
+                  "value": 53.84600067138672,
+                  "displayValue": "53.8"
+                },
+                {
+                  "name": "freeThrowPct",
+                  "displayName": "Free Throw Percentage",
+                  "shortDisplayName": "FT%",
+                  "description": "The ratio of free throws made to free throws attempted: FTM / FTA",
+                  "abbreviation": "FT%",
+                  "value": 100.0,
+                  "displayValue": "100.0"
+                }
+              ],
+              "mainStat": {
+                "value": "23.0",
+                "label": "PPG"
+              },
+              "summary": "53.8 FG%, 100.0 FT%"
+            }
+          ]
+        },
+        {
+          "name": "assistsPerGame",
+          "displayName": "Assists",
+          "leaders": [
+            {
+              "displayValue": "3.0",
+              "value": 3.0,
+              "athlete": {
+                "id": "4437244",
+                "uid": "s:40~l:46~a:4437244",
+                "guid": "e9d2d871-df56-3068-8d5f-e3fc27f49a96",
+                "lastName": "Green",
+                "fullName": "Jalen Green",
+                "displayName": "Jalen Green",
+                "shortName": "J. Green",
+                "links": [
+                  {
+                    "rel": ["playercard", "desktop", "athlete"],
+                    "href": "https://www.espn.com/nba/player/_/id/4437244/jalen-green",
+                    "text": "Player Card"
+                  }
+                ],
+                "headshot": {
+                  "href": "https://a.espncdn.com/i/headshots/nba/players/full/4437244.png",
+                  "alt": "Jalen Green"
+                },
+                "jersey": "4",
+                "position": {
+                  "name": "Guard",
+                  "displayName": "Guard",
+                  "abbreviation": "G"
+                },
+                "status": {
+                  "id": "1",
+                  "name": "Active",
+                  "type": "active",
+                  "abbreviation": "Active"
+                }
+              },
+              "statistics": [
+                {
+                  "name": "avgAssists",
+                  "displayName": "Assists Per Game",
+                  "shortDisplayName": "APG",
+                  "description": "The average assists per game.",
+                  "abbreviation": "AST",
+                  "value": 3.0,
+                  "displayValue": "3.0"
+                },
+                {
+                  "name": "avgTurnovers",
+                  "displayName": "Turnovers Per Game",
+                  "shortDisplayName": "TOPG",
+                  "description": "The average turnovers committed per game.",
+                  "abbreviation": "TO",
+                  "value": 2.0,
+                  "displayValue": "2.0"
+                },
+                {
+                  "name": "avgMinutes",
+                  "displayName": "Minutes Per Game",
+                  "shortDisplayName": "MPG",
+                  "description": "The average number of minutes per game.",
+                  "abbreviation": "MIN",
+                  "value": 25.0,
+                  "displayValue": "25.0"
+                }
+              ],
+              "mainStat": {
+                "value": "3.0",
+                "label": "APG"
+              },
+              "summary": "2.0 TOPG, 25.0 MPG"
+            }
+          ]
+        },
+        {
+          "name": "reboundsPerGame",
+          "displayName": "Rebounds",
+          "leaders": [
+            {
+              "displayValue": "6.0",
+              "value": 6.0,
+              "athlete": {
+                "id": "5203685",
+                "uid": "s:40~l:46~a:5203685",
+                "guid": "2cf33fe2-4a92-3188-9d87-78ac5aac53be",
+                "lastName": "Maluach",
+                "fullName": "Khaman Maluach",
+                "displayName": "Khaman Maluach",
+                "shortName": "K. Maluach",
+                "links": [
+                  {
+                    "rel": ["playercard", "desktop", "athlete"],
+                    "href": "https://www.espn.com/nba/player/_/id/5203685/khaman-maluach",
+                    "text": "Player Card"
+                  }
+                ],
+                "headshot": {
+                  "href": "https://a.espncdn.com/i/headshots/nba/players/full/5203685.png",
+                  "alt": "Khaman Maluach"
+                },
+                "jersey": "10",
+                "position": {
+                  "name": "Center",
+                  "displayName": "Center",
+                  "abbreviation": "C"
+                },
+                "status": {
+                  "id": "1",
+                  "name": "Active",
+                  "type": "active",
+                  "abbreviation": "Active"
+                }
+              },
+              "statistics": [
+                {
+                  "name": "avgRebounds",
+                  "displayName": "Rebounds Per Game",
+                  "shortDisplayName": "RPG",
+                  "description": "The average rebounds per game.",
+                  "abbreviation": "REB",
+                  "value": 6.0,
+                  "displayValue": "6.0"
+                },
+                {
+                  "name": "avgDefensiveRebounds",
+                  "displayName": "Defensive Rebounds Per Game",
+                  "shortDisplayName": "DRPG",
+                  "description": "The average defensive rebounds per game.",
+                  "abbreviation": "DR",
+                  "value": 4.0,
+                  "displayValue": "4.0"
+                },
+                {
+                  "name": "avgOffensiveRebounds",
+                  "displayName": "Offensive Rebounds Per Game",
+                  "shortDisplayName": "ORPG",
+                  "description": "The average offensive rebounds per game.",
+                  "abbreviation": "OR",
+                  "value": 2.0,
+                  "displayValue": "2.0"
+                }
+              ],
+              "mainStat": {
+                "value": "6.0",
+                "label": "RPG"
+              },
+              "summary": "4.0 DRPG, 2.0 ORPG"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "team": {
+        "id": "9",
+        "uid": "s:40~l:46~t:9",
+        "displayName": "Golden State Warriors",
+        "abbreviation": "GS",
+        "links": [
+          {
+            "href": "https://www.espn.com/nba/team/_/name/gs/golden-state-warriors",
+            "text": "Clubhouse"
+          },
+          {
+            "href": "https://www.espn.com/nba/team/schedule/_/name/gs",
+            "text": "Schedule"
+          }
+        ],
+        "logo": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png",
+        "logos": [
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "default"],
+            "lastUpdated": "2024-06-25T21:17Z"
+          },
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/gs.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "dark"],
+            "lastUpdated": "2024-06-25T21:13Z"
+          },
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/gs.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "scoreboard"],
+            "lastUpdated": "2024-06-25T21:18Z"
+          },
+          {
+            "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/gs.png",
+            "width": 500,
+            "height": 500,
+            "alt": "",
+            "rel": ["full", "scoreboard", "dark"],
+            "lastUpdated": "2024-06-25T21:14Z"
+          }
+        ]
+      },
+      "leaders": [
+        {
+          "name": "pointsPerGame",
+          "displayName": "Points",
+          "leaders": [
+            {
+              "displayValue": "23.5",
+              "value": 23.5,
+              "athlete": {
+                "id": "3975",
+                "uid": "s:40~l:46~a:3975",
+                "guid": "5dda51f1-50c9-66e1-2026-400b73f34fad",
+                "lastName": "Curry",
+                "fullName": "Stephen Curry",
+                "displayName": "Stephen Curry",
+                "shortName": "S. Curry",
+                "links": [
+                  {
+                    "rel": ["playercard", "desktop", "athlete"],
+                    "href": "https://www.espn.com/nba/player/_/id/3975/stephen-curry",
+                    "text": "Player Card"
+                  }
+                ],
+                "headshot": {
+                  "href": "https://a.espncdn.com/i/headshots/nba/players/full/3975.png",
+                  "alt": "Stephen Curry"
+                },
+                "jersey": "30",
+                "position": {
+                  "name": "Guard",
+                  "displayName": "Guard",
+                  "abbreviation": "G"
+                },
+                "status": "Day-To-Day",
+                "injuries": {
+                  "status": "Day-To-Day",
+                  "date": "2026-10-24T13:52Z",
+                  "type": {
+                    "id": "6",
+                    "name": "INJURY_STATUS_DAYTODAY",
+                    "description": "day-to-day",
+                    "abbreviation": "DD"
+                  },
+                  "details": {
+                    "fantasyStatus": {
+                      "description": "GTD",
+                      "abbreviation": "GTD",
+                      "displayDescription": "GTD"
+                    },
+                    "type": "Rest",
+                    "location": "Other",
+                    "returnDate": "2026-10-24"
+                  }
+                }
+              },
+              "statistics": [
+                {
+                  "name": "avgPoints",
+                  "displayName": "Points Per Game",
+                  "shortDisplayName": "PPG",
+                  "description": "The average number of points scored per game.",
+                  "abbreviation": "PTS",
+                  "value": 23.5,
+                  "displayValue": "23.5"
+                },
+                {
+                  "name": "fieldGoalPct",
+                  "displayName": "Field Goal Percentage",
+                  "shortDisplayName": "FG%",
+                  "description": "The ratio of field goals made to field goals attempted: FGM / FGA",
+                  "abbreviation": "FG%",
+                  "value": 40.0,
+                  "displayValue": "40.0"
+                },
+                {
+                  "name": "freeThrowPct",
+                  "displayName": "Free Throw Percentage",
+                  "shortDisplayName": "FT%",
+                  "description": "The ratio of free throws made to free throws attempted: FTM / FTA",
+                  "abbreviation": "FT%",
+                  "value": 100.0,
+                  "displayValue": "100.0"
+                }
+              ],
+              "mainStat": {
+                "value": "23.5",
+                "label": "PPG"
+              },
+              "summary": "40.0 FG%, 100.0 FT%"
+            }
+          ]
+        },
+        {
+          "name": "assistsPerGame",
+          "displayName": "Assists",
+          "leaders": [
+            {
+              "displayValue": "7.0",
+              "value": 7.0,
+              "athlete": {
+                "id": "6589",
+                "uid": "s:40~l:46~a:6589",
+                "guid": "de360720-e416-25f2-8a6b-b5ff82616cb1",
+                "lastName": "Green",
+                "fullName": "Draymond Green",
+                "displayName": "Draymond Green",
+                "shortName": "D. Green",
+                "links": [
+                  {
+                    "rel": ["playercard", "desktop", "athlete"],
+                    "href": "https://www.espn.com/nba/player/_/id/6589/draymond-green",
+                    "text": "Player Card"
+                  }
+                ],
+                "headshot": {
+                  "href": "https://a.espncdn.com/i/headshots/nba/players/full/6589.png",
+                  "alt": "Draymond Green"
+                },
+                "jersey": "23",
+                "position": {
+                  "name": "Forward",
+                  "displayName": "Forward",
+                  "abbreviation": "F"
+                },
+                "status": {
+                  "id": "1",
+                  "name": "Active",
+                  "type": "active",
+                  "abbreviation": "Active"
+                }
+              },
+              "statistics": [
+                {
+                  "name": "avgAssists",
+                  "displayName": "Assists Per Game",
+                  "shortDisplayName": "APG",
+                  "description": "The average assists per game.",
+                  "abbreviation": "AST",
+                  "value": 7.0,
+                  "displayValue": "7.0"
+                },
+                {
+                  "name": "avgTurnovers",
+                  "displayName": "Turnovers Per Game",
+                  "shortDisplayName": "TOPG",
+                  "description": "The average turnovers committed per game.",
+                  "abbreviation": "TO",
+                  "value": 4.5,
+                  "displayValue": "4.5"
+                },
+                {
+                  "name": "avgMinutes",
+                  "displayName": "Minutes Per Game",
+                  "shortDisplayName": "MPG",
+                  "description": "The average number of minutes per game.",
+                  "abbreviation": "MIN",
+                  "value": 26.0,
+                  "displayValue": "26.0"
+                }
+              ],
+              "mainStat": {
+                "value": "7.0",
+                "label": "APG"
+              },
+              "summary": "4.5 TOPG, 26.0 MPG"
+            }
+          ]
+        },
+        {
+          "name": "reboundsPerGame",
+          "displayName": "Rebounds",
+          "leaders": [
+            {
+              "displayValue": "8.0",
+              "value": 8.0,
+              "athlete": {
+                "id": "5175737",
+                "uid": "s:40~l:46~a:5175737",
+                "guid": "b037d625-6e30-391c-a906-b39ea32c281f",
+                "lastName": "Lendeborg",
+                "fullName": "Yaxel Lendeborg",
+                "displayName": "Yaxel Lendeborg",
+                "shortName": "Y. Lendeborg",
+                "links": [
+                  {
+                    "rel": ["playercard", "desktop", "athlete"],
+                    "href": "https://www.espn.com/nba/player/_/id/5175737/yaxel-lendeborg",
+                    "text": "Player Card"
+                  }
+                ],
+                "headshot": {
+                  "href": "https://a.espncdn.com/i/headshots/nba/players/full/5175737.png",
+                  "alt": "Yaxel Lendeborg"
+                },
+                "jersey": "1",
+                "position": {
+                  "name": "Forward",
+                  "displayName": "Forward",
+                  "abbreviation": "F"
+                },
+                "status": {
+                  "id": "1",
+                  "name": "Active",
+                  "type": "active",
+                  "abbreviation": "Active"
+                }
+              },
+              "statistics": [
+                {
+                  "name": "avgRebounds",
+                  "displayName": "Rebounds Per Game",
+                  "shortDisplayName": "RPG",
+                  "description": "The average rebounds per game.",
+                  "abbreviation": "REB",
+                  "value": 8.0,
+                  "displayValue": "8.0"
+                },
+                {
+                  "name": "avgDefensiveRebounds",
+                  "displayName": "Defensive Rebounds Per Game",
+                  "shortDisplayName": "DRPG",
+                  "description": "The average defensive rebounds per game.",
+                  "abbreviation": "DR",
+                  "value": 3.5,
+                  "displayValue": "3.5"
+                },
+                {
+                  "name": "avgOffensiveRebounds",
+                  "displayName": "Offensive Rebounds Per Game",
+                  "shortDisplayName": "ORPG",
+                  "description": "The average offensive rebounds per game.",
+                  "abbreviation": "OR",
+                  "value": 4.5,
+                  "displayValue": "4.5"
+                }
+              ],
+              "mainStat": {
+                "value": "8.0",
+                "label": "RPG"
+              },
+              "summary": "3.5 DRPG, 4.5 ORPG"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "broadcasts": [
+    {
+      "type": {
+        "id": "4",
+        "shortName": "Streaming",
+        "longName": "Streaming",
+        "slug": "streaming"
+      },
+      "station": "Suns Live",
+      "market": {
+        "id": "2",
+        "type": "Home"
+      },
+      "media": {
+        "callLetters": "Suns Live",
+        "name": "Suns Live",
+        "shortName": "Suns Live"
+      },
+      "lang": "en",
+      "region": "us",
+      "isNational": false
+    }
+  ],
+  "winprobability": [],
+  "header": {
+    "id": "401909860",
+    "uid": "s:40~l:46~e:401909860",
+    "season": {
+      "year": 2027,
+      "current": true,
+      "type": 2
+    },
+    "timeValid": true,
+    "competitions": [
+      {
+        "id": "401909860",
+        "uid": "s:40~l:46~e:401909860~c:401909860",
+        "date": "2026-10-25T02:00Z",
+        "neutralSite": false,
+        "conferenceCompetition": false,
+        "boxscoreAvailable": false,
+        "commentaryAvailable": false,
+        "liveAvailable": false,
+        "onWatchESPN": false,
+        "recent": false,
+        "wallclockAvailable": false,
+        "boxscoreSource": "none",
+        "playByPlaySource": "none",
+        "competitors": [
+          {
+            "id": "21",
+            "uid": "s:40~l:46~t:21",
+            "order": 0,
+            "homeAway": "home",
+            "team": {
+              "id": "21",
+              "guid": "c6eade89-5971-0e84-8ccb-cd91482b2b50",
+              "uid": "s:40~l:46~t:21",
+              "location": "Phoenix",
+              "name": "Suns",
+              "abbreviation": "PHX",
+              "displayName": "Phoenix Suns",
+              "color": "29127a",
+              "alternateColor": "e56020",
+              "logos": [
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/phx.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "default"],
+                  "lastUpdated": "2024-06-25T21:17Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/phx.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "dark"],
+                  "lastUpdated": "2024-06-25T21:13Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/phx.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard"],
+                  "lastUpdated": "2024-06-25T21:18Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/phx.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard", "dark"],
+                  "lastUpdated": "2024-06-25T21:14Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/primary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/primary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/primary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/primary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/primary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/primary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/secondary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/secondary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/secondary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/secondary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/secondary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/c6eade89-5971-0e84-8ccb-cd91482b2b50/logos/secondary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                }
+              ],
+              "links": [
+                {
+                  "rel": ["clubhouse", "desktop", "team"],
+                  "href": "https://www.espn.com/nba/team/_/name/phx/phoenix-suns",
+                  "text": "Clubhouse"
+                }
+              ]
+            },
+            "record": [
+              {
+                "type": "total",
+                "summary": "0-1",
+                "displayValue": "0-1"
+              },
+              {
+                "type": "home",
+                "summary": "0-0",
+                "displayValue": "0-0"
+              },
+              {
+                "type": "vsconf",
+                "summary": "0-1",
+                "displayValue": "0-1"
+              }
+            ],
+            "possession": false
+          },
+          {
+            "id": "9",
+            "uid": "s:40~l:46~t:9",
+            "order": 1,
+            "homeAway": "away",
+            "team": {
+              "id": "9",
+              "guid": "77a8546f-24bf-a333-8161-bf9f75396c49",
+              "uid": "s:40~l:46~t:9",
+              "location": "Golden State",
+              "name": "Warriors",
+              "abbreviation": "GS",
+              "displayName": "Golden State Warriors",
+              "color": "fdb927",
+              "alternateColor": "1d428a",
+              "logos": [
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "default"],
+                  "lastUpdated": "2024-06-25T21:17Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/gs.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "dark"],
+                  "lastUpdated": "2024-06-25T21:13Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/gs.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard"],
+                  "lastUpdated": "2024-06-25T21:18Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/gs.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard", "dark"],
+                  "lastUpdated": "2024-06-25T21:14Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/primary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/77a8546f-24bf-a333-8161-bf9f75396c49/logos/secondary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                }
+              ],
+              "links": [
+                {
+                  "rel": ["clubhouse", "desktop", "team"],
+                  "href": "https://www.espn.com/nba/team/_/name/gs/golden-state-warriors",
+                  "text": "Clubhouse"
+                }
+              ]
+            },
+            "record": [
+              {
+                "type": "total",
+                "summary": "0-2",
+                "displayValue": "0-2"
+              },
+              {
+                "type": "road",
+                "summary": "0-1",
+                "displayValue": "0-1"
+              },
+              {
+                "type": "vsconf",
+                "summary": "0-2",
+                "displayValue": "0-2"
+              }
+            ],
+            "possession": false
+          }
+        ],
+        "status": {
+          "type": {
+            "id": "1",
+            "name": "STATUS_SCHEDULED",
+            "state": "pre",
+            "completed": false,
+            "description": "Scheduled",
+            "detail": "Sat, October 24th at 10:00 PM EDT",
+            "shortDetail": "10/24 - 10:00 PM EDT"
+          }
+        },
+        "broadcasts": [
+          {
+            "type": {
+              "id": "1",
+              "shortName": "TV"
+            },
+            "market": {
+              "id": "1",
+              "type": "National"
+            },
+            "media": {
+              "shortName": "NBA TV"
+            },
+            "lang": "en",
+            "region": "us",
+            "isNational": true
+          },
+          {
+            "type": {
+              "id": "4",
+              "shortName": "Streaming"
+            },
+            "market": {
+              "id": "2",
+              "type": "Home"
+            },
+            "media": {
+              "shortName": "Suns Live"
+            },
+            "lang": "en",
+            "region": "us",
+            "isNational": false
+          },
+          {
+            "type": {
+              "id": "1",
+              "shortName": "TV"
+            },
+            "market": {
+              "id": "2",
+              "type": "Home"
+            },
+            "media": {
+              "shortName": "Arizona's Family CBS5"
+            },
+            "lang": "en",
+            "region": "us",
+            "isNational": false
+          }
+        ],
+        "series": [
+          {
+            "type": "season",
+            "title": "Regular Season Series",
+            "description": "Regular Season Series",
+            "summary": "",
+            "completed": false,
+            "totalCompetitions": 4,
+            "competitors": [
+              {
+                "id": "21",
+                "uid": "s:40~l:46~t:21",
+                "wins": 0,
+                "ties": 0,
+                "team": {
+                  "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/seasons/2027/teams/21?lang=en&region=us"
+                }
+              },
+              {
+                "id": "9",
+                "uid": "s:40~l:46~t:9",
+                "wins": 0,
+                "ties": 0,
+                "team": {
+                  "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/seasons/2027/teams/9?lang=en&region=us"
+                }
+              }
+            ],
+            "events": [
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401909860?lang=en&region=us",
+                "id": "401909860"
+              },
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401909919?lang=en&region=us",
+                "id": "401909919"
+              },
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401910209?lang=en&region=us",
+                "id": "401910209"
+              },
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401910908?lang=en&region=us",
+                "id": "401910908"
+              }
+            ],
+            "startDate": "2026-10-25T02:00Z"
+          }
+        ],
+        "boxscoreMinutes": false
+      }
+    ],
+    "links": [
+      {
+        "rel": ["summary", "desktop", "event"],
+        "href": "https://www.espn.com/nba/game/_/gameId/401909860/warriors-suns",
+        "text": "Gamecast",
+        "shortText": "Summary",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "rel": ["preview", "desktop", "event"],
+        "href": "https://www.espn.com/nba/preview/_/gameId/401909860",
+        "text": "Preview",
+        "shortText": "Preview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "rel": ["tickets", "desktop"],
+        "href": "https://www.vividseats.com/phoenix-suns-tickets-mortgage-matchup-center-10-24-2026/production/7432831?wsUser=717",
+        "text": "Tickets",
+        "shortText": "Tickets",
+        "isExternal": true,
+        "isPremium": false
+      }
+    ],
+    "league": {
+      "id": "46",
+      "uid": "s:40~l:46",
+      "name": "National Basketball Association",
+      "abbreviation": "NBA",
+      "shortName": "NBA",
+      "slug": "nba",
+      "isTournament": false,
+      "links": [
+        {
+          "rel": ["index", "desktop", "league"],
+          "href": "https://www.espn.com/nba/",
+          "text": "Index"
+        },
+        {
+          "rel": ["index", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46",
+          "text": "Index"
+        },
+        {
+          "rel": ["schedule", "desktop", "league"],
+          "href": "https://www.espn.com/nba/schedule",
+          "text": "Schedule"
+        },
+        {
+          "rel": ["schedule", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=scores",
+          "text": "Schedule"
+        },
+        {
+          "rel": ["standings", "desktop", "league"],
+          "href": "https://www.espn.com/nba/standings",
+          "text": "Standings"
+        },
+        {
+          "rel": ["standings", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=standings",
+          "text": "Standings"
+        },
+        {
+          "rel": ["rankings", "desktop", "league"],
+          "href": "https://www.espn.com/nba/rankings",
+          "text": "Rankings"
+        },
+        {
+          "rel": ["rankings", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=rankings",
+          "text": "Rankings"
+        },
+        {
+          "rel": ["scores", "desktop", "league"],
+          "href": "https://www.espn.com/nba/scoreboard",
+          "text": "Scores"
+        },
+        {
+          "rel": ["scores", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=scores",
+          "text": "Scores"
+        },
+        {
+          "rel": ["stats", "desktop", "league"],
+          "href": "https://www.espn.com/nba/stats",
+          "text": "Stats"
+        },
+        {
+          "rel": ["stats", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=stats",
+          "text": "Stats"
+        },
+        {
+          "rel": ["teams", "desktop", "league"],
+          "href": "https://www.espn.com/nba/teams",
+          "text": "Teams"
+        },
+        {
+          "rel": ["athletes", "desktop", "league"],
+          "href": "https://www.espn.com/nba/players",
+          "text": "Players"
+        },
+        {
+          "rel": ["injuries", "desktop", "league"],
+          "href": "https://www.espn.com/nba/injuries",
+          "text": "Injuries"
+        },
+        {
+          "rel": ["odds", "desktop", "league"],
+          "href": "https://www.espn.com/nba/odds",
+          "text": "Odds"
+        },
+        {
+          "rel": ["odds", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=odds",
+          "text": "Odds"
+        },
+        {
+          "rel": ["playoff-bracket", "desktop", "league"],
+          "href": "https://www.espn.com/nba/playoff-bracket",
+          "text": "Bracket"
+        },
+        {
+          "rel": ["playoff-bracket", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=bracket",
+          "text": "Bracket"
+        }
+      ],
+      "logos": [
+        {
+          "href": "https://a.espncdn.com/i/teamlogos/leagues/500/nba.png",
+          "rel": ["full", "default"]
+        },
+        {
+          "href": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500-dark/nba.png&w=500&h=500&transparent=true",
+          "rel": ["full", "dark"]
+        }
+      ]
+    }
+  },
+  "wallclockAvailable": false,
+  "meta": {
+    "gp_topic": "gp-basketball-nba-401909860",
+    "gameSwitcherEnabled": true,
+    "picker_topic": "picker-basketball-nba",
+    "gameState": "pre"
+  }
+}

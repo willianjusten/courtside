@@ -1,0 +1,1241 @@
+{
+  "header": {
+    "id": "401909095",
+    "uid": "s:40~l:46~e:401909095",
+    "season": {
+      "year": 2027,
+      "current": true,
+      "type": 2
+    },
+    "timeValid": true,
+    "competitions": [
+      {
+        "id": "401909095",
+        "uid": "s:40~l:46~e:401909095~c:401909095",
+        "date": "2026-10-23T23:00Z",
+        "neutralSite": false,
+        "conferenceCompetition": false,
+        "boxscoreAvailable": true,
+        "commentaryAvailable": false,
+        "liveAvailable": false,
+        "shotChartAvailable": true,
+        "timeoutsAvailable": true,
+        "possessionArrowAvailable": false,
+        "onWatchESPN": false,
+        "recent": false,
+        "wallclockAvailable": true,
+        "boxscoreSource": "full",
+        "playByPlaySource": "full",
+        "competitors": [
+          {
+            "id": "2",
+            "uid": "s:40~l:46~t:2",
+            "order": 0,
+            "homeAway": "home",
+            "team": {
+              "id": "2",
+              "guid": "2ca761df-5f60-b2e9-22ed-e099c46d889b",
+              "uid": "s:40~l:46~t:2",
+              "location": "Boston",
+              "name": "Celtics",
+              "abbreviation": "BOS",
+              "displayName": "Boston Celtics",
+              "color": "008348",
+              "alternateColor": "ffffff",
+              "logos": [
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/bos.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "default"],
+                  "lastUpdated": "2024-06-25T21:17Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/bos.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "dark"],
+                  "lastUpdated": "2024-06-25T21:13Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/bos.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard"],
+                  "lastUpdated": "2024-06-25T21:18Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/bos.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard", "dark"],
+                  "lastUpdated": "2024-06-25T21:13Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/primary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/primary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/primary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/primary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/primary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/primary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/secondary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/secondary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/secondary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/secondary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/secondary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/2ca761df-5f60-b2e9-22ed-e099c46d889b/logos/secondary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                }
+              ],
+              "links": [
+                {
+                  "rel": ["clubhouse", "desktop", "team"],
+                  "href": "https://www.espn.com/nba/team/_/name/bos/boston-celtics",
+                  "text": "Clubhouse"
+                }
+              ]
+            },
+            "score": "50",
+            "linescores": [
+              {
+                "displayValue": "26"
+              },
+              {
+                "displayValue": "24"
+              }
+            ],
+            "record": [
+              {
+                "type": "total",
+                "summary": "1-1",
+                "displayValue": "1-1"
+              },
+              {
+                "type": "home",
+                "summary": "1-0",
+                "displayValue": "1-0"
+              },
+              {
+                "type": "vsconf",
+                "summary": "0-0",
+                "displayValue": "0-0"
+              }
+            ],
+            "possession": false
+          },
+          {
+            "id": "18",
+            "uid": "s:40~l:46~t:18",
+            "order": 1,
+            "homeAway": "away",
+            "team": {
+              "id": "18",
+              "guid": "61719eb2-11c3-4e3d-90c3-0a1319fd850b",
+              "uid": "s:40~l:46~t:18",
+              "location": "New York",
+              "name": "Knicks",
+              "abbreviation": "NY",
+              "displayName": "New York Knicks",
+              "color": "1d428a",
+              "alternateColor": "f58426",
+              "logos": [
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/ny.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "default"],
+                  "lastUpdated": "2024-06-25T21:17Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/ny.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "dark"],
+                  "lastUpdated": "2024-06-25T21:13Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/ny.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard"],
+                  "lastUpdated": "2024-06-25T21:18Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/ny.png",
+                  "width": 500,
+                  "height": 500,
+                  "alt": "",
+                  "rel": ["full", "scoreboard", "dark"],
+                  "lastUpdated": "2024-06-25T21:14Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/primary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/primary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/primary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/primary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/primary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/primary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "primary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/secondary_logo_on_white_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_white_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/secondary_logo_on_black_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_black_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/secondary_logo_on_primary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_primary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/secondary_logo_on_secondary_color.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_on_secondary_color"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/secondary_logo_black.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_black"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                },
+                {
+                  "href": "https://a.espncdn.com/guid/61719eb2-11c3-4e3d-90c3-0a1319fd850b/logos/secondary_logo_white.png",
+                  "width": 4096,
+                  "height": 4096,
+                  "alt": "",
+                  "rel": ["full", "secondary_logo_white"],
+                  "lastUpdated": "2026-07-22T20:23Z"
+                }
+              ],
+              "links": [
+                {
+                  "rel": ["clubhouse", "desktop", "team"],
+                  "href": "https://www.espn.com/nba/team/_/name/ny/new-york-knicks",
+                  "text": "Clubhouse"
+                }
+              ]
+            },
+            "score": "49",
+            "linescores": [
+              {
+                "displayValue": "27"
+              },
+              {
+                "displayValue": "22"
+              }
+            ],
+            "record": [
+              {
+                "type": "total",
+                "summary": "0-2",
+                "displayValue": "0-2"
+              },
+              {
+                "type": "road",
+                "summary": "0-1",
+                "displayValue": "0-1"
+              },
+              {
+                "type": "vsconf",
+                "summary": "0-0",
+                "displayValue": "0-0"
+              }
+            ],
+            "possession": false
+          }
+        ],
+        "status": {
+          "clock": 0.0,
+          "displayClock": "0.0",
+          "period": 2,
+          "type": {
+            "id": "23",
+            "name": "STATUS_HALFTIME",
+            "state": "in",
+            "completed": false,
+            "description": "Halftime",
+            "detail": "Halftime",
+            "shortDetail": "Halftime"
+          }
+        },
+        "broadcasts": [
+          {
+            "type": {
+              "id": "4",
+              "shortName": "Streaming"
+            },
+            "market": {
+              "id": "1",
+              "type": "National"
+            },
+            "media": {
+              "shortName": "Prime Video"
+            },
+            "lang": "en",
+            "region": "us",
+            "isNational": true
+          }
+        ],
+        "series": [
+          {
+            "type": "season",
+            "title": "Regular Season Series",
+            "description": "Regular Season Series",
+            "summary": "BOS leads series 1-0",
+            "completed": false,
+            "totalCompetitions": 4,
+            "competitors": [
+              {
+                "id": "2",
+                "uid": "s:40~l:46~t:2",
+                "wins": 1,
+                "ties": 0,
+                "team": {
+                  "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/seasons/2027/teams/2?lang=en&region=us"
+                }
+              },
+              {
+                "id": "18",
+                "uid": "s:40~l:46~t:18",
+                "wins": 0,
+                "ties": 0,
+                "team": {
+                  "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/seasons/2027/teams/18?lang=en&region=us"
+                }
+              }
+            ],
+            "events": [
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401909095?lang=en&region=us",
+                "id": "401909095"
+              },
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401910328?lang=en&region=us",
+                "id": "401910328"
+              },
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401910727?lang=en&region=us",
+                "id": "401910727"
+              },
+              {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/basketball/leagues/nba/events/401910893?lang=en&region=us",
+                "id": "401910893"
+              }
+            ],
+            "startDate": "2026-10-23T23:00Z"
+          }
+        ],
+        "boxscoreMinutes": true
+      }
+    ],
+    "links": [
+      {
+        "rel": ["summary", "desktop", "event"],
+        "href": "https://www.espn.com/nba/game/_/gameId/401909095/knicks-celtics",
+        "text": "Gamecast",
+        "shortText": "Summary",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "rel": ["recap", "desktop", "event"],
+        "href": "https://www.espn.com/nba/recap?gameId=401909095",
+        "text": "Recap",
+        "shortText": "Recap",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "rel": ["boxscore", "desktop", "event"],
+        "href": "https://www.espn.com/nba/boxscore/_/gameId/401909095",
+        "text": "Box Score",
+        "shortText": "Box Score",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "rel": ["pbp", "desktop", "event"],
+        "href": "https://www.espn.com/nba/playbyplay/_/gameId/401909095",
+        "text": "Play-by-Play",
+        "shortText": "Play-by-Play",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "rel": ["teamstats", "desktop", "event"],
+        "href": "https://www.espn.com/nba/matchup?gameId=401909095",
+        "text": "Team Stats",
+        "shortText": "Team Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "rel": ["videos", "desktop", "event"],
+        "href": "https://www.espn.com/nba/video?gameId=401909095",
+        "text": "Videos",
+        "shortText": "Videos",
+        "isExternal": false,
+        "isPremium": false
+      }
+    ],
+    "league": {
+      "id": "46",
+      "uid": "s:40~l:46",
+      "name": "National Basketball Association",
+      "abbreviation": "NBA",
+      "shortName": "NBA",
+      "slug": "nba",
+      "isTournament": false,
+      "links": [
+        {
+          "rel": ["index", "desktop", "league"],
+          "href": "https://www.espn.com/nba/",
+          "text": "Index"
+        },
+        {
+          "rel": ["index", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46",
+          "text": "Index"
+        },
+        {
+          "rel": ["schedule", "desktop", "league"],
+          "href": "https://www.espn.com/nba/schedule",
+          "text": "Schedule"
+        },
+        {
+          "rel": ["schedule", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=scores",
+          "text": "Schedule"
+        },
+        {
+          "rel": ["standings", "desktop", "league"],
+          "href": "https://www.espn.com/nba/standings",
+          "text": "Standings"
+        },
+        {
+          "rel": ["standings", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=standings",
+          "text": "Standings"
+        },
+        {
+          "rel": ["rankings", "desktop", "league"],
+          "href": "https://www.espn.com/nba/rankings",
+          "text": "Rankings"
+        },
+        {
+          "rel": ["rankings", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=rankings",
+          "text": "Rankings"
+        },
+        {
+          "rel": ["scores", "desktop", "league"],
+          "href": "https://www.espn.com/nba/scoreboard",
+          "text": "Scores"
+        },
+        {
+          "rel": ["scores", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=scores",
+          "text": "Scores"
+        },
+        {
+          "rel": ["stats", "desktop", "league"],
+          "href": "https://www.espn.com/nba/stats",
+          "text": "Stats"
+        },
+        {
+          "rel": ["stats", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=stats",
+          "text": "Stats"
+        },
+        {
+          "rel": ["teams", "desktop", "league"],
+          "href": "https://www.espn.com/nba/teams",
+          "text": "Teams"
+        },
+        {
+          "rel": ["athletes", "desktop", "league"],
+          "href": "https://www.espn.com/nba/players",
+          "text": "Players"
+        },
+        {
+          "rel": ["injuries", "desktop", "league"],
+          "href": "https://www.espn.com/nba/injuries",
+          "text": "Injuries"
+        },
+        {
+          "rel": ["odds", "desktop", "league"],
+          "href": "https://www.espn.com/nba/odds",
+          "text": "Odds"
+        },
+        {
+          "rel": ["odds", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=odds",
+          "text": "Odds"
+        },
+        {
+          "rel": ["playoff-bracket", "desktop", "league"],
+          "href": "https://www.espn.com/nba/playoff-bracket",
+          "text": "Bracket"
+        },
+        {
+          "rel": ["playoff-bracket", "sportscenter", "app", "league"],
+          "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46&section=bracket",
+          "text": "Bracket"
+        }
+      ],
+      "logos": [
+        {
+          "href": "https://a.espncdn.com/i/teamlogos/leagues/500/nba.png",
+          "rel": ["full", "default"]
+        },
+        {
+          "href": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500-dark/nba.png&w=500&h=500&transparent=true",
+          "rel": ["full", "dark"]
+        }
+      ]
+    }
+  },
+  "gameInfo": {
+    "venue": {
+      "id": "1824",
+      "guid": "58cac4d0-a208-3028-b2a6-ff7aba657bc3",
+      "fullName": "TD Garden",
+      "shortName": "TD Banknorth Garden",
+      "address": {
+        "city": "Boston",
+        "state": "MA"
+      },
+      "grass": false,
+      "images": [
+        {
+          "href": "https://a.espncdn.com/i/venues/nba/day/1824.jpg",
+          "width": 2000,
+          "height": 1125,
+          "alt": "",
+          "rel": ["full", "day"]
+        }
+      ]
+    },
+    "attendance": 19156,
+    "officials": [
+      {
+        "fullName": "Sean Wright",
+        "displayName": "Sean Wright",
+        "position": {
+          "name": "Referee",
+          "displayName": "Referee",
+          "id": "40"
+        },
+        "order": 1
+      },
+      {
+        "fullName": "Brian Forte",
+        "displayName": "Brian Forte",
+        "position": {
+          "name": "Referee",
+          "displayName": "Referee",
+          "id": "40"
+        },
+        "order": 2
+      },
+      {
+        "fullName": "Sha'Rae Mitchell",
+        "displayName": "Sha'Rae Mitchell",
+        "position": {
+          "name": "Referee",
+          "displayName": "Referee",
+          "id": "40"
+        },
+        "order": 3
+      }
+    ]
+  },
+  "videos": [
+    {
+      "id": 50261477,
+      "source": "espn",
+      "headline": "Karl-Anthony Towns elevates for jam",
+      "description": "Karl-Anthony Towns throws down powerful dunk vs. Boston Celtics",
+      "lastModified": "2026-10-24T01:49:42Z",
+      "originalPublishDate": "2026-10-23T23:32:19Z",
+      "duration": 19,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/4a01aa25-a9ab-4153-a7f4-4d2d01ae0cb9/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1023/66691f62-eb90-4e03-8c13-d6f3e1e8795f/66691f62-eb90-4e03-8c13-d6f3e1e8795f.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50261477/karl-anthony-towns-elevates-jam",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50261477/karl-anthony-towns-elevates-jam",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=0982a519993c3"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50261964,
+      "source": "espn",
+      "headline": "Paul George skies for big flush",
+      "description": "Paul George skies for big flush",
+      "lastModified": "2026-10-24T01:49:44Z",
+      "originalPublishDate": "2026-10-24T00:56:20Z",
+      "duration": 17,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/1710af3c-e813-491e-9f7d-9bc5cfa18130/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/6aff3fb6-6e25-4580-972d-c519dbe41b29/6aff3fb6-6e25-4580-972d-c519dbe41b29.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50261964/paul-george-skies-big-flush",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50261964/paul-george-skies-big-flush",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=fa51db9f6f737"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50262011,
+      "source": "espn",
+      "headline": "Deuce McBride craftily saves the ball then hits a 3",
+      "description": "Deuce McBride craftily saves the ball then hits a 3",
+      "lastModified": "2026-10-24T01:53:10Z",
+      "originalPublishDate": "2026-10-24T01:04:04Z",
+      "duration": 34,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/e5cec9fd-7de1-46fe-a94f-0d1fe262776d/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/43b8848f-d794-4c8a-81fb-87c5acddc45a/43b8848f-d794-4c8a-81fb-87c5acddc45a.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50262011/deuce-mcbride-craftily-saves-ball-hits-3",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50262011/deuce-mcbride-craftily-saves-ball-hits-3",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=16803fbba194b"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50262016,
+      "source": "espn",
+      "headline": "Neemias Queta denies New York Knicks with stuff",
+      "description": "Neemias Queta denies New York Knicks with stuff",
+      "lastModified": "2026-10-24T01:49:48Z",
+      "originalPublishDate": "2026-10-24T01:07:04Z",
+      "duration": 20,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/ec7d56ab-e3be-4930-abb4-dc8a1d7faadd/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3/4fc0f6c3-a5cc-4ae4-9758-cba48d5e9db3.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50262016/neemias-queta-denies-new-york-knicks-stuff",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50262016/neemias-queta-denies-new-york-knicks-stuff",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=9f28539a93bfc"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50262071,
+      "source": "espn",
+      "headline": "Jayson Tatum gets up for the beautiful dunk",
+      "description": "Jayson Tatum throws down powerful flush vs. New York Knicks",
+      "lastModified": "2026-10-24T01:49:51Z",
+      "originalPublishDate": "2026-10-24T01:19:05Z",
+      "duration": 21,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/adf7ea4d-7fee-43a7-b0cb-51742ac146e9/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/4d18a693-2c54-4518-a4df-093ae790840b/4d18a693-2c54-4518-a4df-093ae790840b.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50262071/jayson-tatum-gets-beautiful-dunk",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50262071/jayson-tatum-gets-beautiful-dunk",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=beb8c3c1a9d3f"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50262093,
+      "source": "espn",
+      "headline": "Karl-Anthony Towns with the and-1 bucket",
+      "description": "Karl-Anthony Towns gets the hoop and the harm",
+      "lastModified": "2026-10-24T01:50:01Z",
+      "originalPublishDate": "2026-10-24T01:24:58Z",
+      "duration": 22,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/8d3ba8df-73c6-4af7-803e-ce4136430671/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c/7915ade8-bf91-4b9c-b5d2-a95cd7ee707c.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50262093/karl-anthony-towns-1-bucket",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50262093/karl-anthony-towns-1-bucket",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=c5421709b1bf7"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50262115,
+      "source": "espn",
+      "headline": "Mitchell Robinson blocks KAT then catches a lob on the other end",
+      "description": "Mitchell Robinson blocks KAT then catches a lob on the other end",
+      "lastModified": "2026-10-24T02:55:53Z",
+      "originalPublishDate": "2026-10-24T01:28:49Z",
+      "duration": 40,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/d6b3352d-cfac-42ac-b3ff-bb1b7d1889a9/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/3c3137ba-995c-424f-aac9-d655172d870a/3c3137ba-995c-424f-aac9-d655172d870a.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50262115/mitchell-robinson-blocks-kat-catches-lob-other-end",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50262115/mitchell-robinson-blocks-kat-catches-lob-other-end",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=489f9bbeececb"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50262189,
+      "source": "espn",
+      "headline": "Karl-Anthony Towns rocks the rim with jam",
+      "description": "Karl-Anthony Towns rocks the rim with jam",
+      "lastModified": "2026-10-24T01:49:56Z",
+      "originalPublishDate": "2026-10-24T01:38:06Z",
+      "duration": 16,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/3929b5f5-a1f3-48ce-903c-abf1d38416cc/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1/e70123e3-3fda-4bb9-b5e0-f3e9c0da82f1.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50262189/karl-anthony-towns-rocks-rim-jam",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50262189/karl-anthony-towns-rocks-rim-jam",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=ac4bcd127ff52"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 50262239,
+      "source": "espn",
+      "headline": "PG knocks down a halftime buzzer-beater for Boston",
+      "description": "PG knocks down a halftime buzzer-beater for Boston",
+      "lastModified": "2026-10-24T02:54:53Z",
+      "originalPublishDate": "2026-10-24T01:42:56Z",
+      "duration": 21,
+      "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06.jpg",
+      "links": {
+        "source": {
+          "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06.mp4",
+          "HD": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06.mp4"
+          },
+          "HLS": {
+            "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06/playlist.m3u8",
+            "9x16": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/9x16/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06/playlist.m3u8"
+            },
+            "HD": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06/playlist.m3u8"
+            },
+            "cmaf": {
+              "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06/playlist.m3u8",
+              "9x16": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/9x16/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06/playlist.m3u8"
+              },
+              "cmb": {
+                "href": "https://cmp-espn.media.dssott.com/opp/cmaf/espn/cmb/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06/playlist.m3u8"
+              }
+            },
+            "cmb": {
+              "href": "https://cmp-espn.media.dssott.com/opp/hls/espn/cmb/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06/playlist.m3u8"
+            },
+            "shield": {
+              "href": "https://watch.auth.api.espn.com/video/auth/media/f52a9623-1793-44b4-9268-f00bf71037ff/asset"
+            }
+          },
+          "flash": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06.mp4"
+          },
+          "full": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06.mp4"
+          },
+          "mezzanine": {
+            "href": "https://espnmedia-cdn.akamaized.net/espn/media/16x9/wsc/2026/1024/212b017b-125e-4d69-ab0f-50d65a995c06/212b017b-125e-4d69-ab0f-50d65a995c06.mp4"
+          }
+        },
+        "web": {
+          "href": "https://www.espn.com/video/clip/_/id/50262239/pg-knocks-half-buzzer-beater-boston",
+          "self": {
+            "href": "https://www.espn.com/video/clip/_/id/50262239/pg-knocks-half-buzzer-beater-boston",
+            "dsi": {
+              "href": "https://www.espn.com/video/clip?id=64ef8d3ed59ab"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
