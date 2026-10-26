@@ -19,8 +19,29 @@ const HEADSHOT_HEIGHT = 24;
 const HEADSHOT_REQUEST_SCALE = 2;
 const HEADSHOT_CLASS_NAME =
   "h-6 w-8 shrink-0 rounded-md bg-white/6 object-cover";
+// About the rows a phone shows under the header and tabs; their headshots load right away and the rest wait for the scroll.
+const ABOVE_THE_FOLD_ROW_COUNT = 6;
 
-function Headshot({ headshotUrl }: { headshotUrl: string | null }) {
+type RosterColumn = keyof typeof strings.team.roster.columnNames;
+
+function ColumnHeader({ column }: { column: RosterColumn }) {
+  const { roster } = strings.team;
+
+  return (
+    <th scope="col" className="px-3 py-2">
+      <span aria-hidden="true">{roster[column]}</span>
+      <span className="sr-only">{roster.columnNames[column]}</span>
+    </th>
+  );
+}
+
+function Headshot({
+  headshotUrl,
+  isAboveTheFold,
+}: {
+  headshotUrl: string | null;
+  isAboveTheFold: boolean;
+}) {
   if (!headshotUrl) {
     return <span aria-hidden="true" className={HEADSHOT_CLASS_NAME} />;
   }
@@ -36,8 +57,7 @@ function Headshot({ headshotUrl }: { headshotUrl: string | null }) {
       alt=""
       width={HEADSHOT_WIDTH}
       height={HEADSHOT_HEIGHT}
-      // The roster sits below the fold on desktop and in a hidden tab on mobile.
-      loading="lazy"
+      loading={isAboveTheFold ? undefined : "lazy"}
       className={HEADSHOT_CLASS_NAME}
     />
   );
@@ -100,8 +120,11 @@ function InjuryStatus({
 
 export default function TeamRoster({
   players,
+  isAboveTheFold = false,
 }: {
   players: TeamRosterPlayer[];
+  // True when the mobile Roster tab opens the page; otherwise the roster waits in a hidden tab on mobile.
+  isAboveTheFold?: boolean;
 }) {
   const { roster } = strings.team;
 
@@ -117,20 +140,25 @@ export default function TeamRoster({
         <table className="w-full text-left text-sm">
           <thead className="text-muted">
             <tr>
-              <th className="px-3 py-2">{roster.jersey}</th>
-              <th className="px-3 py-2">{roster.player}</th>
-              <th className="px-3 py-2">{roster.position}</th>
-              <th className="px-3 py-2">{roster.age}</th>
-              <th className="px-3 py-2">{roster.height}</th>
+              <ColumnHeader column="jersey" />
+              <ColumnHeader column="player" />
+              <ColumnHeader column="position" />
+              <ColumnHeader column="age" />
+              <ColumnHeader column="height" />
             </tr>
           </thead>
           <tbody>
-            {players.map((player) => (
+            {players.map((player, index) => (
               <tr key={player.id} className="border-t border-white/10">
                 <td className="px-3 py-2 tabular-nums">{player.jersey}</td>
                 <td className="px-3 py-2 font-medium">
                   <span className="flex items-center gap-2.5">
-                    <Headshot headshotUrl={player.headshotUrl} />
+                    <Headshot
+                      headshotUrl={player.headshotUrl}
+                      isAboveTheFold={
+                        isAboveTheFold && index < ABOVE_THE_FOLD_ROW_COUNT
+                      }
+                    />
                     {/* The status wraps under the name, so a long one like "Day-To-Day" doesn't widen the table past the side column. */}
                     <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                       {player.name}

@@ -11,6 +11,7 @@ import type {
 import { TeamTilesLoading } from "./states";
 
 const LOGO_SIZE = 120;
+const MOBILE_LOGO_SIZE = 72;
 
 const CHIP_CLASS_NAME =
   "rounded-full px-2.25 py-1 text-[11px] font-bold md:px-3 md:py-1.5 md:text-[13px]";
@@ -121,9 +122,13 @@ export function TeamHeader({
         <div className="order-first flex basis-full justify-end md:order-last md:ml-auto md:basis-auto">
           <FollowButton follow={follow} onToggleFollow={onToggleFollow} />
         </div>
-        {/* One logo at the desktop size, shrunk on mobile, so the browser loads a single image. */}
         <span className="shrink-0 *:size-18 md:*:size-30">
-          <TeamLogo logoUrl={header.logoUrl} size={LOGO_SIZE} />
+          <TeamLogo
+            logoUrl={header.logoUrl}
+            size={LOGO_SIZE}
+            mobileSize={MOBILE_LOGO_SIZE}
+            priority
+          />
         </span>
         <div className="flex min-w-0 flex-col gap-0.5 md:gap-1.5">
           <p className="text-[11px] tracking-[0.18em] text-muted uppercase md:text-[13px] md:tracking-[0.2em]">

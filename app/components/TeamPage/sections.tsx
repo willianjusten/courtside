@@ -8,8 +8,8 @@ import type { TeamTab, TeamTabId, TeamTabs } from "@/app/lib/team/team-view";
 
 // Every panel stays mounted: on mobile the inactive ones are hidden, and from md up the panels dissolve
 // (display: contents) so their sections are placed straight on the column grid.
-const PANEL_CLASS_NAME =
-  "flex flex-col gap-3 outline-none data-[state=inactive]:hidden md:contents md:data-[state=inactive]:contents";
+// Radix puts each panel in the tab order, so on mobile it shows the shared focus ring.
+const PANEL_CLASS_NAME = `flex flex-col gap-3 rounded-xl data-[state=inactive]:hidden md:contents md:data-[state=inactive]:contents ${FOCUS_RING_CLASS_NAME}`;
 
 function TabTrigger({ tab }: { tab: TeamTab }) {
   return (

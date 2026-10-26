@@ -68,10 +68,12 @@ function GameDay({
 function Opponent({
   sideLabel,
   opponent,
+  isLogoLazy,
   children,
 }: {
   sideLabel: string;
   opponent: TeamOpponent;
+  isLogoLazy: boolean;
   children?: ReactNode;
 }) {
   return (
@@ -79,7 +81,11 @@ function Opponent({
       <span className="w-3.5 shrink-0 text-[11px] text-muted md:w-4 md:text-xs">
         {sideLabel}
       </span>
-      <TeamLogo logoUrl={opponent.logoUrl} size={LOGO_DISPLAY_SIZE} lazy />
+      <TeamLogo
+        logoUrl={opponent.logoUrl}
+        size={LOGO_DISPLAY_SIZE}
+        lazy={isLogoLazy}
+      />
       <span className="truncate text-[13px] font-bold md:text-sm">
         <span className="lg:hidden">{opponent.name}</span>
         <span className="hidden lg:inline">{opponent.displayName}</span>
@@ -129,7 +135,13 @@ function LiveScore({ game }: { game: TeamLiveGame }) {
   );
 }
 
-function LiveGameRow({ game }: { game: TeamLiveGame }) {
+function LiveGameRow({
+  game,
+  isLogoLazy,
+}: {
+  game: TeamLiveGame;
+  isLogoLazy: boolean;
+}) {
   return (
     <li>
       <Link
@@ -137,7 +149,11 @@ function LiveGameRow({ game }: { game: TeamLiveGame }) {
         className={`${ROW_CLASS_NAME} ${LIVE_ROW_TONE_CLASS_NAME} ${ROW_LINK_CLASS_NAME}`}
       >
         <LiveStatus game={game} />
-        <Opponent sideLabel={game.sideLabel} opponent={game.opponent} />
+        <Opponent
+          sideLabel={game.sideLabel}
+          opponent={game.opponent}
+          isLogoLazy={isLogoLazy}
+        />
         <LiveScore game={game} />
       </Link>
     </li>
@@ -167,7 +183,13 @@ function TipOff({ game }: { game: TeamUpcomingGame }) {
   );
 }
 
-function UpcomingGameRow({ game }: { game: TeamUpcomingGame }) {
+function UpcomingGameRow({
+  game,
+  isLogoLazy,
+}: {
+  game: TeamUpcomingGame;
+  isLogoLazy: boolean;
+}) {
   const toneClassName = game.isNext
     ? NEXT_ROW_TONE_CLASS_NAME
     : DEFAULT_ROW_TONE_CLASS_NAME;
@@ -179,7 +201,11 @@ function UpcomingGameRow({ game }: { game: TeamUpcomingGame }) {
         className={`${ROW_CLASS_NAME} ${toneClassName} ${ROW_LINK_CLASS_NAME}`}
       >
         <GameDay weekdayLabel={game.weekdayLabel} dateLabel={game.dateLabel} />
-        <Opponent sideLabel={game.sideLabel} opponent={game.opponent}>
+        <Opponent
+          sideLabel={game.sideLabel}
+          opponent={game.opponent}
+          isLogoLazy={isLogoLazy}
+        >
           {game.isNext && <NextChip />}
         </Opponent>
         <TipOff game={game} />
@@ -209,7 +235,13 @@ function ResultScore({ result }: { result: TeamResult }) {
   );
 }
 
-function ResultRow({ result }: { result: TeamResult }) {
+function ResultRow({
+  result,
+  isLogoLazy,
+}: {
+  result: TeamResult;
+  isLogoLazy: boolean;
+}) {
   return (
     <li>
       <Link
@@ -220,7 +252,11 @@ function ResultRow({ result }: { result: TeamResult }) {
           weekdayLabel={result.weekdayLabel}
           dateLabel={result.dateLabel}
         />
-        <Opponent sideLabel={result.sideLabel} opponent={result.opponent} />
+        <Opponent
+          sideLabel={result.sideLabel}
+          opponent={result.opponent}
+          isLogoLazy={isLogoLazy}
+        />
         <ResultScore result={result} />
       </Link>
     </li>
@@ -265,7 +301,13 @@ function PlayoffGameRow({ game }: { game: TeamPlayoffGame }) {
   );
 }
 
-function PlayoffSeries({ series }: { series: TeamPlayoffSeries }) {
+function PlayoffSeries({
+  series,
+  isLogoLazy,
+}: {
+  series: TeamPlayoffSeries;
+  isLogoLazy: boolean;
+}) {
   return (
     <li className="flex flex-col gap-1.5 md:gap-2.5">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 px-0.5 pt-1">
@@ -273,7 +315,7 @@ function PlayoffSeries({ series }: { series: TeamPlayoffSeries }) {
           <TeamLogo
             logoUrl={series.opponent.logoUrl}
             size={LOGO_DISPLAY_SIZE}
-            lazy
+            lazy={isLogoLazy}
           />
           <div className="flex min-w-0 flex-col">
             {series.roundName && (
@@ -302,7 +344,13 @@ function PlayoffSeries({ series }: { series: TeamPlayoffSeries }) {
   );
 }
 
-function PlayoffsSection({ playoffs }: { playoffs: TeamPlayoffSeries[] }) {
+function PlayoffsSection({
+  playoffs,
+  isLogoLazy,
+}: {
+  playoffs: TeamPlayoffSeries[];
+  isLogoLazy: boolean;
+}) {
   return (
     <section
       aria-labelledby={PLAYOFFS_HEADING_ID}
@@ -312,8 +360,13 @@ function PlayoffsSection({ playoffs }: { playoffs: TeamPlayoffSeries[] }) {
         {strings.team.playoffs.title}
       </h2>
       <ul className="flex flex-col gap-4 md:gap-5">
-        {playoffs.map((series) => (
-          <PlayoffSeries key={series.id} series={series} />
+        {/* Only the newest series fits above the fold; its games list under it. */}
+        {playoffs.map((series, index) => (
+          <PlayoffSeries
+            key={series.id}
+            series={series}
+            isLogoLazy={isLogoLazy || index > 0}
+          />
         ))}
       </ul>
     </section>
@@ -358,27 +411,61 @@ function ScheduleSection({
   );
 }
 
+type ScheduleSectionId = "playoffs" | "upNext" | "results";
+
 export default function TeamSchedule({
   schedule,
   onShowMore,
+  isAboveTheFold = false,
 }: {
   schedule: TeamScheduleView;
   onShowMore: (listId: TeamScheduleListId) => void;
+  // True when the mobile Schedule tab opens the page; otherwise the schedule waits in a hidden tab on mobile.
+  isAboveTheFold?: boolean;
 }) {
+  const showsUpNext = Boolean(
+    schedule.live ||
+    schedule.upcoming.items.length > 0 ||
+    schedule.emptyUpcomingMessage,
+  );
+  // The first list's logos load right away; the lists below it wait for the scroll.
+  const openingSection: ScheduleSectionId = schedule.playoffs
+    ? "playoffs"
+    : showsUpNext
+      ? "upNext"
+      : "results";
+  const isLogoLazyIn = (section: ScheduleSectionId) =>
+    !isAboveTheFold || section !== openingSection;
+
   const upNextRows = [
     ...(schedule.live
-      ? [<LiveGameRow key={schedule.live.id} game={schedule.live} />]
+      ? [
+          <LiveGameRow
+            key={schedule.live.id}
+            game={schedule.live}
+            isLogoLazy={isLogoLazyIn("upNext")}
+          />,
+        ]
       : []),
     ...schedule.upcoming.items.map((game) => (
-      <UpcomingGameRow key={game.id} game={game} />
+      <UpcomingGameRow
+        key={game.id}
+        game={game}
+        isLogoLazy={isLogoLazyIn("upNext")}
+      />
     )),
   ];
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
-      {schedule.playoffs && <PlayoffsSection playoffs={schedule.playoffs} />}
+      {schedule.playoffs && (
+        <PlayoffsSection
+          playoffs={schedule.playoffs}
+          isLogoLazy={isLogoLazyIn("playoffs")}
+        />
+      )}
       {/* Once the regular season is over, the postseason has no empty Up next to explain. */}
-      {(upNextRows.length > 0 || schedule.emptyUpcomingMessage) && (
+      {showsUpNext && (
         <ScheduleSection
           headingId={UP_NEXT_HEADING_ID}
           title={strings.team.schedule.upNext}
@@ -397,7 +484,11 @@ export default function TeamSchedule({
         onShowMore={() => onShowMore("results")}
       >
         {schedule.results.items.map((result) => (
-          <ResultRow key={result.id} result={result} />
+          <ResultRow
+            key={result.id}
+            result={result}
+            isLogoLazy={isLogoLazyIn("results")}
+          />
         ))}
       </ScheduleSection>
     </div>

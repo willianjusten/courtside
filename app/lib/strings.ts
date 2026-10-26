@@ -454,6 +454,13 @@ export const strings = {
       position: "Pos",
       age: "Age",
       height: "Ht",
+      columnNames: {
+        jersey: "Jersey number",
+        player: "Player",
+        position: "Position",
+        age: "Age",
+        height: "Height",
+      },
       loading: "Loading roster...",
       error: "Couldn't load the roster",
       stale: "Can't reach the data source. Showing the last roster loaded.",

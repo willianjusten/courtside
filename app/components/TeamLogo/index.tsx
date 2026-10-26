@@ -1,9 +1,18 @@
 import { resizedLogoUrl } from "@/app/lib/espn";
 
+// Tailwind's md breakpoint, from which a logo with a mobileSize renders at its full size.
+const MD_BREAKPOINT_PX = 768;
+// Requested at twice the display size so logos stay sharp on high-density screens.
+const LOGO_REQUEST_SCALE = 2;
+
 type TeamLogoProps = {
   logoUrl: string | null;
   size: number;
+  // The rendered size below md when CSS shrinks the logo there, so phones download the smaller logo.
+  mobileSize?: number;
   lazy?: boolean;
+  // For the page's largest image, fetched ahead of the others.
+  priority?: boolean;
   fallbackColor?: string;
   // Empty by default, for logos next to the team's name.
   alt?: string;
@@ -45,20 +54,36 @@ function GenericShield({ size, color }: { size: number; color?: string }) {
 export default function TeamLogo({
   logoUrl,
   size,
+  mobileSize,
   lazy = false,
+  priority = false,
   fallbackColor,
   alt = "",
 }: TeamLogoProps) {
   if (!logoUrl) return <GenericShield size={size} color={fallbackColor} />;
 
+  const requestSize = size * LOGO_REQUEST_SCALE;
+  const logoSrc = resizedLogoUrl(logoUrl, requestSize);
+  const mobileRequestSize = mobileSize && mobileSize * LOGO_REQUEST_SCALE;
+
   return (
     <img
-      // Requested at twice the display size so logos stay sharp on high-density screens.
-      src={resizedLogoUrl(logoUrl, size * 2)}
+      src={logoSrc}
+      srcSet={
+        mobileRequestSize
+          ? `${resizedLogoUrl(logoUrl, mobileRequestSize)} ${mobileRequestSize}w, ${logoSrc} ${requestSize}w`
+          : undefined
+      }
+      sizes={
+        mobileSize
+          ? `(min-width: ${MD_BREAKPOINT_PX}px) ${size}px, ${mobileSize}px`
+          : undefined
+      }
       alt={alt}
       width={size}
       height={size}
       loading={lazy ? "lazy" : undefined}
+      fetchPriority={priority ? "high" : undefined}
     />
   );
 }

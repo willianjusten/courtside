@@ -209,6 +209,7 @@ export function TeamPageContent({
             {(schedule) => (
               <TeamSchedule
                 schedule={schedule}
+                isAboveTheFold={tabs.selected === "schedule"}
                 onShowMore={(listId) =>
                   setScheduleExpansions((expansions) => ({
                     ...expansions,
@@ -225,7 +226,12 @@ export function TeamPageContent({
             loading={<TeamRosterLoading />}
             query={rosterQuery}
           >
-            {(players) => <TeamRoster players={players} />}
+            {(players) => (
+              <TeamRoster
+                players={players}
+                isAboveTheFold={tabs.selected === "roster"}
+              />
+            )}
           </SectionContent>
         }
       />
