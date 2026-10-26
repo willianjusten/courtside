@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import DayScoreboard from "@/app/components/DayScoreboard";
 import HomeSidebar from "@/app/components/HomeSidebar";
+import { HomeSidebarLoading } from "@/app/components/HomeSidebar/states";
 import { prefetchDayScoreboard } from "@/app/lib/queries/prefetch-day";
 import { Hydrate } from "@/app/lib/query/server";
 import { currentNbaDate } from "@/app/lib/time/nba-date";
@@ -18,7 +19,7 @@ export default async function HomePage() {
         initialDate={nbaDate}
         today={nbaDate}
         sidebar={
-          <Suspense>
+          <Suspense fallback={<HomeSidebarLoading />}>
             <HomeSidebar />
           </Suspense>
         }

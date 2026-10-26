@@ -9,6 +9,7 @@ import liveDay from "@/app/lib/espn/__fixtures__/scoreboard-live-day-simulated.j
 import { favoritesStore } from "@/app/lib/favorites/use-favorite-team-ids";
 import { makeQueryClient } from "@/app/lib/query/make-query-client";
 import { strings } from "@/app/lib/strings";
+import MyTeamsStrip from "@/app/components/MyTeamsStrip";
 import DayScoreboard from ".";
 
 const nbaDate = "2026-10-21" as NbaDate;
@@ -49,6 +50,8 @@ function renderDayScoreboard(currentDate: NbaDate = today) {
 
   return render(
     <QueryClientProvider client={queryClient}>
+      {/* The strip lives in the site header, which pins games through the same favorites. */}
+      <MyTeamsStrip />
       <DayScoreboard initialDate={nbaDate} today={currentDate} />
     </QueryClientProvider>,
   );

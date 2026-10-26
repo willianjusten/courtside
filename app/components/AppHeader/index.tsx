@@ -31,8 +31,8 @@ export default function AppHeader() {
         <Suspense fallback={<PrimaryNavigationFallback />}>
           <PrimaryNavigation />
         </Suspense>
-        <div className="ml-auto">
-          <MyTeamsStrip placement="header" />
+        <div className="ml-auto min-w-0">
+          <MyTeamsStrip />
         </div>
       </div>
     </header>

@@ -40,6 +40,7 @@ export const strings = {
         .join(" · "),
     sidebar: {
       label: "Standings and league leaders",
+      loading: "Loading standings and league leaders...",
       topFive: (conferenceAbbreviation: string) =>
         `${conferenceAbbreviation} top 5`,
       allStandings: "All",
@@ -62,6 +63,7 @@ export const strings = {
     pickerTitle: "Follow teams",
     follow: (teamName: string) => `Follow ${teamName}`,
     favorite: "Favorite",
+    more: (count: number) => `${count} more ${count === 1 ? "team" : "teams"}`,
     loading: "Loading teams...",
     error: "Couldn't load the teams",
     unpersisted: "Favorites won't be saved in this browser.",

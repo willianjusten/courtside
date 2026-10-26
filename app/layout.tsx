@@ -44,7 +44,7 @@ export default function RootLayout({
       <body className="font-sans">
         <Providers>
           {/* Bottom padding on mobile keeps the fixed bottom navigation from covering the footer. */}
-          <div className="relative flex min-h-screen flex-col overflow-x-clip pb-20 md:pb-0">
+          <div className="relative flex min-h-screen flex-col overflow-x-clip pb-16 md:pb-0">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -top-40 -right-30 size-95 rounded-full bg-[radial-gradient(circle,rgb(255_122_51/0.22)_0%,transparent_70%)] md:-top-70 md:-right-45 md:size-205"

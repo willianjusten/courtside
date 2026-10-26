@@ -13,7 +13,8 @@ export default function TeamPickerTrigger(
       {...buttonProps}
       className={`group flex min-h-11 shrink-0 cursor-pointer items-center gap-2 rounded-full text-[10px] tracking-[0.16em] text-muted uppercase transition-colors hover:text-foreground ${FOCUS_RING_CLASS_NAME}`}
     >
-      {strings.myTeams.label}
+      {/* The button's aria-label names it, so phones drop the text to fit the header. */}
+      <span className="hidden sm:inline">{strings.myTeams.label}</span>
       <span className="flex size-9 items-center justify-center rounded-full border border-dashed border-white/24 transition-colors group-hover:bg-white/5">
         <svg
           viewBox="0 0 24 24"

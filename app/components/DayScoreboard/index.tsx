@@ -24,7 +24,6 @@ import DatePicker from "@/app/components/DatePicker";
 import DateRail from "@/app/components/DateRail";
 import GameFilters from "@/app/components/GameFilters";
 import GamesList from "@/app/components/GamesList";
-import MyTeamsStrip from "@/app/components/MyTeamsStrip";
 import DateHeading from "./DateHeading";
 
 type DayScoreboardProps = {
@@ -107,7 +106,6 @@ export default function DayScoreboard({
       <DateHeading heading={homeView.heading} summary={homeView.summary}>
         <DatePicker placement="header" {...datePickerProps} />
       </DateHeading>
-      <MyTeamsStrip placement="home" />
       <DateRail
         rail={homeView.dateRail}
         onSelect={selectDay}
