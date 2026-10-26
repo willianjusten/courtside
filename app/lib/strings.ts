@@ -20,7 +20,14 @@ export const strings = {
       standings: "Standings",
       playoffs: "Playoffs",
     },
-    footer: "Create with s2 by Willian Justen, Marcus, Bruna",
+    footer: {
+      credit: "Created with ❤️ by",
+      authors: [
+        { name: "Willian Justen", href: "https://willianjusten.com.br/" },
+        { name: "Marcus Silva", href: "https://github.com/mvfsillva" },
+        { name: "Bruna Grassi", href: "https://brunagrassi.com.br/" },
+      ],
+    },
   },
   home: {
     summary: ({ total, live, final }: GamesSummary) =>
