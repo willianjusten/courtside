@@ -104,12 +104,16 @@ export type LineScoreView = {
 };
 
 const BOX_SCORE_STATS = [
-  "minutes",
   "points",
+  "minutes",
   "rebounds",
   "assists",
+  "steals",
+  "blocks",
+  "turnovers",
   "fieldGoals",
   "threePointers",
+  "freeThrows",
   "plusMinus",
 ] as const satisfies readonly (keyof BoxScoreStats)[];
 

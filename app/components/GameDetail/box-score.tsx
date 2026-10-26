@@ -17,7 +17,12 @@ import { Section } from "./sections";
 import { ToggleGroup } from "./toggle-group";
 
 const HEADING_ID = "game-box-score";
-const CELL_CLASS_NAME = "px-1.5 py-2.5";
+const CELL_CLASS_NAME = "px-1.5 py-2.5 whitespace-nowrap";
+// On mobile the player column stays put while the stats scroll under it, so it covers what passes beneath with the
+// page color. The card's tint is a gradient layer over it, blended the same way as the card so the two match.
+// Desktop fits every column, so the column sits back in the flow there.
+const STICKY_CLASS_NAME =
+  "sticky left-0 bg-ink bg-linear-to-r from-white/4.5 to-white/4.5 md:static md:bg-transparent md:bg-none";
 const PLUS_MINUS_CLASS_NAMES: Record<NonNullable<PlusMinusTone>, string> = {
   positive: "text-win",
   negative: "text-loss",
@@ -27,7 +32,7 @@ function PlayerName({ row }: { row: BoxScoreAthleteRow }) {
   return (
     <th
       scope="row"
-      className={`text-left font-normal whitespace-nowrap ${CELL_CLASS_NAME}`}
+      className={`text-left font-normal ${CELL_CLASS_NAME} ${STICKY_CLASS_NAME}`}
     >
       <span className="inline-block w-6 text-[11px] text-muted">
         {row.jersey}
@@ -91,7 +96,8 @@ function RowGroup<Row extends BoxScoreAthleteRow>({
           colSpan={columnSpan}
           className="px-1.5 pt-3 pb-1 text-left text-[10px] font-medium tracking-[0.12em] text-muted uppercase"
         >
-          {label}
+          {/* The label spans every column, so it holds to the left edge as the stats scroll. */}
+          <span className="sticky left-1.5">{label}</span>
         </th>
       </tr>
       {rows.map((row) => (
@@ -117,13 +123,16 @@ function TeamTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[480px] border-collapse text-[13px] tabular-nums md:min-w-[640px]">
+      <table className="w-full min-w-[600px] border-collapse text-[13px] tabular-nums md:min-w-0">
         <caption className="sr-only">
           {strings.game.boxScore.caption(team.teamName)}
         </caption>
         <thead>
           <tr className="text-[10px] tracking-[0.12em] text-muted uppercase">
-            <th scope="col" className="px-1.5 py-2 text-left font-medium">
+            <th
+              scope="col"
+              className={`px-1.5 py-2 text-left font-medium ${STICKY_CLASS_NAME}`}
+            >
               {strings.game.boxScore.player}
             </th>
             {columns.map(({ stat, label }) => (
@@ -171,7 +180,10 @@ function TeamTable({
         {team.totals && (
           <tfoot>
             <tr className="border-t border-white/16 font-bold">
-              <th scope="row" className={`text-left ${CELL_CLASS_NAME}`}>
+              <th
+                scope="row"
+                className={`text-left ${CELL_CLASS_NAME} ${STICKY_CLASS_NAME}`}
+              >
                 {strings.game.boxScore.totals}
               </th>
               <StatCells columns={columns} stats={team.totals} />

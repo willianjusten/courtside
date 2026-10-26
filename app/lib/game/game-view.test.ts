@@ -606,14 +606,18 @@ describe("buildGameView", () => {
   });
 
   describe("box score", () => {
-    it("shows MIN, PTS, REB, AST, FG, 3PT, and +/- columns", () => {
+    it("shows MIN, PTS, REB, AST, STL, BLK, TO, FG, 3PT, FT, and +/- columns", () => {
       expect(boxScoreFor(final)?.columns).toEqual([
         { stat: "minutes", label: "MIN" },
         { stat: "points", label: "PTS" },
         { stat: "rebounds", label: "REB" },
         { stat: "assists", label: "AST" },
+        { stat: "steals", label: "STL" },
+        { stat: "blocks", label: "BLK" },
+        { stat: "turnovers", label: "TO" },
         { stat: "fieldGoals", label: "FG" },
         { stat: "threePointers", label: "3PT" },
+        { stat: "freeThrows", label: "FT" },
         { stat: "plusMinus", label: "+/-" },
       ]);
     });
@@ -662,8 +666,12 @@ describe("buildGameView", () => {
           points: "28",
           rebounds: "8",
           assists: "7",
+          steals: "3",
+          blocks: "0",
+          turnovers: "6",
           fieldGoals: "7-18",
           threePointers: "5-12",
+          freeThrows: "9-9",
           plusMinus: "+31",
         },
         plusMinusTone: "positive",
