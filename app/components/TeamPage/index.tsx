@@ -1,11 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
+import { notFound, useSearchParams } from "next/navigation";
+import { RetryableError, StaleNotice } from "@/app/components/DataStates";
 import TeamRoster from "@/app/components/TeamRoster";
 import TeamSchedule from "@/app/components/TeamSchedule";
 import type { TeamSlug } from "@/app/lib/domain/team";
+import { EspnRequestError } from "@/app/lib/espn";
 import {
   favoritesStore,
   useFavoriteTeamIds,
@@ -19,14 +21,87 @@ import {
   teamScheduleQueryOptions,
 } from "@/app/lib/queries/team";
 import type { StandingsQueryState } from "@/app/lib/standings/standings-view";
+import { strings } from "@/app/lib/strings";
 import { useBrowserTimeZone } from "@/app/lib/time/use-browser-time-zone";
 import {
   buildTeamView,
+  type TeamDataQueryState,
   type TeamQueryState,
   type TeamScheduleExpansions,
+  type TeamSection,
 } from "@/app/lib/team/team-view";
 import { TeamGlow, TeamHeader } from "./header";
 import { TeamSections } from "./sections";
+import {
+  TeamHeaderLoading,
+  TeamRosterLoading,
+  TeamScheduleLoading,
+} from "./states";
+
+// ESPN answers 404 for an unknown team and 400 for an id it cannot read.
+const UNKNOWN_TEAM_STATUSES = new Set([400, 404]);
+
+function isUnknownTeamError(error: Error | null) {
+  return (
+    error instanceof EspnRequestError && UNKNOWN_TEAM_STATUSES.has(error.status)
+  );
+}
+
+// Data is checked before the error: a failed refetch keeps the last data instead of hiding it.
+function dataQueryStateOf<Data>({
+  data,
+  error,
+  isRefetchError,
+}: UseQueryResult<Data>): TeamDataQueryState<Data> {
+  if (data !== undefined) {
+    return isRefetchError
+      ? { status: "stale", data }
+      : { status: "success", data };
+  }
+  return error ? { status: "error" } : { status: "loading" };
+}
+
+type Retryable = Pick<UseQueryResult, "refetch" | "isFetching">;
+
+function TeamError({
+  message,
+  query: { refetch, isFetching },
+}: {
+  message: string;
+  query: Retryable;
+}) {
+  return (
+    <RetryableError
+      message={message}
+      detail={strings.team.errorDetail}
+      onRetry={() => refetch()}
+      isRetrying={isFetching}
+    />
+  );
+}
+
+function SectionContent<Content>({
+  section,
+  loading,
+  query,
+  children,
+}: {
+  section: TeamSection<Content>;
+  loading: ReactNode;
+  query: Retryable;
+  children: (content: Content) => ReactNode;
+}) {
+  if (section.kind === "loading") return loading;
+  if (section.kind === "error") {
+    return <TeamError message={section.message} query={query} />;
+  }
+  return (
+    <>
+      {section.staleNotice && <StaleNotice message={section.staleNotice} />}
+      {children(section.content)}
+    </>
+  );
+}
 
 type TeamPageProps = {
   teamId: string;
@@ -38,17 +113,15 @@ export function TeamPageContent({
   slug,
   tabParam,
 }: TeamPageProps & { tabParam: string | null }) {
-  const {
-    data: team,
-    error,
-    isRefetchError,
-  } = useQuery(teamDetailQueryOptions(teamId));
+  const teamQuery = useQuery(teamDetailQueryOptions(teamId));
+  const { data: team, error, isRefetchError } = teamQuery;
   const {
     data: standings,
     error: standingsError,
     isRefetchError: isStandingsRefetchError,
   } = useQuery(standingsQueryOptions());
-  const { data: games } = useQuery(teamScheduleQueryOptions(teamId));
+  const scheduleQuery = useQuery(teamScheduleQueryOptions(teamId));
+  const games = scheduleQuery.data;
   const { data: playoffGames } = useQuery(
     teamPlayoffScheduleQueryOptions(teamId),
   );
@@ -57,7 +130,7 @@ export function TeamPageContent({
     teamId,
     games ? [...games, ...(playoffGames ?? [])] : null,
   );
-  const { data: players } = useQuery(teamRosterQueryOptions(teamId));
+  const rosterQuery = useQuery(teamRosterQueryOptions(teamId));
   const favoriteTeamIds = useFavoriteTeamIds();
   const timeZone = useBrowserTimeZone();
   const [scheduleExpansions, setScheduleExpansions] =
@@ -68,9 +141,11 @@ export function TeamPageContent({
     ? isRefetchError
       ? { status: "stale", team }
       : { status: "success", team }
-    : error
-      ? { status: "error" }
-      : { status: "loading" };
+    : isUnknownTeamError(error)
+      ? { status: "not-found" }
+      : error
+        ? { status: "error" }
+        : { status: "loading" };
   const standingsQuery: StandingsQueryState = standings
     ? isStandingsRefetchError
       ? { status: "stale", standings }
@@ -82,44 +157,77 @@ export function TeamPageContent({
     slug,
     query,
     standingsQuery,
-    games: games ?? null,
+    scheduleQuery: dataQueryStateOf(scheduleQuery),
     playoffGames: playoffGames ?? null,
     scoreboardGames,
-    players: players ?? null,
+    rosterQuery: dataQueryStateOf(rosterQuery),
     timeZone,
     scheduleExpansions,
     tabParam,
     favoriteTeamIds,
   });
 
-  // The loading and error states arrive with the team page screen states.
-  if (screen.kind !== "ready") return null;
+  // Replacing the entry keeps the tab in the URL without adding a history step per tab.
+  const selectTab = ({ href }: { href: string }) =>
+    window.history.replaceState(null, "", href);
+
+  if (screen.kind === "not-found") notFound();
+  if (screen.kind === "error") {
+    return <TeamError message={strings.team.error} query={teamQuery} />;
+  }
+  if (screen.kind === "loading") {
+    return (
+      <div className="flex flex-col gap-4 md:gap-7">
+        <TeamHeaderLoading />
+        <TeamSections
+          tabs={tabs}
+          onSelectTab={selectTab}
+          schedule={<TeamScheduleLoading />}
+          roster={<TeamRosterLoading />}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 md:gap-7">
       <TeamGlow screen={screen} />
+      {screen.staleNotice && <StaleNotice message={screen.staleNotice} />}
       <TeamHeader
         screen={screen}
         onToggleFollow={() => favoritesStore().toggle(screen.follow.teamId)}
       />
       <TeamSections
         tabs={tabs}
-        // Replacing the entry keeps the tab in the URL without adding a history step per tab.
-        onSelectTab={({ href }) => window.history.replaceState(null, "", href)}
+        onSelectTab={selectTab}
         schedule={
-          screen.schedule && (
-            <TeamSchedule
-              schedule={screen.schedule}
-              onShowMore={(listId) =>
-                setScheduleExpansions((expansions) => ({
-                  ...expansions,
-                  [listId]: expansions[listId] + 1,
-                }))
-              }
-            />
-          )
+          <SectionContent
+            section={screen.schedule}
+            loading={<TeamScheduleLoading />}
+            query={scheduleQuery}
+          >
+            {(schedule) => (
+              <TeamSchedule
+                schedule={schedule}
+                onShowMore={(listId) =>
+                  setScheduleExpansions((expansions) => ({
+                    ...expansions,
+                    [listId]: expansions[listId] + 1,
+                  }))
+                }
+              />
+            )}
+          </SectionContent>
         }
-        roster={screen.roster && <TeamRoster players={screen.roster} />}
+        roster={
+          <SectionContent
+            section={screen.roster}
+            loading={<TeamRosterLoading />}
+            query={rosterQuery}
+          >
+            {(players) => <TeamRoster players={players} />}
+          </SectionContent>
+        }
       />
     </div>
   );

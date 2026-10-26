@@ -31,6 +31,7 @@ import { strings } from "@/app/lib/strings";
 import {
   buildTeamView,
   scoreboardDateOf,
+  type TeamDataQueryState,
   type TeamQueryState,
   type TeamReadyScreen,
   type TeamSchedule,
@@ -140,9 +141,11 @@ function viewFor({
   query = { status: "success", team },
   standingsQuery = loadedStandings,
   games = lakersGames,
+  scheduleQuery = { status: "success", data: games },
   playoffGames = null,
   scoreboardGames = null,
   players = lakersPlayers,
+  rosterQuery = { status: "success", data: players },
   timeZone = "America/Los_Angeles",
   scheduleExpansions = { upcoming: 0, results: 0 },
   tabParam = null,
@@ -151,10 +154,12 @@ function viewFor({
   team?: TeamDetail;
   query?: TeamQueryState;
   standingsQuery?: StandingsQueryState;
-  games?: Game[] | null;
+  games?: Game[];
+  scheduleQuery?: TeamDataQueryState<Game[]>;
   playoffGames?: PlayoffGame[] | null;
   scoreboardGames?: Game[] | null;
-  players?: RosterPlayer[] | null;
+  players?: RosterPlayer[];
+  rosterQuery?: TeamDataQueryState<RosterPlayer[]>;
   timeZone?: string | null;
   scheduleExpansions?: TeamScheduleExpansions;
   tabParam?: string | null;
@@ -164,10 +169,10 @@ function viewFor({
     slug: team.slug,
     query,
     standingsQuery,
-    games,
+    scheduleQuery,
     playoffGames,
     scoreboardGames,
-    players,
+    rosterQuery,
     timeZone,
     scheduleExpansions,
     tabParam,
@@ -177,14 +182,18 @@ function viewFor({
 
 function rosterOf(options: Parameters<typeof viewFor>[0] = {}) {
   const roster = readyScreenOf(viewFor(options).screen).roster;
-  if (!roster) throw new Error("Expected the roster to be loaded");
-  return roster;
+  if (roster.kind !== "ready") {
+    throw new Error("Expected the roster to be loaded");
+  }
+  return roster.content;
 }
 
 function scheduleOf(options: Parameters<typeof viewFor>[0] = {}): TeamSchedule {
   const schedule = readyScreenOf(viewFor(options).screen).schedule;
-  if (!schedule) throw new Error("Expected the schedule to be loaded");
-  return schedule;
+  if (schedule.kind !== "ready") {
+    throw new Error("Expected the schedule to be loaded");
+  }
+  return schedule.content;
 }
 
 function readyScreenOf(screen: TeamScreen): TeamReadyScreen {
@@ -333,13 +342,22 @@ describe("buildTeamView", () => {
       expect(homeAwayLabel).toBe("Home 1-0 · Away 0-0");
     });
 
-    it("leaves the tiles out until the standings load", () => {
+    it("shows the tiles' skeleton until the standings load", () => {
       const screen = readyScreenOf(
         viewFor({ standingsQuery: { status: "loading" } }).screen,
       );
 
       expect(screen.tiles).toBeNull();
+      expect(screen.areTilesLoading).toBe(true);
       expect(screen.homeAwayLabel).toBeNull();
+    });
+
+    it("leaves the tiles out when the standings fail to load", () => {
+      const screen = readyScreenOf(
+        viewFor({ standingsQuery: { status: "error" } }).screen,
+      );
+
+      expect([screen.tiles, screen.areTilesLoading]).toEqual([null, false]);
     });
 
     it("keeps the last standings' tiles when a refetch failed", () => {
@@ -378,7 +396,7 @@ describe("buildTeamView", () => {
   });
 
   describe("screen", () => {
-    it.each(["loading", "error"] as const)(
+    it.each(["loading", "error", "not-found"] as const)(
       "is %s while the team is",
       (status) => {
         expect(viewFor({ query: { status } }).screen).toEqual({
@@ -395,6 +413,93 @@ describe("buildTeamView", () => {
       expect(readyScreenOf(screen).header.displayName).toBe(
         "Los Angeles Lakers",
       );
+    });
+
+    it("warns that the team is stale when its refetch failed", () => {
+      const screen = viewFor({
+        query: { status: "stale", team: lakers },
+      }).screen;
+
+      expect(readyScreenOf(screen).staleNotice).toBe(strings.team.stale);
+    });
+
+    it("warns that the team is stale when the standings refetch failed", () => {
+      const screen = viewFor({
+        standingsQuery: { status: "stale", standings },
+      }).screen;
+
+      expect(readyScreenOf(screen).staleNotice).toBe(strings.team.stale);
+    });
+
+    it("shows no stale warning while the team and the standings are fresh", () => {
+      expect(readyScreenOf(viewFor().screen).staleNotice).toBeNull();
+    });
+
+    it("shows the sections' skeletons while they load", () => {
+      const screen = readyScreenOf(
+        viewFor({
+          scheduleQuery: { status: "loading" },
+          rosterQuery: { status: "loading" },
+        }).screen,
+      );
+
+      expect([screen.schedule, screen.roster]).toEqual([
+        { kind: "loading" },
+        { kind: "loading" },
+      ]);
+    });
+
+    it("shows an error for each section that fails to load", () => {
+      const screen = readyScreenOf(
+        viewFor({
+          scheduleQuery: { status: "error" },
+          rosterQuery: { status: "error" },
+        }).screen,
+      );
+
+      expect([screen.schedule, screen.roster]).toEqual([
+        { kind: "error", message: strings.team.schedule.error },
+        { kind: "error", message: strings.team.roster.error },
+      ]);
+    });
+
+    it("keeps the last schedule with a stale warning when its refetch failed", () => {
+      const { schedule } = readyScreenOf(
+        viewFor({ scheduleQuery: { status: "stale", data: lakersGames } })
+          .screen,
+      );
+
+      expect(schedule).toMatchObject({
+        kind: "ready",
+        staleNotice: strings.team.schedule.stale,
+      });
+      expect(
+        schedule.kind === "ready" && schedule.content.results.items,
+      ).toHaveLength(1);
+    });
+
+    it("keeps the last roster with a stale warning when its refetch failed", () => {
+      const { roster } = readyScreenOf(
+        viewFor({ rosterQuery: { status: "stale", data: lakersPlayers } })
+          .screen,
+      );
+
+      expect(roster).toMatchObject({
+        kind: "ready",
+        staleNotice: strings.team.roster.stale,
+      });
+      expect(roster.kind === "ready" && roster.content).toHaveLength(
+        lakersPlayers.length,
+      );
+    });
+
+    it("shows fresh sections without a stale warning", () => {
+      const { schedule, roster } = readyScreenOf(viewFor().screen);
+
+      expect([schedule, roster]).toMatchObject([
+        { kind: "ready", staleNotice: null },
+        { kind: "ready", staleNotice: null },
+      ]);
     });
   });
 
@@ -940,12 +1045,6 @@ describe("buildTeamView", () => {
         expect([upcoming.items.length, results.items.length]).toEqual([9, 4]);
       });
     });
-
-    it("leaves the schedule out until it loads", () => {
-      const screen = viewFor({ games: null }).screen;
-
-      expect(readyScreenOf(screen).schedule).toBeNull();
-    });
   });
 
   describe("roster", () => {
@@ -1053,12 +1152,6 @@ describe("buildTeamView", () => {
       });
 
       expect(cameronCarr.injuryComment).toBe(comment);
-    });
-
-    it("leaves the roster out until it loads", () => {
-      const screen = viewFor({ players: null }).screen;
-
-      expect(readyScreenOf(screen).roster).toBeNull();
     });
   });
 

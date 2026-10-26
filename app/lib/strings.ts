@@ -414,6 +414,10 @@ export const strings = {
       `Home ${homeRecord} · Away ${awayRecord}`,
     follow: "Follow",
     following: "Following",
+    loading: "Loading team...",
+    error: "Couldn't load this team",
+    errorDetail: "The data source didn't respond.",
+    stale: "Can't reach the data source. Showing the last team info loaded.",
     tabs: {
       label: "Team sections",
       schedule: "Schedule",
@@ -435,6 +439,9 @@ export const strings = {
       score: (teamScore: number, opponentScore: number) =>
         `${teamScore}-${opponentScore}`,
       showMore: "Show more",
+      loading: "Loading schedule...",
+      error: "Couldn't load the schedule",
+      stale: "Can't reach the data source. Showing the last schedule loaded.",
     },
     playoffs: {
       title: "Playoffs",
@@ -447,6 +454,9 @@ export const strings = {
       position: "Pos",
       age: "Age",
       height: "Ht",
+      loading: "Loading roster...",
+      error: "Couldn't load the roster",
+      stale: "Can't reach the data source. Showing the last roster loaded.",
     },
   },
   playoffs: {

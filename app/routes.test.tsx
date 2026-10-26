@@ -12,7 +12,10 @@ import {
   leadersQueryOptions,
 } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
-import { teamPlayoffScheduleQueryOptions } from "@/app/lib/queries/team";
+import {
+  teamPlayoffScheduleQueryOptions,
+  teamRosterQueryOptions,
+} from "@/app/lib/queries/team";
 import { getQueryClient } from "@/app/lib/query/get-query-client";
 import { strings } from "@/app/lib/strings";
 import HomePage from "./page";
@@ -116,6 +119,10 @@ describe("routes", () => {
     // The playoffs test answers the postseason schedule with the Lakers' playoff run.
     getQueryClient().removeQueries({
       queryKey: teamPlayoffScheduleQueryOptions(LAKERS_TEAM_ID).queryKey,
+    });
+    // The roster retry test answers the roster with an error first.
+    getQueryClient().removeQueries({
+      queryKey: teamRosterQueryOptions(LAKERS_TEAM_ID).queryKey,
     });
     favoritesStore().remove(LAKERS_TEAM_ID);
     vi.unstubAllGlobals();
@@ -608,6 +615,40 @@ describe("routes", () => {
         await screen.findByRole("tab", { name: strings.team.tabs.roster })
       ).getAttribute("aria-selected"),
     ).toBe("true");
+  });
+
+  it("loads the roster again from its error state's Try again", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    let isEspnDown = true;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        isEspnDown && url.endsWith("/teams/13/roster")
+          ? new Response(null, { status: 500 })
+          : responseFor(url),
+      ),
+    );
+
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const tryAgain = await screen.findByRole(
+      "button",
+      { name: strings.common.retry },
+      // The client retries the failed roster once, a second later.
+      { timeout: 3000 },
+    );
+    expect(screen.getByText(strings.team.roster.error)).toBeDefined();
+    expect(
+      screen.getByRole("heading", { name: "Los Angeles Lakers" }),
+    ).toBeDefined();
+
+    isEspnDown = false;
+    fireEvent.click(tryAgain);
+
+    expect(
+      await screen.findByRole("region", { name: strings.team.roster.title }),
+    ).toBeDefined();
+    expect(screen.queryByText(strings.team.roster.error)).toBeNull();
   });
 
   it("generates a page for every team, with hyphenated slugs", async () => {

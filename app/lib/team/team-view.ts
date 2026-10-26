@@ -40,22 +40,29 @@ const POSITION_GROUP_ORDER = ["G", "F", "C"];
 export type TeamQueryState =
   | { status: "loading" }
   | { status: "error" }
+  | { status: "not-found" }
   | { status: "success"; team: TeamDetail }
   // A refetch failed, so the last team detail is kept.
   | { status: "stale"; team: TeamDetail };
+
+export type TeamDataQueryState<Data> =
+  | { status: "loading" }
+  | { status: "error" }
+  | { status: "success"; data: Data }
+  // A refetch failed, so the last data is kept.
+  | { status: "stale"; data: Data };
 
 export type TeamViewInput = {
   slug: TeamSlug;
   query: TeamQueryState;
   standingsQuery: StandingsQueryState;
-  // The regular season; null until the schedule loads.
-  games: Game[] | null;
-  // Empty outside the postseason; null until the playoff schedule loads.
+  // The regular season.
+  scheduleQuery: TeamDataQueryState<Game[]>;
+  // Empty outside the postseason; null until the playoff schedule loads, or when it fails, which leaves the regular season on its own.
   playoffGames: PlayoffGame[] | null;
   // The scoreboard of the team's game day, which overrides the cached schedule; null until it loads or without a game that day.
   scoreboardGames: Game[] | null;
-  // Null until the roster loads.
-  players: RosterPlayer[] | null;
+  rosterQuery: TeamDataQueryState<RosterPlayer[]>;
   // Null until the browser timezone is known, as when rendering on the server.
   timeZone: string | null;
   // How many times each schedule list was expanded.
@@ -220,23 +227,38 @@ export type TeamRosterPlayer = {
   injuryComment: string | null;
 };
 
+// A section of the team page that loads on its own, so it shows its own skeleton, error, and stale warning.
+export type TeamSection<Content> =
+  | { kind: "loading" }
+  | { kind: "error"; message: string }
+  | {
+      kind: "ready";
+      content: Content;
+      // Warns that the content is the last one loaded; null while it is fresh.
+      staleNotice: string | null;
+    };
+
 export type TeamReadyScreen = {
   kind: "ready";
+  // Warns that the header is the last one loaded; null while the team and the standings are fresh.
+  staleNotice: string | null;
   header: TeamHeaderView;
   follow: TeamFollow;
-  // Null until the standings load.
+  // Null until the standings load, or when they fail, which leaves the header without them.
   tiles: TeamTile[] | null;
+  // The mobile tiles show a skeleton meanwhile.
+  areTilesLoading: boolean;
   // The desktop header sums up the home and away tiles in one chip; null until the standings load.
   homeAwayLabel: string | null;
-  // Null until the schedule loads.
-  schedule: TeamSchedule | null;
-  // By position group, then jersey number; null until the roster loads.
-  roster: TeamRosterPlayer[] | null;
+  schedule: TeamSection<TeamSchedule>;
+  // By position group, then jersey number.
+  roster: TeamSection<TeamRosterPlayer[]>;
 };
 
 export type TeamScreen =
   | { kind: "loading" }
   | { kind: "error" }
+  | { kind: "not-found" }
   | TeamReadyScreen;
 
 export type TeamTabId = (typeof TEAM_TAB_IDS)[number];
@@ -681,44 +703,71 @@ function rosterOf(players: RosterPlayer[]): TeamRosterPlayer[] {
     }));
 }
 
+function sectionOf<Data, Content>(
+  query: TeamDataQueryState<Data>,
+  { error, stale }: { error: string; stale: string },
+  contentOf: (data: Data) => Content,
+): TeamSection<Content> {
+  if (query.status === "loading") return { kind: "loading" };
+  if (query.status === "error") return { kind: "error", message: error };
+  return {
+    kind: "ready",
+    content: contentOf(query.data),
+    staleNotice: query.status === "stale" ? stale : null,
+  };
+}
+
 function screenOf(
   query: TeamQueryState,
   standingsQuery: StandingsQueryState,
   schedule: Pick<
     TeamViewInput,
-    | "games"
+    | "scheduleQuery"
     | "playoffGames"
     | "scoreboardGames"
     | "timeZone"
     | "scheduleExpansions"
   >,
-  players: RosterPlayer[] | null,
+  rosterQuery: TeamDataQueryState<RosterPlayer[]>,
   favoriteTeamIds: string[],
 ): TeamScreen {
-  if (query.status === "loading" || query.status === "error") {
+  if (
+    query.status === "loading" ||
+    query.status === "error" ||
+    query.status === "not-found"
+  ) {
     return { kind: query.status };
   }
 
-  const standing = teamStandingOf(standingsQuery, query.team.id);
+  const teamId = query.team.id;
+  const standing = teamStandingOf(standingsQuery, teamId);
   return {
     kind: "ready",
+    staleNotice:
+      query.status === "stale" || standingsQuery.status === "stale"
+        ? strings.team.stale
+        : null,
     header: headerOf(query.team, standing),
-    follow: followOf(query.team.id, favoriteTeamIds),
+    follow: followOf(teamId, favoriteTeamIds),
     tiles: standing && tilesOf(standing),
+    areTilesLoading: standingsQuery.status === "loading",
     homeAwayLabel:
       standing &&
       strings.team.homeAway(standing.row.homeRecord, standing.row.roadRecord),
-    schedule:
-      schedule.games &&
-      scheduleOf(
-        schedule.games,
-        schedule.playoffGames,
-        schedule.scoreboardGames,
-        query.team.id,
-        schedule.timeZone,
-        schedule.scheduleExpansions,
-      ),
-    roster: players && rosterOf(players),
+    schedule: sectionOf(
+      schedule.scheduleQuery,
+      strings.team.schedule,
+      (games) =>
+        scheduleOf(
+          games,
+          schedule.playoffGames,
+          schedule.scoreboardGames,
+          teamId,
+          schedule.timeZone,
+          schedule.scheduleExpansions,
+        ),
+    ),
+    roster: sectionOf(rosterQuery, strings.team.roster, rosterOf),
   };
 }
 
@@ -744,10 +793,10 @@ export function buildTeamView({
   slug,
   query,
   standingsQuery,
-  games,
+  scheduleQuery,
   playoffGames,
   scoreboardGames,
-  players,
+  rosterQuery,
   timeZone,
   scheduleExpansions,
   tabParam,
@@ -757,8 +806,14 @@ export function buildTeamView({
     screen: screenOf(
       query,
       standingsQuery,
-      { games, playoffGames, scoreboardGames, timeZone, scheduleExpansions },
-      players,
+      {
+        scheduleQuery,
+        playoffGames,
+        scoreboardGames,
+        timeZone,
+        scheduleExpansions,
+      },
+      rosterQuery,
       favoriteTeamIds,
     ),
     tabs: tabsOf(slug, tabParam),

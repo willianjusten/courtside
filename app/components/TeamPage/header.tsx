@@ -8,6 +8,7 @@ import type {
   TeamReadyScreen,
   TeamTile,
 } from "@/app/lib/team/team-view";
+import { TeamTilesLoading } from "./states";
 
 const LOGO_SIZE = 120;
 
@@ -111,7 +112,7 @@ export function TeamHeader({
   screen: TeamReadyScreen;
   onToggleFollow: () => void;
 }) {
-  const { header, follow, tiles, homeAwayLabel } = screen;
+  const { header, follow, tiles, areTilesLoading, homeAwayLabel } = screen;
 
   return (
     <div className="relative flex flex-col gap-3.5 md:gap-0">
@@ -159,6 +160,7 @@ export function TeamHeader({
         </div>
       </header>
       {tiles && <TeamTiles tiles={tiles} />}
+      {areTilesLoading && <TeamTilesLoading />}
     </div>
   );
 }
