@@ -606,10 +606,10 @@ describe("buildGameView", () => {
   });
 
   describe("box score", () => {
-    it("shows MIN, PTS, REB, AST, STL, BLK, TO, FG, 3PT, FT, and +/- columns", () => {
+    it("shows PTS, MIN, REB, AST, STL, BLK, TO, FG, 3PT, FT, and +/- columns", () => {
       expect(boxScoreFor(final)?.columns).toEqual([
-        { stat: "minutes", label: "MIN" },
         { stat: "points", label: "PTS" },
+        { stat: "minutes", label: "MIN" },
         { stat: "rebounds", label: "REB" },
         { stat: "assists", label: "AST" },
         { stat: "steals", label: "STL" },
