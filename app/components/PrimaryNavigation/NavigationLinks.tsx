@@ -36,9 +36,10 @@ export default function NavigationLinks({
           ))}
         </ul>
       </nav>
+      {/* z-40 sits above the game cards' z-10 links and below the z-50 popovers. */}
       <nav
         aria-label={strings.shell.bottomNavigation}
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-white/8 bg-linear-to-b from-ink/40 to-ink to-42% px-4 pt-2.5 pb-[max(1.125rem,env(safe-area-inset-bottom))] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/6 bg-ink/70 px-4 pt-1 pb-[max(0.375rem,env(safe-area-inset-bottom))] backdrop-blur-md md:hidden"
       >
         <ul className="flex gap-1">
           {sections.map((section) => (
@@ -123,7 +124,7 @@ function SectionIcon({ section }: { section: NavigationSection }) {
       strokeWidth="1.7"
       strokeLinecap="round"
       aria-hidden="true"
-      className="size-5"
+      className="size-4.5"
     >
       {SECTION_ICON_SHAPES[section.id]}
     </svg>
