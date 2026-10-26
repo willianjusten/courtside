@@ -40,6 +40,7 @@ export const strings = {
         .join(" · "),
     sidebar: {
       label: "Standings and league leaders",
+      loading: "Loading standings and league leaders...",
       topFive: (conferenceAbbreviation: string) =>
         `${conferenceAbbreviation} top 5`,
       allStandings: "All",
