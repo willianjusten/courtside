@@ -1,4 +1,3 @@
-import type { Game } from "@/app/lib/domain/game";
 import type {
   GameSummary,
   TeamStatistics,
@@ -11,8 +10,6 @@ import liveSimulatedSummary from "@/app/lib/espn/__fixtures__/summary-live-simul
 import liveVideosSummary from "@/app/lib/espn/__fixtures__/summary-live-videos-simulated.json";
 import liveFirstQuarterSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game-tonight.json";
-import { mapGameSummary } from "@/app/lib/espn/mappers";
-import type { RawSummary } from "@/app/lib/espn/raw-types";
 import { strings } from "@/app/lib/strings";
 import {
   buildGameView,
@@ -28,8 +25,7 @@ import {
   type PlayByPlayView,
   type TeamStatsView,
 } from "./game-view";
-
-const summaryOf = (fixture: unknown) => mapGameSummary(fixture as RawSummary);
+import { summaryOf, withGame } from "./summary-test-helpers";
 
 const final = summaryOf(finalSummary);
 const finalWithVideos = summaryOf(finalVideosSummary);
@@ -39,10 +35,6 @@ const liveFirstQuarter = summaryOf(liveFirstQuarterSummary);
 const preGame = summaryOf(preGameSummary);
 const overtimePlayoff = summaryOf(overtimePlayoffSummary);
 const doubleOvertimePlayoff = summaryOf(doubleOvertimePlayoffSummary);
-
-function withGame(summary: GameSummary, game: Partial<Game>): GameSummary {
-  return { ...summary, game: { ...summary.game, ...game } };
-}
 
 function screenFor(
   summary: GameSummary,

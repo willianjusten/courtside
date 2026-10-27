@@ -3,7 +3,7 @@ import type { SidebarRunnerUp } from "@/app/lib/home/sidebar";
 
 export const strings = {
   app: {
-    name: "NBA Next.js",
+    name: "Courtside",
     description: "NBA scores, standings, and playoffs.",
   },
   common: {
@@ -142,6 +142,27 @@ export const strings = {
   broadcast: {
     label: "Broadcast: ",
     separator: " · ",
+  },
+  share: {
+    separator: " · ",
+    // The brand split for the two-tone wordmark of the default image.
+    wordmark: { lead: "Court", accent: "side" },
+    pages: { standings: "Standings" },
+    finalTitle: (
+      awayAbbreviation: string,
+      awayScore: number,
+      homeScore: number,
+      homeAbbreviation: string,
+    ) => `${awayAbbreviation} ${awayScore}-${homeScore} ${homeAbbreviation}`,
+    finalDescription: (
+      awayName: string,
+      awayScore: number,
+      homeName: string,
+      homeScore: number,
+    ) => `${awayName} ${awayScore}, ${homeName} ${homeScore}`,
+    versus: "VS",
+    matchup: (awayLabel: string, homeLabel: string) =>
+      `${awayLabel} vs ${homeLabel}`,
   },
   game: {
     title: (awayTeamName: string, homeTeamName: string) =>

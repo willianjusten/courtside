@@ -1,5 +1,6 @@
 import {
   currentNbaDate,
+  formatLongNbaDate,
   formatNbaDate,
   formatShortNbaDate,
   nbaDateOf,
@@ -43,6 +44,14 @@ describe("formatNbaDate", () => {
   it("formats the date without shifting it by timezone", () => {
     expect(formatNbaDate(parseNbaDate("2026-10-22")!)).toBe(
       "Thursday, October 22",
+    );
+  });
+});
+
+describe("formatLongNbaDate", () => {
+  it("formats the day before the month, with the year", () => {
+    expect(formatLongNbaDate(parseNbaDate("2025-04-16")!)).toBe(
+      "16 April 2025",
     );
   });
 });

@@ -16,6 +16,14 @@ const displayDateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
+// en-GB puts the day before the month, e.g. "16 April 2025", the order the project prefers over the US one.
+const longDisplayDateFormatter = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "UTC",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
 const shortDisplayDateFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
   weekday: "short",
@@ -103,6 +111,10 @@ export function nbaDayOfWeek(nbaDate: NbaDate): number {
 // An NbaDate is already a calendar day, so it is formatted in UTC to avoid shifting it by the runtime timezone.
 export function formatNbaDate(nbaDate: NbaDate): string {
   return displayDateFormatter.format(new Date(`${nbaDate}T00:00:00Z`));
+}
+
+export function formatLongNbaDate(nbaDate: NbaDate): string {
+  return longDisplayDateFormatter.format(new Date(`${nbaDate}T00:00:00Z`));
 }
 
 export function formatShortNbaDate(nbaDate: NbaDate): string {

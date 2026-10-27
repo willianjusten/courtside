@@ -267,7 +267,7 @@ function gamesPlayedOf(standings: Standings) {
 }
 
 // Before the regular season every team is 0-0, a table with nothing to rank yet.
-function isBeforeRegularSeason(standings: Standings) {
+export function isBeforeRegularSeason(standings: Standings) {
   return (
     standings.season.currentPhase === "preseason" &&
     gamesPlayedOf(standings).every((gamesPlayed) => gamesPlayed === 0)
