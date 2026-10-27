@@ -7,17 +7,15 @@ import liveSimulatedSummary from "@/app/lib/espn/__fixtures__/summary-live-simul
 import liveSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameTonightSummary from "@/app/lib/espn/__fixtures__/summary-pre-game-tonight.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game.json";
-import { mapGameSummary } from "@/app/lib/espn/mappers";
-import type { RawSummary } from "@/app/lib/espn/raw-types";
 import { readableTeamColors } from "@/app/lib/home/team-colors";
 import {
+  degradedImageCacheSeconds,
   INDEFINITE_CACHE_SECONDS,
   SHORT_CACHE_SECONDS,
   shareViewOf,
   type ShareView,
 } from "./share-view";
-
-const summaryOf = (fixture: unknown) => mapGameSummary(fixture as RawSummary);
+import { summaryOf, withGame } from "./summary-test-helpers";
 
 function expectShareView<Variant extends ShareView["variant"]>(
   summary: GameSummary,
@@ -39,10 +37,6 @@ const preGame = summaryOf(preGameSummary);
 const preGameTonight = summaryOf(preGameTonightSummary);
 const live = summaryOf(liveSummary);
 const liveSimulated = summaryOf(liveSimulatedSummary);
-
-function withGame(summary: GameSummary, game: Partial<Game>): GameSummary {
-  return { ...summary, game: { ...summary.game, ...game } };
-}
 
 const halftime = withGame(liveSimulated, {
   status: { kind: "halftime", period: 2 },
@@ -245,6 +239,20 @@ describe("shareViewOf", () => {
 
     it("is cached briefly, so a temporary failure does not stick", () => {
       expect(shareViewOf(null).cacheSeconds).toBe(SHORT_CACHE_SECONDS);
+    });
+  });
+
+  describe("the cache of a degraded image", () => {
+    it("is short even for a final game, so a passing logo failure does not stick", () => {
+      expect(degradedImageCacheSeconds(shareViewOf(final))).toBe(
+        SHORT_CACHE_SECONDS,
+      );
+    });
+
+    it("stays as it was for a preview already cached briefly", () => {
+      expect(degradedImageCacheSeconds(shareViewOf(preGame))).toBe(
+        SHORT_CACHE_SECONDS,
+      );
     });
   });
 });

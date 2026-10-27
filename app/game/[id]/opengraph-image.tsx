@@ -2,8 +2,8 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import {
+  degradedImageCacheSeconds,
   INDEFINITE_CACHE_SECONDS,
-  SHORT_CACHE_SECONDS,
   type FinalShareView,
   type MatchupShareView,
   type ShareTeam,
@@ -308,9 +308,8 @@ export default async function Image({ params }: ImageProps) {
   const anyLogoFailedToLoad =
     logoFailedToLoad(shareView.away, away) ||
     logoFailedToLoad(shareView.home, home);
-  // A logo that failed to load is usually a passing hiccup, so that image must not be cached for as long as the game's.
   const cacheSeconds = anyLogoFailedToLoad
-    ? Math.min(shareView.cacheSeconds, SHORT_CACHE_SECONDS)
+    ? degradedImageCacheSeconds(shareView)
     : shareView.cacheSeconds;
 
   return new ImageResponse(

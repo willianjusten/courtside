@@ -1,6 +1,6 @@
 import type { Game, GameCompetitor } from "@/app/lib/domain/game";
 import type { GameSummary } from "@/app/lib/domain/game-summary";
-import { finalLabel, leadingSideOf } from "@/app/lib/game/status";
+import { finalLabel, isInProgress, leadingSideOf } from "@/app/lib/game/status";
 import { readableTeamColors, type TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
 import { formatLongNbaDate } from "@/app/lib/time/nba-date";
@@ -151,15 +151,18 @@ export function shareViewOf(summary: GameSummary | null): ShareView {
   if (!summary) return FALLBACK_SHARE_VIEW;
 
   const { game } = summary;
+  if (isInProgress(game.status)) return inProgressShareViewOf(game);
   switch (game.status.kind) {
     case "scheduled":
       return scheduledShareViewOf(game);
-    case "live":
-    case "halftime":
-      return inProgressShareViewOf(game);
     case "final":
       return finalShareViewOf(game, game.status.period);
     default:
       return FALLBACK_SHARE_VIEW;
   }
+}
+
+// A degraded image, such as one whose logo failed to load, is usually a passing hiccup, so it is never cached longer than briefly.
+export function degradedImageCacheSeconds(shareView: ShareView): number {
+  return Math.min(shareView.cacheSeconds, SHORT_CACHE_SECONDS);
 }
