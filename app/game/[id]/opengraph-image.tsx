@@ -4,12 +4,19 @@ import { ImageResponse } from "next/og";
 import {
   INDEFINITE_CACHE_SECONDS,
   type FinalShareView,
+  type MatchupShareView,
   type ShareTeam,
 } from "@/app/lib/game/share-view";
 import { loadShareView } from "@/app/lib/game/share-view.server";
 import { INK } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
-import { ACCENT, FOREGROUND, MUTED, ON_ACCENT } from "@/app/lib/theme-colors";
+import {
+  ACCENT,
+  ELEVATED,
+  FOREGROUND,
+  MUTED,
+  ON_ACCENT,
+} from "@/app/lib/theme-colors";
 
 // The image follows the game's live status, so it renders on every request; caching is left to Cache-Control.
 export const dynamic = "force-dynamic";
@@ -36,7 +43,8 @@ export async function generateImageMetadata({
   return [
     {
       id: IMAGE_ID,
-      alt: shareView.variant === "final" ? shareView.title : strings.app.name,
+      alt:
+        shareView.variant === "fallback" ? strings.app.name : shareView.title,
       size: SIZE,
       contentType: CONTENT_TYPE,
     },
@@ -164,8 +172,30 @@ function Score({ points, isDimmed }: { points: number; isDimmed: boolean }) {
   );
 }
 
-function ShareImage({ shareView }: { shareView: FinalShareView }) {
-  const { away, home, score, winningSide, statusLabel } = shareView;
+// The accent marks a result; an upcoming date stays neutral.
+const STATUS_PILL_COLORS: Record<
+  MatchupShareView["variant"],
+  { backgroundColor: string; color: string }
+> = {
+  scheduled: { backgroundColor: ELEVATED, color: FOREGROUND },
+  final: { backgroundColor: ACCENT, color: ON_ACCENT },
+};
+
+function FinalScore({ shareView }: { shareView: FinalShareView }) {
+  const { score, winningSide } = shareView;
+  return (
+    <>
+      <Score points={score.away} isDimmed={winningSide === "home"} />
+      <div style={{ display: "flex", fontSize: 96, color: SCORE_DIVIDER }}>
+        -
+      </div>
+      <Score points={score.home} isDimmed={winningSide === "away"} />
+    </>
+  );
+}
+
+function ShareImage({ shareView }: { shareView: MatchupShareView }) {
+  const { away, home, statusLabel } = shareView;
 
   return (
     <div
@@ -219,13 +249,13 @@ function ShareImage({ shareView }: { shareView: FinalShareView }) {
               lineHeight: 1,
             }}
           >
-            <Score points={score.away} isDimmed={winningSide === "home"} />
-            <div
-              style={{ display: "flex", fontSize: 96, color: SCORE_DIVIDER }}
-            >
-              -
-            </div>
-            <Score points={score.home} isDimmed={winningSide === "away"} />
+            {shareView.variant === "final" ? (
+              <FinalScore shareView={shareView} />
+            ) : (
+              <div style={{ display: "flex", color: SCORE_DIVIDER }}>
+                {strings.share.versus}
+              </div>
+            )}
           </div>
           <div
             style={{
@@ -233,8 +263,7 @@ function ShareImage({ shareView }: { shareView: FinalShareView }) {
               marginTop: 16,
               padding: "8px 22px",
               borderRadius: 999,
-              backgroundColor: ACCENT,
-              color: ON_ACCENT,
+              ...STATUS_PILL_COLORS[shareView.variant],
               fontSize: 26,
               fontWeight: 700,
               letterSpacing: 3,

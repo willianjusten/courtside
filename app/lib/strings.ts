@@ -157,6 +157,9 @@ export const strings = {
       homeName: string,
       homeScore: number,
     ) => `${awayName} ${awayScore}, ${homeName} ${homeScore}`,
+    versus: "VS",
+    matchup: (awayLabel: string, homeLabel: string) =>
+      `${awayLabel} vs ${homeLabel}`,
   },
   game: {
     title: (awayTeamName: string, homeTeamName: string) =>

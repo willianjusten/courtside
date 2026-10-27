@@ -1,8 +1,9 @@
-import type { GameCompetitor } from "@/app/lib/domain/game";
+import type { Game, GameCompetitor } from "@/app/lib/domain/game";
 import type { GameSummary } from "@/app/lib/domain/game-summary";
 import { finalLabel, leadingSideOf } from "@/app/lib/game/status";
 import { readableTeamColors, type TeamSide } from "@/app/lib/home/team-colors";
 import { strings } from "@/app/lib/strings";
+import { formatLongNbaDate } from "@/app/lib/time/nba-date";
 
 const SEPARATOR = strings.share.separator;
 
@@ -19,18 +20,22 @@ export type ShareTeam = {
   color: string;
 };
 
-// What a shared game link previews: the Open Graph image and the page title and description.
-export type FinalShareView = {
-  variant: "final";
+type MatchupFields = {
   away: ShareTeam;
   home: ShareTeam;
-  score: Record<TeamSide, number>;
-  // Null on a tie, which a final game never has but the score cannot rule out.
-  winningSide: TeamSide | null;
   statusLabel: string;
   title: string;
   description: string;
   cacheSeconds: number;
+};
+
+export type ScheduledShareView = MatchupFields & { variant: "scheduled" };
+
+export type FinalShareView = MatchupFields & {
+  variant: "final";
+  score: Record<TeamSide, number>;
+  // Null on a tie, which a final game never has but the score cannot rule out.
+  winningSide: TeamSide | null;
 };
 
 // The app's default image and metadata, for a game not covered yet or one that could not be loaded.
@@ -39,7 +44,11 @@ export type FallbackShareView = {
   cacheSeconds: number;
 };
 
-export type ShareView = FinalShareView | FallbackShareView;
+// A preview drawn for the game itself, as opposed to the app's default.
+export type MatchupShareView = ScheduledShareView | FinalShareView;
+
+// What a shared game link previews: the Open Graph image and the page title and description.
+export type ShareView = MatchupShareView | FallbackShareView;
 
 const FALLBACK_SHARE_VIEW: FallbackShareView = {
   variant: "fallback",
@@ -55,24 +64,48 @@ function shareTeamOf({ team }: GameCompetitor, color: string): ShareTeam {
   };
 }
 
-// A null summary stands for a game that could not be loaded.
-export function shareViewOf(summary: GameSummary | null): ShareView {
-  if (!summary || summary.game.status.kind !== "final") {
-    return FALLBACK_SHARE_VIEW;
-  }
-
-  const { home, away, status } = summary.game;
+function matchupTeamsOf({ home, away }: Game): Record<TeamSide, ShareTeam> {
   const colors = readableTeamColors(home.team, away.team);
-  const statusLabel = finalLabel(status.period);
+  return {
+    away: shareTeamOf(away, colors.away),
+    home: shareTeamOf(home, colors.home),
+  };
+}
+
+const withStatus = (text: string, statusLabel: string) =>
+  [text, statusLabel].join(SEPARATOR);
+
+function scheduledShareViewOf(game: Game): ScheduledShareView {
+  const { home, away } = game;
+  const statusLabel = formatLongNbaDate(game.nbaDate);
+
+  return {
+    variant: "scheduled",
+    ...matchupTeamsOf(game),
+    statusLabel,
+    title: withStatus(
+      strings.share.matchup(away.team.abbreviation, home.team.abbreviation),
+      statusLabel,
+    ),
+    description: withStatus(
+      strings.share.matchup(away.team.displayName, home.team.displayName),
+      statusLabel,
+    ),
+    cacheSeconds: SHORT_CACHE_SECONDS,
+  };
+}
+
+function finalShareViewOf(game: Game, period: number): FinalShareView {
+  const { home, away } = game;
+  const statusLabel = finalLabel(period);
 
   return {
     variant: "final",
-    away: shareTeamOf(away, colors.away),
-    home: shareTeamOf(home, colors.home),
+    ...matchupTeamsOf(game),
     score: { away: away.score, home: home.score },
-    winningSide: leadingSideOf(summary.game),
+    winningSide: leadingSideOf(game),
     statusLabel,
-    title: [
+    title: withStatus(
       strings.share.finalTitle(
         away.team.abbreviation,
         away.score,
@@ -80,8 +113,8 @@ export function shareViewOf(summary: GameSummary | null): ShareView {
         home.team.abbreviation,
       ),
       statusLabel,
-    ].join(SEPARATOR),
-    description: [
+    ),
+    description: withStatus(
       strings.share.finalDescription(
         away.team.displayName,
         away.score,
@@ -89,7 +122,22 @@ export function shareViewOf(summary: GameSummary | null): ShareView {
         home.score,
       ),
       statusLabel,
-    ].join(SEPARATOR),
+    ),
     cacheSeconds: INDEFINITE_CACHE_SECONDS,
   };
+}
+
+// A null summary stands for a game that could not be loaded.
+export function shareViewOf(summary: GameSummary | null): ShareView {
+  if (!summary) return FALLBACK_SHARE_VIEW;
+
+  const { game } = summary;
+  switch (game.status.kind) {
+    case "scheduled":
+      return scheduledShareViewOf(game);
+    case "final":
+      return finalShareViewOf(game, game.status.period);
+    default:
+      return FALLBACK_SHARE_VIEW;
+  }
 }
