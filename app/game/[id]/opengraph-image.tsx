@@ -179,7 +179,7 @@ function Score({ points, isDimmed }: { points: number; isDimmed: boolean }) {
   );
 }
 
-// The accent marks a result and the live red a game in progress, as in the app; an upcoming date stays neutral.
+// The accent marks a result and the live red a game in progress, as in the app; an upcoming date stays neutral, and a game that won't be played as scheduled is muted.
 const STATUS_PILL_COLORS: Record<
   MatchupShareView["variant"],
   { backgroundColor: string; color: string }
@@ -187,6 +187,8 @@ const STATUS_PILL_COLORS: Record<
   scheduled: { backgroundColor: ELEVATED, color: FOREGROUND },
   "in-progress": { backgroundColor: LIVE, color: ON_LIVE },
   final: { backgroundColor: ACCENT, color: ON_ACCENT },
+  postponed: { backgroundColor: ELEVATED, color: MUTED },
+  canceled: { backgroundColor: ELEVATED, color: MUTED },
 };
 
 function FinalScore({ shareView }: { shareView: FinalShareView }) {

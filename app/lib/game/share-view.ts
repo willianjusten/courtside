@@ -41,7 +41,11 @@ export type FinalShareView = MatchupFields & {
   winningSide: TeamSide | null;
 };
 
-// The app's default image and metadata, for a game not covered yet or one that could not be loaded.
+export type PostponedShareView = MatchupFields & { variant: "postponed" };
+
+export type CanceledShareView = MatchupFields & { variant: "canceled" };
+
+// The app's default image and metadata, for a game that could not be loaded.
 export type FallbackShareView = {
   variant: "fallback";
   cacheSeconds: number;
@@ -51,7 +55,9 @@ export type FallbackShareView = {
 export type MatchupShareView =
   | ScheduledShareView
   | InProgressShareView
-  | FinalShareView;
+  | FinalShareView
+  | PostponedShareView
+  | CanceledShareView;
 
 // What a shared game link previews: the Open Graph image and the page title and description.
 export type ShareView = MatchupShareView | FallbackShareView;
@@ -114,6 +120,25 @@ function inProgressShareViewOf(game: Game): InProgressShareView {
   };
 }
 
+function postponedShareViewOf(game: Game): PostponedShareView {
+  return {
+    variant: "postponed",
+    ...matchupTeamsOf(game),
+    ...unscoredLabelsOf(game, strings.gameStatus.postponed),
+    // Cached briefly because ESPN can reschedule a postponed game under the same event id, with a new date.
+    cacheSeconds: SHORT_CACHE_SECONDS,
+  };
+}
+
+function canceledShareViewOf(game: Game): CanceledShareView {
+  return {
+    variant: "canceled",
+    ...matchupTeamsOf(game),
+    ...unscoredLabelsOf(game, strings.gameStatus.canceled),
+    cacheSeconds: INDEFINITE_CACHE_SECONDS,
+  };
+}
+
 function finalShareViewOf(game: Game, period: number): FinalShareView {
   const { home, away } = game;
   const statusLabel = finalLabel(period);
@@ -157,8 +182,10 @@ export function shareViewOf(summary: GameSummary | null): ShareView {
       return scheduledShareViewOf(game);
     case "final":
       return finalShareViewOf(game, game.status.period);
-    default:
-      return FALLBACK_SHARE_VIEW;
+    case "postponed":
+      return postponedShareViewOf(game);
+    case "canceled":
+      return canceledShareViewOf(game);
   }
 }
 

@@ -225,16 +225,59 @@ describe("shareViewOf", () => {
     });
   });
 
-  describe("the fallback to the default preview", () => {
-    it("covers a game whose status has no preview yet", () => {
-      expect(
-        shareViewOf(withGame(preGame, { status: { kind: "postponed" } }))
-          .variant,
-      ).toBe("fallback");
+  describe.each([
+    ["postponed", "Postponed", SHORT_CACHE_SECONDS],
+    ["canceled", "Canceled", INDEFINITE_CACHE_SECONDS],
+  ] as const)("a %s game", (statusKind, statusLabel, cacheSeconds) => {
+    const summary = withGame(final, { status: { kind: statusKind } });
+
+    it(`shows both teams, away first, with a ${statusLabel} label`, () => {
+      expect(expectShareView(summary, statusKind)).toMatchObject({
+        variant: statusKind,
+        away: { abbreviation: "GS", displayName: "Golden State Warriors" },
+        home: { abbreviation: "LAL", displayName: "Los Angeles Lakers" },
+        statusLabel,
+      });
     });
 
+    it("titles the page with the matchup and the status", () => {
+      expect(expectShareView(summary, statusKind).title).toBe(
+        `GS vs LAL · ${statusLabel}`,
+      );
+    });
+
+    it("describes the matchup with the full team names and the status", () => {
+      expect(expectShareView(summary, statusKind).description).toBe(
+        `Golden State Warriors vs Los Angeles Lakers · ${statusLabel}`,
+      );
+    });
+
+    it("never shows the score", () => {
+      const shareView = expectShareView(summary, statusKind);
+      const { away, home } = summary.game;
+
+      expect(shareView).not.toHaveProperty("score");
+      for (const shareText of [shareView.title, shareView.description]) {
+        expect(shareText).not.toContain(String(away.score));
+        expect(shareText).not.toContain(String(home.score));
+      }
+    });
+
+    it("is cached for its status", () => {
+      expect(expectShareView(summary, statusKind).cacheSeconds).toBe(
+        cacheSeconds,
+      );
+    });
+  });
+
+  describe("the fallback to the default preview", () => {
     it("covers a game that could not be loaded", () => {
       expect(shareViewOf(null).variant).toBe("fallback");
+    });
+
+    it("carries no title or description, so the page metadata stays generic", () => {
+      expect(shareViewOf(null)).not.toHaveProperty("title");
+      expect(shareViewOf(null)).not.toHaveProperty("description");
     });
 
     it("is cached briefly, so a temporary failure does not stick", () => {
