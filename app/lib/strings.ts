@@ -146,6 +146,9 @@ export const strings = {
   share: {
     separator: " · ",
     wordmark: { league: "NBA", framework: "Next.js" },
+    gamesCount: (count: number) => `${count} ${count === 1 ? "game" : "games"}`,
+    moreGames: (count: number) => `+${count} more`,
+    pages: { today: "Today", standings: "Standings" },
     finalTitle: (
       awayAbbreviation: string,
       awayScore: number,
