@@ -179,16 +179,13 @@ function DefaultImage({ logoUrl }: { logoUrl: string | null }) {
         <div
           style={{
             display: "flex",
-            gap: 24,
             fontFamily: "Bebas Neue",
-            fontSize: 168,
+            fontSize: 200,
             lineHeight: 1,
+            color: ACCENT,
           }}
         >
-          <div style={{ display: "flex" }}>{strings.share.wordmark.league}</div>
-          <div style={{ display: "flex", color: ACCENT }}>
-            {strings.share.wordmark.audience}
-          </div>
+          {strings.share.brand}
         </div>
       </div>
       <div

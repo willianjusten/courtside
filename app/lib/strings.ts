@@ -145,9 +145,7 @@ export const strings = {
   },
   share: {
     separator: " · ",
-    // The brand the preview images carry, e.g. "NBA for fans".
-    brand: "NBA for fans",
-    wordmark: { league: "NBA", audience: "for fans" },
+    brand: "Courtside",
     pages: { standings: "Standings" },
     finalTitle: (
       awayAbbreviation: string,
