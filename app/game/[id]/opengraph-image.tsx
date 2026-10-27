@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import {
   INDEFINITE_CACHE_SECONDS,
+  SHORT_CACHE_SECONDS,
   type FinalShareView,
   type MatchupShareView,
   type ShareTeam,
@@ -14,8 +15,10 @@ import {
   ACCENT,
   ELEVATED,
   FOREGROUND,
+  LIVE,
   MUTED,
   ON_ACCENT,
+  ON_LIVE,
 } from "@/app/lib/theme-colors";
 
 // The image follows the game's live status, so it renders on every request; caching is left to Cache-Control.
@@ -75,6 +78,10 @@ async function logoDataUrlOf(logoUrl: string | null): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+function logoFailedToLoad(team: ShareTeam, inlinedTeam: ShareTeam) {
+  return team.logoUrl !== null && inlinedTeam.logoUrl === null;
 }
 
 async function withInlinedLogo(team: ShareTeam): Promise<ShareTeam> {
@@ -172,12 +179,13 @@ function Score({ points, isDimmed }: { points: number; isDimmed: boolean }) {
   );
 }
 
-// The accent marks a result; an upcoming date stays neutral.
+// The accent marks a result and the live red a game in progress, as in the app; an upcoming date stays neutral.
 const STATUS_PILL_COLORS: Record<
   MatchupShareView["variant"],
   { backgroundColor: string; color: string }
 > = {
   scheduled: { backgroundColor: ELEVATED, color: FOREGROUND },
+  "in-progress": { backgroundColor: LIVE, color: ON_LIVE },
   final: { backgroundColor: ACCENT, color: ON_ACCENT },
 };
 
@@ -282,11 +290,13 @@ function ShareImage({ shareView }: { shareView: MatchupShareView }) {
 export default async function Image({ params }: ImageProps) {
   const { id } = await params;
   const shareView = await loadShareView(id);
-  const cacheControl = cacheControlOf(shareView.cacheSeconds);
 
   if (shareView.variant === "fallback") {
     return new Response(await readFile(DEFAULT_IMAGE_PATH), {
-      headers: { "Content-Type": CONTENT_TYPE, "Cache-Control": cacheControl },
+      headers: {
+        "Content-Type": CONTENT_TYPE,
+        "Cache-Control": cacheControlOf(shareView.cacheSeconds),
+      },
     });
   }
 
@@ -295,9 +305,20 @@ export default async function Image({ params }: ImageProps) {
     withInlinedLogo(shareView.home),
     loadFonts(),
   ]);
+  const anyLogoFailedToLoad =
+    logoFailedToLoad(shareView.away, away) ||
+    logoFailedToLoad(shareView.home, home);
+  // A logo that failed to load is usually a passing hiccup, so that image must not be cached for as long as the game's.
+  const cacheSeconds = anyLogoFailedToLoad
+    ? Math.min(shareView.cacheSeconds, SHORT_CACHE_SECONDS)
+    : shareView.cacheSeconds;
 
   return new ImageResponse(
     <ShareImage shareView={{ ...shareView, away, home }} />,
-    { ...SIZE, fonts, headers: { "Cache-Control": cacheControl } },
+    {
+      ...SIZE,
+      fonts,
+      headers: { "Cache-Control": cacheControlOf(cacheSeconds) },
+    },
   );
 }

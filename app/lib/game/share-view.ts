@@ -31,6 +31,9 @@ type MatchupFields = {
 
 export type ScheduledShareView = MatchupFields & { variant: "scheduled" };
 
+// Live or at halftime. Never carries the score or clock, which a cached preview would show long after they changed.
+export type InProgressShareView = MatchupFields & { variant: "in-progress" };
+
 export type FinalShareView = MatchupFields & {
   variant: "final";
   score: Record<TeamSide, number>;
@@ -45,7 +48,10 @@ export type FallbackShareView = {
 };
 
 // A preview drawn for the game itself, as opposed to the app's default.
-export type MatchupShareView = ScheduledShareView | FinalShareView;
+export type MatchupShareView =
+  | ScheduledShareView
+  | InProgressShareView
+  | FinalShareView;
 
 // What a shared game link previews: the Open Graph image and the page title and description.
 export type ShareView = MatchupShareView | FallbackShareView;
@@ -75,13 +81,9 @@ function matchupTeamsOf({ home, away }: Game): Record<TeamSide, ShareTeam> {
 const withStatus = (text: string, statusLabel: string) =>
   [text, statusLabel].join(SEPARATOR);
 
-function scheduledShareViewOf(game: Game): ScheduledShareView {
-  const { home, away } = game;
-  const statusLabel = formatLongNbaDate(game.nbaDate);
-
+// "AWAY vs HOME · status", for a game without a score to show.
+function unscoredLabelsOf({ home, away }: Game, statusLabel: string) {
   return {
-    variant: "scheduled",
-    ...matchupTeamsOf(game),
     statusLabel,
     title: withStatus(
       strings.share.matchup(away.team.abbreviation, home.team.abbreviation),
@@ -91,6 +93,23 @@ function scheduledShareViewOf(game: Game): ScheduledShareView {
       strings.share.matchup(away.team.displayName, home.team.displayName),
       statusLabel,
     ),
+  };
+}
+
+function scheduledShareViewOf(game: Game): ScheduledShareView {
+  return {
+    variant: "scheduled",
+    ...matchupTeamsOf(game),
+    ...unscoredLabelsOf(game, formatLongNbaDate(game.nbaDate)),
+    cacheSeconds: SHORT_CACHE_SECONDS,
+  };
+}
+
+function inProgressShareViewOf(game: Game): InProgressShareView {
+  return {
+    variant: "in-progress",
+    ...matchupTeamsOf(game),
+    ...unscoredLabelsOf(game, strings.gameStatus.live),
     cacheSeconds: SHORT_CACHE_SECONDS,
   };
 }
@@ -135,6 +154,9 @@ export function shareViewOf(summary: GameSummary | null): ShareView {
   switch (game.status.kind) {
     case "scheduled":
       return scheduledShareViewOf(game);
+    case "live":
+    case "halftime":
+      return inProgressShareViewOf(game);
     case "final":
       return finalShareViewOf(game, game.status.period);
     default:

@@ -4,3 +4,5 @@ export const MUTED = "#9aa3b5";
 export const ACCENT = "#ff7a33";
 export const ON_ACCENT = "#1a0a02";
 export const ELEVATED = "#121728";
+export const LIVE = "#ff4757";
+export const ON_LIVE = "#15070a";

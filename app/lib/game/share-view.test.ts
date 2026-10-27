@@ -3,6 +3,7 @@ import type { GameSummary } from "@/app/lib/domain/game-summary";
 import doubleOvertimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-double-overtime-playoff.json";
 import overtimePlayoffSummary from "@/app/lib/espn/__fixtures__/summary-final-overtime-playoff.json";
 import finalSummary from "@/app/lib/espn/__fixtures__/summary-final.json";
+import liveSimulatedSummary from "@/app/lib/espn/__fixtures__/summary-live-simulated.json";
 import liveSummary from "@/app/lib/espn/__fixtures__/summary-live.json";
 import preGameTonightSummary from "@/app/lib/espn/__fixtures__/summary-pre-game-tonight.json";
 import preGameSummary from "@/app/lib/espn/__fixtures__/summary-pre-game.json";
@@ -13,18 +14,22 @@ import {
   INDEFINITE_CACHE_SECONDS,
   SHORT_CACHE_SECONDS,
   shareViewOf,
-  type FinalShareView,
-  type ScheduledShareView,
+  type ShareView,
 } from "./share-view";
 
 const summaryOf = (fixture: unknown) => mapGameSummary(fixture as RawSummary);
 
-function expectFinalShareView(summary: GameSummary): FinalShareView {
+function expectShareView<Variant extends ShareView["variant"]>(
+  summary: GameSummary,
+  variant: Variant,
+): Extract<ShareView, { variant: Variant }> {
   const shareView = shareViewOf(summary);
-  if (shareView.variant !== "final") {
-    throw new Error(`Expected a final share view, got ${shareView.variant}`);
+  if (shareView.variant !== variant) {
+    throw new Error(
+      `Expected a ${variant} share view, got ${shareView.variant}`,
+    );
   }
-  return shareView;
+  return shareView as Extract<ShareView, { variant: Variant }>;
 }
 
 const final = summaryOf(finalSummary);
@@ -33,16 +38,15 @@ const doubleOvertimePlayoff = summaryOf(doubleOvertimePlayoffSummary);
 const preGame = summaryOf(preGameSummary);
 const preGameTonight = summaryOf(preGameTonightSummary);
 const live = summaryOf(liveSummary);
+const liveSimulated = summaryOf(liveSimulatedSummary);
 
-function expectScheduledShareView(summary: GameSummary): ScheduledShareView {
-  const shareView = shareViewOf(summary);
-  if (shareView.variant !== "scheduled") {
-    throw new Error(
-      `Expected a scheduled share view, got ${shareView.variant}`,
-    );
-  }
-  return shareView;
+function withGame(summary: GameSummary, game: Partial<Game>): GameSummary {
+  return { ...summary, game: { ...summary.game, ...game } };
 }
+
+const halftime = withGame(liveSimulated, {
+  status: { kind: "halftime", period: 2 },
+});
 
 function withAwayTeam(summary: GameSummary, team: Partial<Team>): GameSummary {
   const { away } = summary.game;
@@ -56,7 +60,7 @@ function withAwayTeam(summary: GameSummary, team: Partial<Team>): GameSummary {
 describe("shareViewOf", () => {
   describe("a final game", () => {
     it("shows both teams, away first, with the final score", () => {
-      const shareView = expectFinalShareView(final);
+      const shareView = expectShareView(final, "final");
 
       expect(shareView).toMatchObject({
         variant: "final",
@@ -76,44 +80,47 @@ describe("shareViewOf", () => {
       const { home, away } = final.game;
       const colors = readableTeamColors(home.team, away.team);
 
-      expect(expectFinalShareView(final)).toMatchObject({
+      expect(expectShareView(final, "final")).toMatchObject({
         away: { color: colors.away },
         home: { color: colors.home },
       });
     });
 
     it("names the winning side", () => {
-      expect(expectFinalShareView(final).winningSide).toBe("home");
-      expect(expectFinalShareView(overtimePlayoff).winningSide).toBe("away");
+      expect(expectShareView(final, "final").winningSide).toBe("home");
+      expect(expectShareView(overtimePlayoff, "final").winningSide).toBe(
+        "away",
+      );
     });
 
     it("labels an overtime finish", () => {
-      expect(expectFinalShareView(overtimePlayoff).statusLabel).toBe(
+      expect(expectShareView(overtimePlayoff, "final").statusLabel).toBe(
         "Final/OT",
       );
     });
 
     it("labels a double overtime finish", () => {
-      expect(expectFinalShareView(doubleOvertimePlayoff).statusLabel).toBe(
+      expect(expectShareView(doubleOvertimePlayoff, "final").statusLabel).toBe(
         "Final/2OT",
       );
     });
 
     it("titles the page with the abbreviations, the score, and the status", () => {
-      expect(expectFinalShareView(overtimePlayoff).title).toBe(
+      expect(expectShareView(overtimePlayoff, "final").title).toBe(
         "LAL 112-108 HOU · Final/OT",
       );
     });
 
     it("describes the result with the full team names", () => {
-      expect(expectFinalShareView(final).description).toBe(
+      expect(expectShareView(final, "final").description).toBe(
         "Golden State Warriors 105, Los Angeles Lakers 127 · Final",
       );
     });
 
     it("keeps the logo empty for a team ESPN has no logo for", () => {
-      const shareView = expectFinalShareView(
+      const shareView = expectShareView(
         withAwayTeam(final, { logoUrl: null }),
+        "final",
       );
 
       expect(shareView?.away.logoUrl).toBeNull();
@@ -121,7 +128,7 @@ describe("shareViewOf", () => {
     });
 
     it("is cached indefinitely, since a final result never changes", () => {
-      expect(expectFinalShareView(final).cacheSeconds).toBe(
+      expect(expectShareView(final, "final").cacheSeconds).toBe(
         INDEFINITE_CACHE_SECONDS,
       );
     });
@@ -129,7 +136,7 @@ describe("shareViewOf", () => {
 
   describe("a scheduled game", () => {
     it("shows both teams, away first, with the game date", () => {
-      expect(expectScheduledShareView(preGame)).toMatchObject({
+      expect(expectShareView(preGame, "scheduled")).toMatchObject({
         variant: "scheduled",
         away: { abbreviation: "DEN", displayName: "Denver Nuggets" },
         home: { abbreviation: "OKC", displayName: "Oklahoma City Thunder" },
@@ -139,29 +146,86 @@ describe("shareViewOf", () => {
 
     it("dates a late tip-off by its Eastern date, not the UTC one", () => {
       // Tips off at 02:00 UTC on 25 October, still the evening of the 24th in New York.
-      expect(expectScheduledShareView(preGameTonight).statusLabel).toBe(
+      expect(expectShareView(preGameTonight, "scheduled").statusLabel).toBe(
         "24 October 2026",
       );
     });
 
     it("has no score", () => {
-      expect(expectScheduledShareView(preGame)).not.toHaveProperty("score");
+      expect(expectShareView(preGame, "scheduled")).not.toHaveProperty("score");
     });
 
     it("titles the page with the matchup and the date", () => {
-      expect(expectScheduledShareView(preGame).title).toBe(
+      expect(expectShareView(preGame, "scheduled").title).toBe(
         "DEN vs OKC · 22 October 2026",
       );
     });
 
     it("describes the matchup with the full team names and the date", () => {
-      expect(expectScheduledShareView(preGame).description).toBe(
+      expect(expectShareView(preGame, "scheduled").description).toBe(
         "Denver Nuggets vs Oklahoma City Thunder · 22 October 2026",
       );
     });
 
     it("is cached briefly, so the preview catches up once the game starts", () => {
-      expect(expectScheduledShareView(preGame).cacheSeconds).toBe(
+      expect(expectShareView(preGame, "scheduled").cacheSeconds).toBe(
+        SHORT_CACHE_SECONDS,
+      );
+    });
+  });
+
+  describe("a game in progress", () => {
+    it("shows both teams, away first, with a live label", () => {
+      expect(expectShareView(live, "in-progress")).toMatchObject({
+        variant: "in-progress",
+        away: { abbreviation: "CLE", displayName: "Cleveland Cavaliers" },
+        home: { abbreviation: "PHI", displayName: "Philadelphia 76ers" },
+        statusLabel: "Live",
+      });
+    });
+
+    it("treats halftime as part of the game", () => {
+      expect(expectShareView(halftime, "in-progress").statusLabel).toBe("Live");
+    });
+
+    it.each([
+      ["live", live],
+      ["live late in the game", liveSimulated],
+      ["at halftime", halftime],
+    ])("never shows the score or clock when %s", (_, summary) => {
+      const shareView = expectShareView(summary, "in-progress");
+      const { away, home } = summary.game;
+      const scoreAndClock = [String(away.score), String(home.score)];
+      if (summary.game.status.kind === "live") {
+        scoreAndClock.push(summary.game.status.clock);
+      }
+
+      expect(shareView).not.toHaveProperty("score");
+      for (const shareText of [
+        shareView.statusLabel,
+        shareView.title,
+        shareView.description,
+      ]) {
+        for (const leakedValue of scoreAndClock) {
+          expect(shareText).not.toContain(leakedValue);
+        }
+      }
+    });
+
+    it("titles the page with the matchup and the live label", () => {
+      expect(expectShareView(liveSimulated, "in-progress").title).toBe(
+        "LAL vs HOU · Live",
+      );
+    });
+
+    it("describes the matchup with the full team names", () => {
+      expect(expectShareView(liveSimulated, "in-progress").description).toBe(
+        "Los Angeles Lakers vs Houston Rockets · Live",
+      );
+    });
+
+    it("is cached for about a game's length, so it catches up once the game ends", () => {
+      expect(expectShareView(live, "in-progress").cacheSeconds).toBe(
         SHORT_CACHE_SECONDS,
       );
     });
@@ -169,7 +233,10 @@ describe("shareViewOf", () => {
 
   describe("the fallback to the default preview", () => {
     it("covers a game whose status has no preview yet", () => {
-      expect(shareViewOf(live).variant).toBe("fallback");
+      expect(
+        shareViewOf(withGame(preGame, { status: { kind: "postponed" } }))
+          .variant,
+      ).toBe("fallback");
     });
 
     it("covers a game that could not be loaded", () => {
