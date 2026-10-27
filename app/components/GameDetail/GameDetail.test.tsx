@@ -826,18 +826,4 @@ describe("GameDetail highlights", () => {
     expect(videoButtons()[0].hasAttribute("aria-current")).toBe(false);
     expect(highlightsRegion().textContent).toContain(firstClip.headline);
   });
-
-  it("links the selected video to ESPN", async () => {
-    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
-    await renderHighlights("mobile");
-    const watchOnEspn = () =>
-      within(highlightsRegion()).getByRole("link", {
-        name: highlights.watchOnEspn,
-      });
-
-    expect(watchOnEspn().getAttribute("href")).toBe(recap.links.web.href);
-
-    fireEvent.click(videoButtons()[1]);
-    expect(watchOnEspn().getAttribute("href")).toBe(firstClip.links.web.href);
-  });
 });

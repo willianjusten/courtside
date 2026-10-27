@@ -99,16 +99,6 @@ export function Highlights({ highlights }: { highlights: HighlightsView }) {
             <p className="text-sm leading-[1.35] font-bold md:text-[15px]">
               {selectedVideo.title}
             </p>
-            {selectedVideo.espnUrl && (
-              <a
-                href={selectedVideo.espnUrl}
-                target="_blank"
-                rel="noreferrer"
-                className={`inline-flex min-h-11 items-center self-start text-xs font-bold text-link transition-colors hover:text-accent md:self-auto md:text-[13px] ${FOCUS_RING_CLASS_NAME}`}
-              >
-                {strings.game.highlights.watchOnEspn}
-              </a>
-            )}
           </div>
         </div>
         <div className="flex min-w-0 flex-col gap-2.5 md:flex-[1_1_300px] md:gap-2">

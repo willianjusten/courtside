@@ -184,7 +184,6 @@ export const strings = {
       videos: "Highlight videos",
       viewMore: "View more",
       viewLess: "View less",
-      watchOnEspn: "Watch on ESPN",
     },
     teamStats: {
       title: "Team stats",
