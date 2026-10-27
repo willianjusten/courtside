@@ -1,24 +1,17 @@
-import type { Game, GameCompetitor } from "@/app/lib/domain/game";
+import type { Game } from "@/app/lib/domain/game";
 import type { GameSummary } from "@/app/lib/domain/game-summary";
 import { finalLabel, isInProgress, leadingSideOf } from "@/app/lib/game/status";
 import { readableTeamColors, type TeamSide } from "@/app/lib/home/team-colors";
+import {
+  INDEFINITE_CACHE_SECONDS,
+  SHORT_CACHE_SECONDS,
+  shareTeamOf,
+  type ShareTeam,
+} from "@/app/lib/share-image/share-image";
 import { strings } from "@/app/lib/strings";
 import { formatLongNbaDate } from "@/app/lib/time/nba-date";
 
 const SEPARATOR = strings.share.separator;
-
-// One year, the longest max-age caches honor.
-export const INDEFINITE_CACHE_SECONDS = 31_536_000;
-// Three hours, about a game's length, so a preview catches up with the game's status.
-export const SHORT_CACHE_SECONDS = 3 * 60 * 60;
-
-export type ShareTeam = {
-  abbreviation: string;
-  displayName: string;
-  // Null when ESPN has no logo; the image shows the abbreviation on the team color instead.
-  logoUrl: string | null;
-  color: string;
-};
 
 type MatchupFields = {
   away: ShareTeam;
@@ -67,20 +60,11 @@ const FALLBACK_SHARE_VIEW: FallbackShareView = {
   cacheSeconds: SHORT_CACHE_SECONDS,
 };
 
-function shareTeamOf({ team }: GameCompetitor, color: string): ShareTeam {
-  return {
-    abbreviation: team.abbreviation,
-    displayName: team.displayName,
-    logoUrl: team.logoUrl,
-    color,
-  };
-}
-
 function matchupTeamsOf({ home, away }: Game): Record<TeamSide, ShareTeam> {
   const colors = readableTeamColors(home.team, away.team);
   return {
-    away: shareTeamOf(away, colors.away),
-    home: shareTeamOf(home, colors.home),
+    away: shareTeamOf(away.team, colors.away),
+    home: shareTeamOf(home.team, colors.home),
   };
 }
 
@@ -187,9 +171,4 @@ export function shareViewOf(summary: GameSummary | null): ShareView {
     case "canceled":
       return canceledShareViewOf(game);
   }
-}
-
-// A degraded image, such as one whose logo failed to load, is usually a passing hiccup, so it is never cached longer than briefly.
-export function degradedImageCacheSeconds(shareView: ShareView): number {
-  return Math.min(shareView.cacheSeconds, SHORT_CACHE_SECONDS);
 }

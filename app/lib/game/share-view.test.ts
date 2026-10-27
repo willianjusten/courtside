@@ -12,9 +12,8 @@ import {
   degradedImageCacheSeconds,
   INDEFINITE_CACHE_SECONDS,
   SHORT_CACHE_SECONDS,
-  shareViewOf,
-  type ShareView,
-} from "./share-view";
+} from "@/app/lib/share-image/share-image";
+import { shareViewOf, type ShareView } from "./share-view";
 import { summaryOf, withGame } from "./summary-test-helpers";
 
 function expectShareView<Variant extends ShareView["variant"]>(

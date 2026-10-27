@@ -145,6 +145,7 @@ export const strings = {
   },
   share: {
     separator: " · ",
+    wordmark: { league: "NBA", framework: "Next.js" },
     finalTitle: (
       awayAbbreviation: string,
       awayScore: number,

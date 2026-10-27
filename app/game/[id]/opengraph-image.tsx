@@ -1,15 +1,20 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-import { ImageResponse } from "next/og";
-import {
-  degradedImageCacheSeconds,
-  INDEFINITE_CACHE_SECONDS,
-  type FinalShareView,
-  type MatchupShareView,
-  type ShareTeam,
-} from "@/app/lib/game/share-view";
 import { loadShareView } from "@/app/lib/game/share-view.server";
+import type {
+  FinalShareView,
+  MatchupShareView,
+} from "@/app/lib/game/share-view";
 import { INK } from "@/app/lib/home/team-colors";
+import {
+  GLOW_ALPHA,
+  renderDefaultImage,
+  renderShareImage,
+  SHARE_IMAGE_CONTENT_TYPE,
+  SHARE_IMAGE_SIZE,
+  ShareImageHeading,
+  TeamMark,
+  withInlinedLogos,
+} from "@/app/lib/share-image/render";
+import type { ShareTeam } from "@/app/lib/share-image/share-image";
 import { strings } from "@/app/lib/strings";
 import {
   ACCENT,
@@ -24,17 +29,11 @@ import {
 // The image follows the game's live status, so it renders on every request; caching is left to Cache-Control.
 export const dynamic = "force-dynamic";
 
-const SIZE = { width: 1200, height: 630 };
-const CONTENT_TYPE = "image/png";
 // The single image this route serves; generateImageMetadata needs an id for it.
 const IMAGE_ID = "preview";
-const ASSETS_DIRECTORY = join(process.cwd(), "app/game/[id]/assets");
-const DEFAULT_IMAGE_PATH = join(process.cwd(), "app/opengraph-image.png");
 
 const SCORE_DIVIDER = "#3a4256";
 const LOGO_SIZE = 200;
-// Hex alpha appended to a team color for the glow behind its side.
-const GLOW_ALPHA = "38";
 
 // Through generateImageMetadata rather than a static alt export, so the alt text names the game.
 export async function generateImageMetadata({
@@ -48,8 +47,8 @@ export async function generateImageMetadata({
       id: IMAGE_ID,
       alt:
         shareView.variant === "fallback" ? strings.app.name : shareView.title,
-      size: SIZE,
-      contentType: CONTENT_TYPE,
+      size: SHARE_IMAGE_SIZE,
+      contentType: SHARE_IMAGE_CONTENT_TYPE,
     },
   ];
 }
@@ -57,82 +56,6 @@ export async function generateImageMetadata({
 type ImageProps = {
   params: Promise<{ id: string }>;
 };
-
-function cacheControlOf(cacheSeconds: number) {
-  return cacheSeconds === INDEFINITE_CACHE_SECONDS
-    ? `public, immutable, no-transform, max-age=${cacheSeconds}`
-    : `public, max-age=${cacheSeconds}`;
-}
-
-// Inlining the logo up front means an unreachable logo falls back to the abbreviation instead of failing the render.
-async function logoDataUrlOf(logoUrl: string | null): Promise<string | null> {
-  if (!logoUrl) return null;
-  try {
-    const response = await fetch(logoUrl);
-    if (!response.ok) return null;
-    const logoType = response.headers.get("content-type") ?? CONTENT_TYPE;
-    const logoBase64 = Buffer.from(await response.arrayBuffer()).toString(
-      "base64",
-    );
-    return `data:${logoType};base64,${logoBase64}`;
-  } catch {
-    return null;
-  }
-}
-
-function logoFailedToLoad(team: ShareTeam, inlinedTeam: ShareTeam) {
-  return team.logoUrl !== null && inlinedTeam.logoUrl === null;
-}
-
-async function withInlinedLogo(team: ShareTeam): Promise<ShareTeam> {
-  return { ...team, logoUrl: await logoDataUrlOf(team.logoUrl) };
-}
-
-async function loadFonts() {
-  const [display, sansMedium, sansBold] = await Promise.all(
-    [
-      "BebasNeue-Regular.ttf",
-      "SpaceGrotesk-500.ttf",
-      "SpaceGrotesk-700.ttf",
-    ].map((fileName) => readFile(join(ASSETS_DIRECTORY, fileName))),
-  );
-  return [
-    { name: "Bebas Neue", data: display, weight: 400 as const },
-    { name: "Space Grotesk", data: sansMedium, weight: 500 as const },
-    { name: "Space Grotesk", data: sansBold, weight: 700 as const },
-  ];
-}
-
-function TeamMark({ team }: { team: ShareTeam }) {
-  if (team.logoUrl) {
-    return (
-      <img
-        src={team.logoUrl}
-        width={LOGO_SIZE}
-        height={LOGO_SIZE}
-        alt={team.displayName}
-      />
-    );
-  }
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: LOGO_SIZE,
-        height: LOGO_SIZE,
-        borderRadius: LOGO_SIZE / 2,
-        backgroundColor: team.color,
-        color: INK,
-        fontFamily: "Bebas Neue",
-        fontSize: 88,
-      }}
-    >
-      {team.abbreviation}
-    </div>
-  );
-}
 
 function TeamColumn({ team }: { team: ShareTeam }) {
   return (
@@ -144,7 +67,7 @@ function TeamColumn({ team }: { team: ShareTeam }) {
         width: 300,
       }}
     >
-      <TeamMark team={team} />
+      <TeamMark team={team} size={LOGO_SIZE} />
       <div
         style={{
           marginTop: 20,
@@ -221,18 +144,7 @@ function ShareImage({ shareView }: { shareView: MatchupShareView }) {
         color: FOREGROUND,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          fontSize: 22,
-          fontWeight: 700,
-          letterSpacing: 4,
-          textTransform: "uppercase",
-          color: MUTED,
-        }}
-      >
-        {strings.app.name}
-      </div>
+      <ShareImageHeading />
       <div
         style={{
           display: "flex",
@@ -294,32 +206,16 @@ export default async function Image({ params }: ImageProps) {
   const shareView = await loadShareView(id);
 
   if (shareView.variant === "fallback") {
-    return new Response(await readFile(DEFAULT_IMAGE_PATH), {
-      headers: {
-        "Content-Type": CONTENT_TYPE,
-        "Cache-Control": cacheControlOf(shareView.cacheSeconds),
-      },
-    });
+    return renderDefaultImage({ cacheSeconds: shareView.cacheSeconds });
   }
 
-  const [away, home, fonts] = await Promise.all([
-    withInlinedLogo(shareView.away),
-    withInlinedLogo(shareView.home),
-    loadFonts(),
-  ]);
-  const anyLogoFailedToLoad =
-    logoFailedToLoad(shareView.away, away) ||
-    logoFailedToLoad(shareView.home, home);
-  const cacheSeconds = anyLogoFailedToLoad
-    ? degradedImageCacheSeconds(shareView)
-    : shareView.cacheSeconds;
+  const {
+    teams: [away, home],
+    anyLogoFailedToLoad,
+  } = await withInlinedLogos([shareView.away, shareView.home]);
 
-  return new ImageResponse(
+  return renderShareImage(
     <ShareImage shareView={{ ...shareView, away, home }} />,
-    {
-      ...SIZE,
-      fonts,
-      headers: { "Cache-Control": cacheControlOf(cacheSeconds) },
-    },
+    { cacheSeconds: shareView.cacheSeconds, isDegraded: anyLogoFailedToLoad },
   );
 }
