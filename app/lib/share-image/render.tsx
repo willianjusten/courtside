@@ -142,7 +142,7 @@ export function ShareImageHeading({ pageLabel }: { pageLabel?: string }) {
         color: MUTED,
       }}
     >
-      <div style={{ display: "flex" }}>{strings.share.brand}</div>
+      <div style={{ display: "flex" }}>{strings.app.name}</div>
       {pageLabel && (
         <div style={{ display: "flex", color: ACCENT }}>{pageLabel}</div>
       )}

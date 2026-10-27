@@ -32,8 +32,7 @@ export async function generateImageMetadata() {
   return [
     {
       id: IMAGE_ID,
-      alt:
-        shareView.variant === "fallback" ? strings.share.brand : shareView.alt,
+      alt: shareView.variant === "fallback" ? strings.app.name : shareView.alt,
       size: SHARE_IMAGE_SIZE,
       contentType: SHARE_IMAGE_CONTENT_TYPE,
     },
