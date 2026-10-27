@@ -18,7 +18,7 @@ import {
 } from "@/app/lib/queries/team";
 import { getQueryClient } from "@/app/lib/query/get-query-client";
 import { strings } from "@/app/lib/strings";
-import HomePage from "./(home)/page";
+import HomePage from "./page";
 import GamesPage from "./games/[date]/page";
 import GamePage from "./game/[id]/page";
 import StandingsPage from "./standings/page";
