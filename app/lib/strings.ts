@@ -143,6 +143,21 @@ export const strings = {
     label: "Broadcast: ",
     separator: " · ",
   },
+  share: {
+    separator: " · ",
+    finalTitle: (
+      awayAbbreviation: string,
+      awayScore: number,
+      homeScore: number,
+      homeAbbreviation: string,
+    ) => `${awayAbbreviation} ${awayScore}-${homeScore} ${homeAbbreviation}`,
+    finalDescription: (
+      awayName: string,
+      awayScore: number,
+      homeName: string,
+      homeScore: number,
+    ) => `${awayName} ${awayScore}, ${homeName} ${homeScore}`,
+  },
   game: {
     title: (awayTeamName: string, homeTeamName: string) =>
       `${awayTeamName} at ${homeTeamName}`,
