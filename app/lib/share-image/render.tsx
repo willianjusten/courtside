@@ -22,7 +22,7 @@ const ASSETS_DIRECTORY = join(process.cwd(), "app/lib/share-image/assets");
 export const GLOW_ALPHA = "38";
 // The abbreviation fills a bit under half of a mark drawn without a logo.
 const ABBREVIATION_TO_MARK_RATIO = 0.44;
-const DEFAULT_LOGO_SIZE = 220;
+const DEFAULT_LOGO_SIZE = 200;
 
 function cacheControlOf(cacheSeconds: number) {
   return cacheSeconds === INDEFINITE_CACHE_SECONDS
@@ -128,7 +128,7 @@ export function TeamMark({ team, size }: { team: ShareTeam; size: number }) {
   );
 }
 
-// The small app name heading every preview, optionally followed by the page it shows.
+// The small brand heading every preview, optionally followed by the page it shows.
 export function ShareImageHeading({ pageLabel }: { pageLabel?: string }) {
   return (
     <div
@@ -142,7 +142,7 @@ export function ShareImageHeading({ pageLabel }: { pageLabel?: string }) {
         color: MUTED,
       }}
     >
-      <div style={{ display: "flex" }}>{strings.app.name}</div>
+      <div style={{ display: "flex" }}>{strings.share.brand}</div>
       {pageLabel && (
         <div style={{ display: "flex", color: ACCENT }}>{pageLabel}</div>
       )}
@@ -167,7 +167,7 @@ function DefaultImage({ logoUrl }: { logoUrl: string | null }) {
         color: FOREGROUND,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
         {logoUrl && (
           <img
             src={logoUrl}
@@ -179,15 +179,15 @@ function DefaultImage({ logoUrl }: { logoUrl: string | null }) {
         <div
           style={{
             display: "flex",
-            gap: 28,
+            gap: 24,
             fontFamily: "Bebas Neue",
-            fontSize: 200,
+            fontSize: 168,
             lineHeight: 1,
           }}
         >
           <div style={{ display: "flex" }}>{strings.share.wordmark.league}</div>
           <div style={{ display: "flex", color: ACCENT }}>
-            {strings.share.wordmark.framework}
+            {strings.share.wordmark.audience}
           </div>
         </div>
       </div>

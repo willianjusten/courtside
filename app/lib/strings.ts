@@ -145,10 +145,10 @@ export const strings = {
   },
   share: {
     separator: " · ",
-    wordmark: { league: "NBA", framework: "Next.js" },
-    gamesCount: (count: number) => `${count} ${count === 1 ? "game" : "games"}`,
-    moreGames: (count: number) => `+${count} more`,
-    pages: { today: "Today", standings: "Standings" },
+    // The brand the preview images carry, e.g. "NBA for fans".
+    brand: "NBA for fans",
+    wordmark: { league: "NBA", audience: "for fans" },
+    pages: { standings: "Standings" },
     finalTitle: (
       awayAbbreviation: string,
       awayScore: number,

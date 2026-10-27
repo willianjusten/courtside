@@ -6,7 +6,7 @@ import {
 import { INDEFINITE_CACHE_SECONDS } from "@/app/lib/share-image/share-image";
 import { strings } from "@/app/lib/strings";
 
-export const alt = strings.app.name;
+export const alt = strings.share.brand;
 export const size = SHARE_IMAGE_SIZE;
 export const contentType = SHARE_IMAGE_CONTENT_TYPE;
 
