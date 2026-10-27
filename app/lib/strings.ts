@@ -146,6 +146,8 @@ export const strings = {
   share: {
     separator: " · ",
     brand: "Courtside",
+    // The brand split for the two-tone wordmark of the default image.
+    wordmark: { lead: "Court", accent: "side" },
     pages: { standings: "Standings" },
     finalTitle: (
       awayAbbreviation: string,

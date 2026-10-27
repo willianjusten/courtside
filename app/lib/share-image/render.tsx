@@ -182,10 +182,12 @@ function DefaultImage({ logoUrl }: { logoUrl: string | null }) {
             fontFamily: "Bebas Neue",
             fontSize: 200,
             lineHeight: 1,
-            color: ACCENT,
           }}
         >
-          {strings.share.brand}
+          <div style={{ display: "flex" }}>{strings.share.wordmark.lead}</div>
+          <div style={{ display: "flex", color: ACCENT }}>
+            {strings.share.wordmark.accent}
+          </div>
         </div>
       </div>
       <div
