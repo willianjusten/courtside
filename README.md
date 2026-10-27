@@ -1,6 +1,6 @@
 ## Courtside
 
-> A simple app to show NBA games and scores/details, powered by the public ESPN API.
+> An app to show NBA games and scores/details, powered by the public ESPN API.
 
 ## Getting Started
 
