@@ -28,7 +28,8 @@ export async function generateMetadata({
   return {
     title,
     description,
-    openGraph: { title, description },
+    // A page-level openGraph replaces the layout one entirely, so url and type are repeated here.
+    openGraph: { type: "website", url: "./", title, description },
     twitter: { card: "summary_large_image", title, description },
   };
 }

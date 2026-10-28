@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://nba.willianjusten.com.br"),
   title: strings.app.name,
   description: strings.app.description,
+  // WhatsApp ignores the preview without og:url and og:type; "./" resolves to the current route's path.
+  openGraph: { type: "website", url: "./" },
 };
 
 export const viewport: Viewport = {
