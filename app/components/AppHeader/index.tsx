@@ -18,15 +18,21 @@ export default function AppHeader() {
         <Link
           href="/"
           aria-label={strings.shell.logoLabel}
-          className="flex min-h-11 items-center"
+          className="flex min-h-11 items-center gap-2.5 md:gap-3"
         >
           <img
             src={resizedLogoUrl(NBA_LOGO_URL, LOGO_REQUEST_SIZE)}
             alt=""
             width={LOGO_DISPLAY_SIZE}
             height={LOGO_DISPLAY_SIZE}
-            className="size-10 md:size-12"
+            // ESPN pads the narrow logo into a square, so the image is cropped to the logo's width to keep it close to the wordmark.
+            className="h-10 w-5 object-cover md:h-12 md:w-6"
           />
+          {/* Bebas Neue sits high in its line box, so it is nudged down to center its caps on the logo. */}
+          <span className="translate-y-0.5 font-display text-[28px] leading-none md:text-4xl">
+            {strings.app.wordmark.lead}
+            <span className="text-accent">{strings.app.wordmark.accent}</span>
+          </span>
         </Link>
         <Suspense fallback={<PrimaryNavigationFallback />}>
           <PrimaryNavigation />
