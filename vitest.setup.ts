@@ -12,5 +12,4 @@ vi.mock("next/link", () => ({
     React.createElement("a", { href, ...props }, children),
 }));
 
-// server-only throws outside the react-server condition, which Vitest does not use.
 vi.mock("server-only", () => ({}));
