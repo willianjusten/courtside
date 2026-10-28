@@ -5,6 +5,8 @@ export const strings = {
   app: {
     name: "Courtside",
     description: "NBA scores, standings, and playoffs.",
+    // The brand split for the two-tone wordmark in the header and the default share image.
+    wordmark: { lead: "Court", accent: "side" },
   },
   common: {
     comingSoon: "Coming soon.",
@@ -145,8 +147,6 @@ export const strings = {
   },
   share: {
     separator: " · ",
-    // The brand split for the two-tone wordmark of the default image.
-    wordmark: { lead: "Court", accent: "side" },
     pages: { standings: "Standings" },
     finalTitle: (
       awayAbbreviation: string,

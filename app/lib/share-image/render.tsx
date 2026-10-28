@@ -184,9 +184,9 @@ function DefaultImage({ logoUrl }: { logoUrl: string | null }) {
             lineHeight: 1,
           }}
         >
-          <div style={{ display: "flex" }}>{strings.share.wordmark.lead}</div>
+          <div style={{ display: "flex" }}>{strings.app.wordmark.lead}</div>
           <div style={{ display: "flex", color: ACCENT }}>
-            {strings.share.wordmark.accent}
+            {strings.app.wordmark.accent}
           </div>
         </div>
       </div>
