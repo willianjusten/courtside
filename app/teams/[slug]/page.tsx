@@ -15,10 +15,11 @@ import {
 import { teamsQueryOptions } from "@/app/lib/queries/teams";
 import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
 
-// Prerendered for every team, then regenerated at most every five minutes, the team schedule's server cache period.
+// Prerendered for every team, then regenerated at most every 12 hours (43200 seconds, a literal so Next.js can read it statically).
+// The page's queries are hydrated with the time they were fetched, so the client refetches anything past its stale time on load.
 // Forced static because the shared header reads the live scoreboard, which would otherwise render every request.
 export const dynamic = "force-static";
-export const revalidate = 300;
+export const revalidate = 43200;
 
 type TeamPageProps = {
   params: Promise<{ slug: string }>;
