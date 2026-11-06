@@ -1,6 +1,7 @@
 import type { Game, PlayoffGame } from "@/app/lib/domain/game";
 import type { NbaDate } from "@/app/lib/domain/nba-date";
 import type { Standings } from "@/app/lib/domain/standings";
+import type { TeamLeaderCategory } from "@/app/lib/domain/leaders";
 import type { RosterPlayer, TeamDetail } from "@/app/lib/domain/team";
 import standingsFixture from "@/app/lib/espn/__fixtures__/standings-regular-season.json";
 import lakersDetailFixture from "@/app/lib/espn/__fixtures__/team-detail-lakers.json";
@@ -115,6 +116,26 @@ const lakersPlayers = (
   (lakersRosterFixture as unknown as RawRosterResponse).athletes ?? []
 ).map((athlete) => mapRosterPlayer(athlete));
 
+const lakersLeaders: TeamLeaderCategory[] = [
+  {
+    stat: "points",
+    leaders: [
+      {
+        athlete: {
+          id: "3945274",
+          displayName: "Luka Doncic",
+          shortName: "L. Doncic",
+          headshotUrl: null,
+        },
+        value: 38.5,
+        displayValue: "38.5",
+      },
+    ],
+  },
+  { stat: "rebounds", leaders: [] },
+  { stat: "assists", leaders: null },
+];
+
 function rosterPlayerOf(overrides: Partial<RosterPlayer>): RosterPlayer {
   return {
     id: "1",
@@ -146,6 +167,7 @@ function viewFor({
   scoreboardGames = null,
   players = lakersPlayers,
   rosterQuery = { status: "success", data: players },
+  leadersQuery = { status: "success", data: lakersLeaders },
   timeZone = "America/Los_Angeles",
   scheduleExpansions = { upcoming: 0, results: 0 },
   tabParam = null,
@@ -160,6 +182,7 @@ function viewFor({
   scoreboardGames?: Game[] | null;
   players?: RosterPlayer[];
   rosterQuery?: TeamDataQueryState<RosterPlayer[]>;
+  leadersQuery?: TeamDataQueryState<TeamLeaderCategory[]>;
   timeZone?: string | null;
   scheduleExpansions?: TeamScheduleExpansions;
   tabParam?: string | null;
@@ -173,6 +196,7 @@ function viewFor({
     playoffGames,
     scoreboardGames,
     rosterQuery,
+    leadersQuery,
     timeZone,
     scheduleExpansions,
     tabParam,
@@ -476,6 +500,27 @@ describe("buildTeamView", () => {
       expect(
         schedule.kind === "ready" && schedule.content.results.items,
       ).toHaveLength(1);
+    });
+
+    it("loads, fails, and goes stale on its own for the team leaders", () => {
+      expect(
+        readyScreenOf(viewFor({ leadersQuery: { status: "loading" } }).screen)
+          .leaders,
+      ).toEqual({ kind: "loading" });
+      expect(
+        readyScreenOf(viewFor({ leadersQuery: { status: "error" } }).screen)
+          .leaders,
+      ).toEqual({ kind: "error", message: strings.team.leaders.error });
+      expect(
+        readyScreenOf(
+          viewFor({ leadersQuery: { status: "stale", data: lakersLeaders } })
+            .screen,
+        ).leaders,
+      ).toEqual({
+        kind: "ready",
+        content: lakersLeaders,
+        staleNotice: strings.team.leaders.stale,
+      });
     });
 
     it("keeps the last roster with a stale warning when its refetch failed", () => {
@@ -1170,12 +1215,21 @@ describe("buildTeamView", () => {
             label: strings.team.tabs.roster,
             href: "/teams/lakers?tab=roster",
           },
+          {
+            id: "leaders",
+            label: strings.team.tabs.leaders,
+            href: "/teams/lakers?tab=leaders",
+          },
         ],
       });
     });
 
     it("selects the roster tab from the query string", () => {
       expect(viewFor({ tabParam: "roster" }).tabs.selected).toBe("roster");
+    });
+
+    it("selects the leaders tab from the query string", () => {
+      expect(viewFor({ tabParam: "leaders" }).tabs.selected).toBe("leaders");
     });
 
     it("falls back to the schedule for an unknown tab", () => {

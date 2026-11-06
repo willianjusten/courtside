@@ -52,3 +52,10 @@ export type LeaderCategory = {
   // Best first. Empty before any regular season game has been played; null when the category's athletes could not be loaded.
   leaders: LeagueLeader[] | null;
 };
+
+// A team's own leaders, without a team on each leader since they all play for it.
+export type TeamLeaderCategory = {
+  stat: GameLeaderStat;
+  // Best first. Empty before the team has played a regular season game; null when the category's athletes could not be loaded.
+  leaders: Leader[] | null;
+};

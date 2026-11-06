@@ -2,6 +2,9 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import TeamPage, { TeamPageContent } from "@/app/components/TeamPage";
 import { fetchTeams } from "@/app/lib/espn";
+// Not in the @/app/lib/espn barrel: the leaders module is server-only and the barrel is also imported by client code.
+import { fetchTeamLeaders } from "@/app/lib/espn/leaders";
+import { teamLeadersQueryOptions } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import {
   teamDetailQueryOptions,
@@ -12,10 +15,11 @@ import {
 import { teamsQueryOptions } from "@/app/lib/queries/teams";
 import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
 
-// Prerendered for every team, then regenerated at most every five minutes, the team schedule's server cache period.
+// Prerendered for every team, then regenerated at most every 12 hours (43200 seconds, a literal so Next.js can read it statically).
+// The page's queries are hydrated with the time they were fetched, so the client refetches anything past its stale time on load.
 // Forced static because the shared header reads the live scoreboard, which would otherwise render every request.
 export const dynamic = "force-static";
-export const revalidate = 300;
+export const revalidate = 43200;
 
 type TeamPageProps = {
   params: Promise<{ slug: string }>;
@@ -40,6 +44,11 @@ export default async function TeamRoute({ params }: TeamPageProps) {
     queryClient.prefetchQuery(teamPlayoffScheduleQueryOptions(team.id)),
     queryClient.prefetchQuery(teamRosterQueryOptions(team.id)),
     queryClient.prefetchQuery(standingsQueryOptions()),
+    // The server assembles the leaders itself instead of calling its own route handler.
+    queryClient.prefetchQuery({
+      ...teamLeadersQueryOptions(team.id),
+      queryFn: () => fetchTeamLeaders(team.id),
+    }),
   ]);
 
   return (

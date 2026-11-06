@@ -7,6 +7,8 @@ const SCHEDULE_SKELETON_SECTION_COUNT = 2;
 // About a full NBA roster, so the column does not jump when the players arrive.
 const ROSTER_SKELETON_ROW_COUNT = 15;
 const TILE_SKELETON_COUNT = 3;
+// Points, rebounds, and assists.
+const LEADERS_SKELETON_ROW_COUNT = 3;
 const SKELETON_BAR_CLASS_NAME = "rounded-md bg-white/10";
 
 function SkeletonBar({ className }: { className: string }) {
@@ -118,6 +120,35 @@ export function TeamRosterLoading() {
             <SkeletonBar className="h-3 w-8 shrink-0" />
             <SkeletonBar className="h-3 w-6 shrink-0" />
             <SkeletonBar className="h-3 w-10 shrink-0" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Matches the leaders panel rows: photo, category, name, runners-up, and value.
+export function TeamLeadersLoading() {
+  return (
+    <div role="status" aria-busy="true">
+      <span className="sr-only">{strings.team.leaders.loading}</span>
+      <div
+        aria-hidden="true"
+        className={`flex animate-shimmer flex-col gap-3.5 ${PANEL_SURFACE_CLASS_NAME}`}
+      >
+        <SkeletonBar className="h-4.5 w-32" />
+        {Array.from({ length: LEADERS_SKELETON_ROW_COUNT }, (_, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-3 border-t border-white/7 pt-3"
+          >
+            <div className="h-10.25 w-14 shrink-0 rounded-[10px] bg-white/10" />
+            <div className="flex grow flex-col gap-1.5">
+              <SkeletonBar className="h-2.5 w-20" />
+              <SkeletonBar className="h-3.5 w-28" />
+              <SkeletonBar className="h-2.5 w-24" />
+            </div>
+            <SkeletonBar className="h-7 w-11" />
           </div>
         ))}
       </div>

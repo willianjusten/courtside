@@ -1,4 +1,7 @@
-import type { LeaderCategory } from "@/app/lib/domain/leaders";
+import type {
+  LeaderCategory,
+  TeamLeaderCategory,
+} from "@/app/lib/domain/leaders";
 import { resizedImageUrl } from "@/app/lib/espn";
 import {
   buildSidebarLeaders,
@@ -12,7 +15,7 @@ const HEADSHOT_DISPLAY_WIDTH = 56;
 const HEADSHOT_DISPLAY_HEIGHT = 41;
 // Requested at twice the display size so headshots stay sharp on high-density screens.
 const HEADSHOT_REQUEST_SCALE = 2;
-const HEADING_ID = "sidebar-leaders";
+const DEFAULT_HEADING_ID = "sidebar-leaders";
 
 const HEADSHOT_CLASS_NAME = "shrink-0 rounded-[10px] bg-white/6 object-cover";
 
@@ -26,9 +29,15 @@ function CategoryMessage({ category }: { category: SidebarLeaderCategory }) {
   );
 }
 
-function LeaderRow({ category }: { category: SidebarLeaderCategory }) {
+function LeaderRow({
+  category,
+  panelHeadingId,
+}: {
+  category: SidebarLeaderCategory;
+  panelHeadingId: string;
+}) {
   const title = strings.home.sidebar.categories[category.stat];
-  const headingId = `${HEADING_ID}-${category.stat}`;
+  const headingId = `${panelHeadingId}-${category.stat}`;
 
   return (
     <section
@@ -94,23 +103,34 @@ function LeaderRow({ category }: { category: SidebarLeaderCategory }) {
   );
 }
 
-export default function LeadersPanel({
+type LeadersPanelProps = {
   // null when the leaders could not be loaded.
+  categories: (LeaderCategory | TeamLeaderCategory)[] | null;
+  // The home sidebar's league leaders by default; the team page names its own.
+  title?: string;
+  headingId?: string;
+};
+
+export default function LeadersPanel({
   categories,
-}: {
-  categories: LeaderCategory[] | null;
-}) {
+  title = strings.home.sidebar.leadersTitle,
+  headingId = DEFAULT_HEADING_ID,
+}: LeadersPanelProps) {
   return (
     <section
-      aria-labelledby={HEADING_ID}
+      aria-labelledby={headingId}
       className={`flex flex-col gap-3.5 ${PANEL_SURFACE_CLASS_NAME}`}
     >
-      <h2 id={HEADING_ID} className={PANEL_HEADING_CLASS_NAME}>
-        {strings.home.sidebar.leadersTitle}
+      <h2 id={headingId} className={PANEL_HEADING_CLASS_NAME}>
+        {title}
       </h2>
       {categories ? (
         buildSidebarLeaders(categories).map((category) => (
-          <LeaderRow key={category.stat} category={category} />
+          <LeaderRow
+            key={category.stat}
+            category={category}
+            panelHeadingId={headingId}
+          />
         ))
       ) : (
         <p role="alert" className="text-sm text-secondary">

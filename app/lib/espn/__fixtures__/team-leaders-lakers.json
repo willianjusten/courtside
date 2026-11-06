@@ -1,0 +1,159 @@
+{
+  "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/leaders?lang=en&region=us",
+  "id": "0",
+  "name": "Total",
+  "abbreviation": "Total",
+  "type": "total",
+  "categories": [
+    {
+      "name": "pointsPerGame",
+      "displayName": "Points Per Game",
+      "shortDisplayName": "PPG",
+      "abbreviation": "PTS",
+      "leaders": [
+        {
+          "displayValue": "38.5",
+          "value": 38.5,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/3945274?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/3945274/statistics/0?lang=en&region=us"
+          }
+        },
+        {
+          "displayValue": "23.3",
+          "value": 23.33333396911621,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4066457?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/4066457/statistics/0?lang=en&region=us"
+          }
+        },
+        {
+          "displayValue": "14.4",
+          "value": 14.44444465637207,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4433136?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/4433136/statistics/0?lang=en&region=us"
+          }
+        }
+      ]
+    },
+    {
+      "name": "assistsPerGame",
+      "displayName": "Assists Per Game",
+      "shortDisplayName": "APG",
+      "abbreviation": "AST",
+      "leaders": [
+        {
+          "displayValue": "8.0",
+          "value": 8.0,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/3945274?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/3945274/statistics/0?lang=en&region=us"
+          }
+        },
+        {
+          "displayValue": "5.0",
+          "value": 5.0,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4066457?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/4066457/statistics/0?lang=en&region=us"
+          }
+        },
+        {
+          "displayValue": "2.7",
+          "value": 2.6666667461395264,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4397014?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/4397014/statistics/0?lang=en&region=us"
+          }
+        }
+      ]
+    },
+    {
+      "name": "reboundsPerGame",
+      "displayName": "Rebounds Per Game",
+      "shortDisplayName": "RPG",
+      "abbreviation": "REB",
+      "leaders": [
+        {
+          "displayValue": "10.2",
+          "value": 10.222222328186035,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4433136?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/4433136/statistics/0?lang=en&region=us"
+          }
+        },
+        {
+          "displayValue": "8.1",
+          "value": 8.125,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/3945274?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/3945274/statistics/0?lang=en&region=us"
+          }
+        },
+        {
+          "displayValue": "4.6",
+          "value": 4.55555534362793,
+          "rel": ["athlete"],
+          "athlete": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4278580?lang=en&region=us"
+          },
+          "team": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+          },
+          "statistics": {
+            "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/teams/13/athletes/4278580/statistics/0?lang=en&region=us"
+          }
+        }
+      ]
+    }
+  ]
+}

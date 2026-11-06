@@ -1,0 +1,1093 @@
+{
+  "3945274": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/3945274?lang=en&region=us",
+    "id": "3945274",
+    "uid": "s:40~l:46~a:3945274",
+    "guid": "583794eb-0f38-9bbd-3e25-9dd33b7f83b8",
+    "type": "basketball",
+    "alternateIds": {
+      "sdr": "3945274"
+    },
+    "firstName": "Luka",
+    "lastName": "Doncic",
+    "fullName": "Luka Doncic",
+    "displayName": "Luka Doncic",
+    "shortName": "L. Doncic",
+    "weight": 230.0,
+    "displayWeight": "230 lbs",
+    "height": 80.0,
+    "displayHeight": "6' 8\"",
+    "age": 27,
+    "dateOfBirth": "1999-02-28T08:00Z",
+    "debutYear": 2018,
+    "links": [
+      {
+        "language": "en-US",
+        "rel": ["playercard", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/3945274/luka-doncic",
+        "text": "Player Card",
+        "shortText": "Player Card",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/stats/_/id/3945274/luka-doncic",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:3945274&section=stats",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["splits", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/splits/_/id/3945274/luka-doncic",
+        "text": "Splits",
+        "shortText": "Splits",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/gamelog/_/id/3945274/luka-doncic",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:3945274&section=gamelog",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/news/_/id/3945274/luka-doncic",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:3945274&section=news",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/bio/_/id/3945274/luka-doncic",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:3945274&section=bio",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/3945274/luka-doncic",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:3945274",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["advancedstats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/advancedstats/_/id/3945274/luka-doncic",
+        "text": "Advanced Stats",
+        "shortText": "Advanced Stats",
+        "isExternal": false,
+        "isPremium": false
+      }
+    ],
+    "birthPlace": {
+      "city": "Ljubljana",
+      "country": "Slovenia"
+    },
+    "slug": "luka-doncic",
+    "headshot": {
+      "href": "https://a.espncdn.com/i/headshots/nba/players/full/3945274.png",
+      "alt": "Luka Doncic"
+    },
+    "jersey": "77",
+    "position": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/positions/3?lang=en&region=us",
+      "id": "3",
+      "name": "Guard",
+      "displayName": "Guard",
+      "abbreviation": "G",
+      "leaf": false
+    },
+    "injuries": [],
+    "linked": true,
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "teams": [
+      {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+      }
+    ],
+    "statistics": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/athletes/3945274/statistics?lang=en&region=us"
+    },
+    "notes": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/3945274/notes?lang=en&region=us"
+    },
+    "contracts": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/athletes/3945274/contracts?lang=en&region=us"
+    },
+    "experience": {
+      "years": 9
+    },
+    "active": true,
+    "contract": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/athletes/3945274/contracts/2027?lang=en&region=us",
+      "birdStatus": 0,
+      "baseYearCompensation": {
+        "active": false
+      },
+      "poisonPillProvision": {
+        "active": false
+      },
+      "incomingTradeValue": 49500000,
+      "outgoingTradeValue": 49500000,
+      "minimumSalaryException": false,
+      "optionType": 0,
+      "salary": 49500000,
+      "salaryRemaining": 0,
+      "yearsRemaining": 3,
+      "season": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027?lang=en&region=us"
+      },
+      "team": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+      },
+      "tradeKicker": {
+        "active": false,
+        "percentage": 0.0,
+        "value": 0,
+        "tradeValue": 0
+      },
+      "tradeRestriction": false,
+      "unsignedForeignPick": false,
+      "active": true
+    },
+    "eventLog": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/3945274/eventlog?lang=en&region=us"
+    },
+    "draft": {
+      "displayText": "Year: 2018 Round: 1 Pick: 3",
+      "round": 1,
+      "year": 2018,
+      "selection": 3,
+      "team": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2018/teams/1?lang=en&region=us"
+      },
+      "pick": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2018/draft/rounds/1/picks/3?lang=en&region=us"
+      }
+    },
+    "status": {
+      "id": "1",
+      "name": "Active",
+      "type": "active",
+      "abbreviation": "Active"
+    }
+  },
+  "4066457": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4066457?lang=en&region=us",
+    "id": "4066457",
+    "uid": "s:40~l:46~a:4066457",
+    "guid": "8a9d9e1c-6174-0009-4883-3b4e16b492d0",
+    "type": "basketball",
+    "alternateIds": {
+      "sdr": "4066457"
+    },
+    "firstName": "Austin",
+    "lastName": "Reaves",
+    "fullName": "Austin Reaves",
+    "displayName": "Austin Reaves",
+    "shortName": "A. Reaves",
+    "weight": 197.0,
+    "displayWeight": "197 lbs",
+    "height": 77.0,
+    "displayHeight": "6' 5\"",
+    "age": 28,
+    "dateOfBirth": "1998-05-29T07:00Z",
+    "links": [
+      {
+        "language": "en-US",
+        "rel": ["playercard", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4066457/austin-reaves",
+        "text": "Player Card",
+        "shortText": "Player Card",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/stats/_/id/4066457/austin-reaves",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4066457&section=stats",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["splits", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/splits/_/id/4066457/austin-reaves",
+        "text": "Splits",
+        "shortText": "Splits",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/gamelog/_/id/4066457/austin-reaves",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4066457&section=gamelog",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/news/_/id/4066457/austin-reaves",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4066457&section=news",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/bio/_/id/4066457/austin-reaves",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4066457&section=bio",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4066457/austin-reaves",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4066457",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["advancedstats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/advancedstats/_/id/4066457/austin-reaves",
+        "text": "Advanced Stats",
+        "shortText": "Advanced Stats",
+        "isExternal": false,
+        "isPremium": false
+      }
+    ],
+    "birthPlace": {
+      "city": "Newark",
+      "state": "AR",
+      "country": "USA"
+    },
+    "college": {
+      "$ref": "http://sports.core.api.espn.com/v2/colleges/201?lang=en&region=us"
+    },
+    "slug": "austin-reaves",
+    "headshot": {
+      "href": "https://a.espncdn.com/i/headshots/nba/players/full/4066457.png",
+      "alt": "Austin Reaves"
+    },
+    "jersey": "15",
+    "position": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/positions/3?lang=en&region=us",
+      "id": "3",
+      "name": "Guard",
+      "displayName": "Guard",
+      "abbreviation": "G",
+      "leaf": false
+    },
+    "injuries": [],
+    "linked": true,
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "teams": [
+      {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+      }
+    ],
+    "statistics": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/athletes/4066457/statistics?lang=en&region=us"
+    },
+    "notes": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4066457/notes?lang=en&region=us"
+    },
+    "contracts": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/athletes/4066457/contracts?lang=en&region=us"
+    },
+    "experience": {
+      "years": 6
+    },
+    "collegeAthlete": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/athletes/4066457?lang=en&region=us"
+    },
+    "active": true,
+    "eventLog": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4066457/eventlog?lang=en&region=us"
+    },
+    "status": {
+      "id": "1",
+      "name": "Active",
+      "type": "active",
+      "abbreviation": "Active"
+    }
+  },
+  "4278580": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4278580?lang=en&region=us",
+    "id": "4278580",
+    "uid": "s:40~l:46~a:4278580",
+    "guid": "e9df9e2a-50ac-901b-9090-1201532b81e8",
+    "type": "basketball",
+    "alternateIds": {
+      "sdr": "4278580"
+    },
+    "firstName": "Sandro",
+    "lastName": "Mamukelashvili",
+    "fullName": "Sandro Mamukelashvili",
+    "displayName": "Sandro Mamukelashvili",
+    "shortName": "S. Mamukelashvili",
+    "weight": 240.0,
+    "displayWeight": "240 lbs",
+    "height": 81.0,
+    "displayHeight": "6' 9\"",
+    "age": 27,
+    "dateOfBirth": "1999-05-23T07:00Z",
+    "links": [
+      {
+        "language": "en-US",
+        "rel": ["playercard", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4278580/sandro-mamukelashvili",
+        "text": "Player Card",
+        "shortText": "Player Card",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/stats/_/id/4278580/sandro-mamukelashvili",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4278580&section=stats",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["splits", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/splits/_/id/4278580/sandro-mamukelashvili",
+        "text": "Splits",
+        "shortText": "Splits",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/gamelog/_/id/4278580/sandro-mamukelashvili",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4278580&section=gamelog",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/news/_/id/4278580/sandro-mamukelashvili",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4278580&section=news",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/bio/_/id/4278580/sandro-mamukelashvili",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4278580&section=bio",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4278580/sandro-mamukelashvili",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4278580",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["advancedstats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/advancedstats/_/id/4278580/sandro-mamukelashvili",
+        "text": "Advanced Stats",
+        "shortText": "Advanced Stats",
+        "isExternal": false,
+        "isPremium": false
+      }
+    ],
+    "birthPlace": {
+      "city": "Tbilisi",
+      "country": "Georgia"
+    },
+    "citizenship": "Georgia",
+    "college": {
+      "$ref": "http://sports.core.api.espn.com/v2/colleges/2550?lang=en&region=us"
+    },
+    "slug": "sandro-mamukelashvili",
+    "headshot": {
+      "href": "https://a.espncdn.com/i/headshots/nba/players/full/4278580.png",
+      "alt": "Sandro Mamukelashvili"
+    },
+    "jersey": "54",
+    "position": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/positions/7?lang=en&region=us",
+      "id": "7",
+      "name": "Forward",
+      "displayName": "Forward",
+      "abbreviation": "F",
+      "leaf": false
+    },
+    "injuries": [
+      {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4278580/injuries/537800?lang=en&region=us",
+        "id": "537800",
+        "longComment": "Mamukelashvili is under the weather and could miss his first game of the season Friday. If the big man is unable to suit up, Jarred Vanderbilt and Jake LaRavia would be candidates to see increased minutes.",
+        "shortComment": "Mamukelashvili (illness) is listed as questionable for Friday's game against Portland.",
+        "status": "Day-To-Day",
+        "date": "2026-11-06T01:03Z",
+        "athlete": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4278580?lang=en&region=us"
+        },
+        "team": {
+          "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+        },
+        "source": {
+          "id": "1",
+          "description": "basic/manual",
+          "state": "basic"
+        },
+        "type": {
+          "id": "6",
+          "name": "INJURY_STATUS_DAYTODAY",
+          "description": "day-to-day",
+          "abbreviation": "DD"
+        },
+        "details": {
+          "fantasyStatus": {
+            "description": "GTD",
+            "abbreviation": "GTD"
+          },
+          "type": "Illness",
+          "location": "Other",
+          "returnDate": "2026-11-06"
+        }
+      }
+    ],
+    "linked": true,
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "teams": [
+      {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+      }
+    ],
+    "statistics": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/athletes/4278580/statistics?lang=en&region=us"
+    },
+    "notes": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4278580/notes?lang=en&region=us"
+    },
+    "contracts": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/athletes/4278580/contracts?lang=en&region=us"
+    },
+    "experience": {
+      "years": 6
+    },
+    "collegeAthlete": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/athletes/4278580?lang=en&region=us"
+    },
+    "active": true,
+    "eventLog": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4278580/eventlog?lang=en&region=us"
+    },
+    "draft": {
+      "displayText": "Year: 2021 Round: 2 Pick: 54",
+      "round": 2,
+      "year": 2021,
+      "selection": 54,
+      "team": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2021/teams/11?lang=en&region=us"
+      }
+    },
+    "status": {
+      "id": "1",
+      "name": "Active",
+      "type": "active",
+      "abbreviation": "Active"
+    }
+  },
+  "4397014": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4397014?lang=en&region=us",
+    "id": "4397014",
+    "uid": "s:40~l:46~a:4397014",
+    "guid": "dbe4d07d-9166-07d7-19f0-52cc771d179d",
+    "type": "basketball",
+    "alternateIds": {
+      "sdr": "4397014"
+    },
+    "firstName": "Quentin",
+    "lastName": "Grimes",
+    "fullName": "Quentin Grimes",
+    "displayName": "Quentin Grimes",
+    "shortName": "Q. Grimes",
+    "weight": 210.0,
+    "displayWeight": "210 lbs",
+    "height": 76.0,
+    "displayHeight": "6' 4\"",
+    "age": 26,
+    "dateOfBirth": "2000-05-08T07:00Z",
+    "links": [
+      {
+        "language": "en-US",
+        "rel": ["playercard", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4397014/quentin-grimes",
+        "text": "Player Card",
+        "shortText": "Player Card",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/stats/_/id/4397014/quentin-grimes",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4397014&section=stats",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["splits", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/splits/_/id/4397014/quentin-grimes",
+        "text": "Splits",
+        "shortText": "Splits",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/gamelog/_/id/4397014/quentin-grimes",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4397014&section=gamelog",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/news/_/id/4397014/quentin-grimes",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4397014&section=news",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/bio/_/id/4397014/quentin-grimes",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4397014&section=bio",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4397014/quentin-grimes",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4397014",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["advancedstats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/advancedstats/_/id/4397014/quentin-grimes",
+        "text": "Advanced Stats",
+        "shortText": "Advanced Stats",
+        "isExternal": false,
+        "isPremium": false
+      }
+    ],
+    "birthPlace": {
+      "city": "The Woodlands",
+      "state": "TX",
+      "country": "USA"
+    },
+    "college": {
+      "$ref": "http://sports.core.api.espn.com/v2/colleges/248?lang=en&region=us"
+    },
+    "slug": "quentin-grimes",
+    "headshot": {
+      "href": "https://a.espncdn.com/i/headshots/nba/players/full/4397014.png",
+      "alt": "Quentin Grimes"
+    },
+    "jersey": "5",
+    "position": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/positions/3?lang=en&region=us",
+      "id": "3",
+      "name": "Guard",
+      "displayName": "Guard",
+      "abbreviation": "G",
+      "leaf": false
+    },
+    "injuries": [],
+    "linked": true,
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "teams": [
+      {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+      }
+    ],
+    "statistics": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/athletes/4397014/statistics?lang=en&region=us"
+    },
+    "notes": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4397014/notes?lang=en&region=us"
+    },
+    "contracts": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/athletes/4397014/contracts?lang=en&region=us"
+    },
+    "experience": {
+      "years": 6
+    },
+    "collegeAthlete": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/athletes/4397014?lang=en&region=us"
+    },
+    "active": true,
+    "eventLog": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4397014/eventlog?lang=en&region=us"
+    },
+    "draft": {
+      "displayText": "Year: 2021 Round: 1 Pick: 25",
+      "round": 1,
+      "year": 2021,
+      "selection": 25,
+      "team": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2021/teams/12?lang=en&region=us"
+      },
+      "pick": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2021/draft/rounds/1/picks/25?lang=en&region=us"
+      }
+    },
+    "status": {
+      "id": "1",
+      "name": "Active",
+      "type": "active",
+      "abbreviation": "Active"
+    }
+  },
+  "4433136": {
+    "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4433136?lang=en&region=us",
+    "id": "4433136",
+    "uid": "s:40~l:46~a:4433136",
+    "guid": "a362b0ba-25ef-3ceb-9dd3-039b3d8aa4aa",
+    "type": "basketball",
+    "alternateIds": {
+      "sdr": "4433136"
+    },
+    "firstName": "Walker",
+    "lastName": "Kessler",
+    "fullName": "Walker Kessler",
+    "displayName": "Walker Kessler",
+    "shortName": "W. Kessler",
+    "weight": 245.0,
+    "displayWeight": "245 lbs",
+    "height": 86.0,
+    "displayHeight": "7' 2\"",
+    "age": 25,
+    "dateOfBirth": "2001-07-26T07:00Z",
+    "links": [
+      {
+        "language": "en-US",
+        "rel": ["playercard", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4433136/walker-kessler",
+        "text": "Player Card",
+        "shortText": "Player Card",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/stats/_/id/4433136/walker-kessler",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["stats", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4433136&section=stats",
+        "text": "Stats",
+        "shortText": "Stats",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["splits", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/splits/_/id/4433136/walker-kessler",
+        "text": "Splits",
+        "shortText": "Splits",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/gamelog/_/id/4433136/walker-kessler",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["gamelog", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4433136&section=gamelog",
+        "text": "Game Log",
+        "shortText": "Game Log",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/news/_/id/4433136/walker-kessler",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["news", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4433136&section=news",
+        "text": "News",
+        "shortText": "News",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/bio/_/id/4433136/walker-kessler",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["bio", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4433136&section=bio",
+        "text": "Bio",
+        "shortText": "Bio",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/_/id/4433136/walker-kessler",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["overview", "sportscenter", "app", "athlete"],
+        "href": "sportscenter://x-callback-url/showClubhouse?uid=s:40~l:46~a:4433136",
+        "text": "Overview",
+        "shortText": "Overview",
+        "isExternal": false,
+        "isPremium": false
+      },
+      {
+        "language": "en-US",
+        "rel": ["advancedstats", "desktop", "athlete"],
+        "href": "https://www.espn.com/nba/player/advancedstats/_/id/4433136/walker-kessler",
+        "text": "Advanced Stats",
+        "shortText": "Advanced Stats",
+        "isExternal": false,
+        "isPremium": false
+      }
+    ],
+    "birthPlace": {
+      "city": "Newnan",
+      "state": "GA",
+      "country": "USA"
+    },
+    "college": {
+      "$ref": "http://sports.core.api.espn.com/v2/colleges/2?lang=en&region=us"
+    },
+    "slug": "walker-kessler",
+    "headshot": {
+      "href": "https://a.espncdn.com/i/headshots/nba/players/full/4433136.png",
+      "alt": "Walker Kessler"
+    },
+    "jersey": "14",
+    "position": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/positions/9?lang=en&region=us",
+      "id": "9",
+      "name": "Center",
+      "displayName": "Center",
+      "abbreviation": "C",
+      "leaf": false
+    },
+    "injuries": [],
+    "linked": true,
+    "team": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+    },
+    "teams": [
+      {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/teams/13?lang=en&region=us"
+      }
+    ],
+    "statistics": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/types/2/athletes/4433136/statistics?lang=en&region=us"
+    },
+    "notes": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4433136/notes?lang=en&region=us"
+    },
+    "contracts": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/athletes/4433136/contracts?lang=en&region=us"
+    },
+    "experience": {
+      "years": 5
+    },
+    "collegeAthlete": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/athletes/4433136?lang=en&region=us"
+    },
+    "active": true,
+    "eventLog": {
+      "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/4433136/eventlog?lang=en&region=us"
+    },
+    "draft": {
+      "displayText": "Year: 2022 Round: 1 Pick: 22",
+      "round": 1,
+      "year": 2022,
+      "selection": 22,
+      "team": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2022/teams/29?lang=en&region=us"
+      },
+      "pick": {
+        "$ref": "http://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2022/draft/rounds/1/picks/22?lang=en&region=us"
+      }
+    },
+    "status": {
+      "id": "1",
+      "name": "Active",
+      "type": "active",
+      "abbreviation": "Active"
+    }
+  }
+}

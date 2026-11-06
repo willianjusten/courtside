@@ -451,6 +451,7 @@ export const strings = {
       label: "Team sections",
       schedule: "Schedule",
       roster: "Roster",
+      leaders: "Leaders",
     },
     schedule: {
       upNext: "Up next",
@@ -493,6 +494,12 @@ export const strings = {
       loading: "Loading roster...",
       error: "Couldn't load the roster",
       stale: "Can't reach the data source. Showing the last roster loaded.",
+    },
+    leaders: {
+      title: "Team leaders",
+      loading: "Loading team leaders...",
+      error: "Couldn't load the team leaders",
+      stale: "Can't reach the data source. Showing the last leaders loaded.",
     },
   },
   playoffs: {

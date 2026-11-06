@@ -4,6 +4,7 @@ import type {
   ConferenceStandings,
   StandingsRow,
 } from "@/app/lib/domain/standings";
+import type { TeamLeaderCategory } from "@/app/lib/domain/leaders";
 import type { RosterPlayer, TeamDetail, TeamSlug } from "@/app/lib/domain/team";
 import { readableTeamColor } from "@/app/lib/home/team-colors";
 import {
@@ -26,7 +27,7 @@ import { formatLocalTime, formatTipOffDay } from "@/app/lib/time/tip-off";
 
 const TEAMS_PATH_PREFIX = "/teams/";
 const TAB_PARAM = "tab";
-const TEAM_TAB_IDS = ["schedule", "roster"] as const;
+const TEAM_TAB_IDS = ["schedule", "roster", "leaders"] as const;
 const DEFAULT_TEAM_TAB = "schedule";
 const GAME_PATH_PREFIX = "/game/";
 // Each schedule list opens on this many games, as in the TeamPageDesktop artboard, then grows by a page per expansion.
@@ -63,6 +64,7 @@ export type TeamViewInput = {
   // The scoreboard of the team's game day, which overrides the cached schedule; null until it loads or without a game that day.
   scoreboardGames: Game[] | null;
   rosterQuery: TeamDataQueryState<RosterPlayer[]>;
+  leadersQuery: TeamDataQueryState<TeamLeaderCategory[]>;
   // Null until the browser timezone is known, as when rendering on the server.
   timeZone: string | null;
   // How many times each schedule list was expanded.
@@ -253,6 +255,8 @@ export type TeamReadyScreen = {
   schedule: TeamSection<TeamSchedule>;
   // By position group, then jersey number.
   roster: TeamSection<TeamRosterPlayer[]>;
+  // Points, rebounds, and assists, each with the team's leader and runners-up.
+  leaders: TeamSection<TeamLeaderCategory[]>;
 };
 
 export type TeamScreen =
@@ -729,6 +733,7 @@ function screenOf(
     | "scheduleExpansions"
   >,
   rosterQuery: TeamDataQueryState<RosterPlayer[]>,
+  leadersQuery: TeamDataQueryState<TeamLeaderCategory[]>,
   favoriteTeamIds: string[],
 ): TeamScreen {
   if (
@@ -768,6 +773,11 @@ function screenOf(
         ),
     ),
     roster: sectionOf(rosterQuery, strings.team.roster, rosterOf),
+    leaders: sectionOf(
+      leadersQuery,
+      strings.team.leaders,
+      (categories) => categories,
+    ),
   };
 }
 
@@ -797,6 +807,7 @@ export function buildTeamView({
   playoffGames,
   scoreboardGames,
   rosterQuery,
+  leadersQuery,
   timeZone,
   scheduleExpansions,
   tabParam,
@@ -814,6 +825,7 @@ export function buildTeamView({
         scheduleExpansions,
       },
       rosterQuery,
+      leadersQuery,
       favoriteTeamIds,
     ),
     tabs: tabsOf(slug, tabParam),

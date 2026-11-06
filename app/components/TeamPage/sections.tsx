@@ -45,16 +45,19 @@ type TeamSectionsProps = {
   onSelectTab: (tab: TeamTab) => void;
   schedule: ReactNode;
   roster: ReactNode;
+  leaders: ReactNode;
 };
 
 // Mobile shows the sections under tabs, as in the TeamPage artboard; desktop lays them out in columns,
-// as in the TeamPageDesktop artboard: the schedule beside a side column with the roster.
+// as in the TeamPageDesktop artboard: the schedule beside a side column with the roster, then the team leaders under it.
 // The side column always fits the whole roster table, so it never scrolls sideways; the schedule takes the narrower share.
+// The schedule spans both side column rows, and the flexible second row absorbs its height, so the leaders sit right under the roster.
 export function TeamSections({
   tabs,
   onSelectTab,
   schedule,
   roster,
+  leaders,
 }: TeamSectionsProps) {
   const selectTab = (tabId: string) => {
     const tab = tabs.items.find(({ id }) => id === tabId);
@@ -65,7 +68,7 @@ export function TeamSections({
     <Tabs.Root
       value={tabs.selected}
       onValueChange={selectTab}
-      className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_420px] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_460px]"
+      className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_420px] md:grid-rows-[auto_1fr] md:items-start md:gap-6 lg:grid-cols-[minmax(0,1fr)_460px]"
     >
       <Tabs.List
         aria-label={strings.team.tabs.label}
@@ -75,11 +78,14 @@ export function TeamSections({
           <TabTrigger key={tab.id} tab={tab} />
         ))}
       </Tabs.List>
-      <Panel value="schedule" className="md:col-start-1">
+      <Panel value="schedule" className="md:col-start-1 md:row-span-2">
         {schedule}
       </Panel>
       <Panel value="roster" className="md:col-start-2 md:row-start-1">
         {roster}
+      </Panel>
+      <Panel value="leaders" className="md:col-start-2 md:row-start-2">
+        {leaders}
       </Panel>
     </Tabs.Root>
   );

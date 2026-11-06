@@ -10,6 +10,8 @@ import { favoritesStore } from "@/app/lib/favorites/use-favorite-team-ids";
 import {
   LEADERS_API_PATH,
   leadersQueryOptions,
+  teamLeadersApiPath,
+  teamLeadersQueryOptions,
 } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import {
@@ -23,6 +25,7 @@ import GamesPage from "./games/[date]/page";
 import GamePage from "./game/[id]/page";
 import StandingsPage from "./standings/page";
 import { GET as getLeaders } from "./api/leaders/route";
+import { GET as getTeamLeaders } from "./api/teams/[teamId]/leaders/route";
 import TeamPage, {
   generateStaticParams as generateTeamStaticParams,
 } from "./teams/[slug]/page";
@@ -41,6 +44,8 @@ import standings from "./lib/espn/__fixtures__/standings-regular-season.json";
 import currentSeason from "./lib/espn/__fixtures__/season-current.json";
 import regularSeasonLeaders from "./lib/espn/__fixtures__/leaders-regular-season.json";
 import leaderAthletes from "./lib/espn/__fixtures__/leaders-athletes.json";
+import lakersLeaders from "./lib/espn/__fixtures__/team-leaders-lakers.json";
+import lakersLeaderAthletes from "./lib/espn/__fixtures__/team-leaders-lakers-athletes.json";
 import finalSummary from "./lib/espn/__fixtures__/summary-final.json";
 import liveSummary from "./lib/espn/__fixtures__/summary-live.json";
 import preGameSummary from "./lib/espn/__fixtures__/summary-pre-game.json";
@@ -73,6 +78,7 @@ function espnFixtureFor(url: string) {
     return { ...lakersSchedule, events: [] };
   if (url.endsWith("/teams/13/roster")) return lakersRoster;
   if (url.endsWith("/teams/13/injuries")) return lakersInjuries;
+  if (url.endsWith("/teams/13/leaders?limit=3")) return lakersLeaders;
   const injuryId = url.match(INJURY_URL_PATTERN)?.[1];
   if (injuryId)
     return lakersInjuryItems[injuryId as keyof typeof lakersInjuryItems];
@@ -83,15 +89,22 @@ function espnFixtureFor(url: string) {
   if (LEADERS_URL_PATTERN.test(url)) return regularSeasonLeaders;
   const athleteId = url.match(ATHLETE_URL_PATTERN)?.[1];
   if (athleteId)
-    return leaderAthletes[athleteId as keyof typeof leaderAthletes];
+    return (
+      leaderAthletes[athleteId as keyof typeof leaderAthletes] ??
+      lakersLeaderAthletes[athleteId as keyof typeof lakersLeaderAthletes]
+    );
   return finalDay;
 }
 
 // The client reads the leaders through the app's route handler, which assembles them from the ESPN fixtures.
 function responseFor(url: string) {
-  return url === LEADERS_API_PATH
-    ? getLeaders()
-    : new Response(JSON.stringify(espnFixtureFor(url)));
+  if (url === LEADERS_API_PATH) return getLeaders();
+  if (url === teamLeadersApiPath(LAKERS_TEAM_ID)) {
+    return getTeamLeaders(new Request(url), {
+      params: Promise.resolve({ teamId: LAKERS_TEAM_ID }),
+    });
+  }
+  return new Response(JSON.stringify(espnFixtureFor(url)));
 }
 
 function render(ui: ReactElement) {
@@ -119,6 +132,10 @@ describe("routes", () => {
     // The playoffs test answers the postseason schedule with the Lakers' playoff run.
     getQueryClient().removeQueries({
       queryKey: teamPlayoffScheduleQueryOptions(LAKERS_TEAM_ID).queryKey,
+    });
+    // The team leaders retry test answers the team leaders with an error first.
+    getQueryClient().removeQueries({
+      queryKey: teamLeadersQueryOptions(LAKERS_TEAM_ID).queryKey,
     });
     // The roster retry test answers the roster with an error first.
     getQueryClient().removeQueries({
@@ -795,6 +812,65 @@ describe("routes", () => {
     expect(
       within(roster).getByRole("row", { name: /Luka Doncic/ }),
     ).toBeDefined();
+  });
+
+  it("shows the team's points, rebounds, and assists leaders with two runners-up each", async () => {
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const leaders = await screen.findByRole("region", {
+      name: strings.team.leaders.title,
+    });
+    const points = within(leaders).getByRole("region", {
+      name: strings.home.sidebar.categories.points,
+    });
+    expect(within(points).getByText("Luka Doncic")).toBeDefined();
+    expect(within(points).getByText("38.5")).toBeDefined();
+    expect(
+      within(points)
+        .getAllByRole("listitem")
+        .map((runnerUp) => runnerUp.textContent),
+    ).toEqual(["2. A. Reaves 23.3", "· 3. W. Kessler 14.4"]);
+    expect(
+      within(leaders).getByRole("region", {
+        name: strings.home.sidebar.categories.rebounds,
+      }),
+    ).toBeDefined();
+    expect(
+      within(leaders).getByRole("region", {
+        name: strings.home.sidebar.categories.assists,
+      }),
+    ).toBeDefined();
+  });
+
+  it("loads the team leaders again from their error state's Try again", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    let isEspnDown = true;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) =>
+        isEspnDown && url.endsWith("/teams/13/leaders?limit=3")
+          ? new Response(null, { status: 500 })
+          : responseFor(url),
+      ),
+    );
+
+    render(await TeamPage({ params: Promise.resolve({ slug: "lakers" }) }));
+
+    const tryAgain = await screen.findByRole(
+      "button",
+      { name: strings.common.retry },
+      // The client retries the failed leaders once, a second later.
+      { timeout: 3000 },
+    );
+    expect(screen.getByText(strings.team.leaders.error)).toBeDefined();
+
+    isEspnDown = false;
+    fireEvent.click(tryAgain);
+
+    expect(
+      await screen.findByRole("region", { name: strings.team.leaders.title }),
+    ).toBeDefined();
+    expect(screen.queryByText(strings.team.leaders.error)).toBeNull();
   });
 
   it("marks injured players with their status in the roster", async () => {

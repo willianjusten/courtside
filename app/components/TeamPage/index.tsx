@@ -4,6 +4,7 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { notFound, useSearchParams } from "next/navigation";
 import { RetryableError, StaleNotice } from "@/app/components/DataStates";
+import LeadersPanel from "@/app/components/HomeSidebar/LeadersPanel";
 import TeamRoster from "@/app/components/TeamRoster";
 import TeamSchedule from "@/app/components/TeamSchedule";
 import type { TeamSlug } from "@/app/lib/domain/team";
@@ -12,6 +13,7 @@ import {
   favoritesStore,
   useFavoriteTeamIds,
 } from "@/app/lib/favorites/use-favorite-team-ids";
+import { teamLeadersQueryOptions } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import { useTeamScoreboard } from "@/app/lib/queries/use-team-scoreboard";
 import {
@@ -34,12 +36,14 @@ import { TeamGlow, TeamHeader } from "./header";
 import { TeamSections } from "./sections";
 import {
   TeamHeaderLoading,
+  TeamLeadersLoading,
   TeamRosterLoading,
   TeamScheduleLoading,
 } from "./states";
 
 // ESPN answers 404 for an unknown team and 400 for an id it cannot read.
 const UNKNOWN_TEAM_STATUSES = new Set([400, 404]);
+const TEAM_LEADERS_HEADING_ID = "team-leaders";
 
 function isUnknownTeamError(error: Error | null) {
   return (
@@ -131,6 +135,7 @@ export function TeamPageContent({
     games ? [...games, ...(playoffGames ?? [])] : null,
   );
   const rosterQuery = useQuery(teamRosterQueryOptions(teamId));
+  const leadersQuery = useQuery(teamLeadersQueryOptions(teamId));
   const favoriteTeamIds = useFavoriteTeamIds();
   const timeZone = useBrowserTimeZone();
   const [scheduleExpansions, setScheduleExpansions] =
@@ -161,6 +166,7 @@ export function TeamPageContent({
     playoffGames: playoffGames ?? null,
     scoreboardGames,
     rosterQuery: dataQueryStateOf(rosterQuery),
+    leadersQuery: dataQueryStateOf(leadersQuery),
     timeZone,
     scheduleExpansions,
     tabParam,
@@ -184,6 +190,7 @@ export function TeamPageContent({
           onSelectTab={selectTab}
           schedule={<TeamScheduleLoading />}
           roster={<TeamRosterLoading />}
+          leaders={<TeamLeadersLoading />}
         />
       </div>
     );
@@ -230,6 +237,21 @@ export function TeamPageContent({
               <TeamRoster
                 players={players}
                 isAboveTheFold={tabs.selected === "roster"}
+              />
+            )}
+          </SectionContent>
+        }
+        leaders={
+          <SectionContent
+            section={screen.leaders}
+            loading={<TeamLeadersLoading />}
+            query={leadersQuery}
+          >
+            {(categories) => (
+              <LeadersPanel
+                categories={categories}
+                title={strings.team.leaders.title}
+                headingId={TEAM_LEADERS_HEADING_ID}
               />
             )}
           </SectionContent>
