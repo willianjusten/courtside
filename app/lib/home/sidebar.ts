@@ -4,6 +4,7 @@ import {
   type Leader,
   type LeaderCategory,
   type LeaderStat,
+  type TeamLeaderCategory,
 } from "@/app/lib/domain/leaders";
 import type { ConferenceStandings } from "@/app/lib/domain/standings";
 import { defaultConferenceOf } from "@/app/lib/standings/favorite-conference";
@@ -75,8 +76,9 @@ function isSidebarStat(stat: LeaderStat): stat is GameLeaderStat {
   return (GAME_LEADER_STATS as LeaderStat[]).includes(stat);
 }
 
+// Also builds the team page leaders, whose categories hold the team's own players.
 export function buildSidebarLeaders(
-  categories: LeaderCategory[],
+  categories: (LeaderCategory | TeamLeaderCategory)[],
 ): SidebarLeaderCategory[] {
   return categories.flatMap(({ stat, leaders }): SidebarLeaderCategory | [] => {
     if (!isSidebarStat(stat)) return [];

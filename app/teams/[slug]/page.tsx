@@ -2,6 +2,9 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import TeamPage, { TeamPageContent } from "@/app/components/TeamPage";
 import { fetchTeams } from "@/app/lib/espn";
+// Not in the @/app/lib/espn barrel: the leaders module is server-only and the barrel is also imported by client code.
+import { fetchTeamLeaders } from "@/app/lib/espn/leaders";
+import { teamLeadersQueryOptions } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import {
   teamDetailQueryOptions,
@@ -40,6 +43,11 @@ export default async function TeamRoute({ params }: TeamPageProps) {
     queryClient.prefetchQuery(teamPlayoffScheduleQueryOptions(team.id)),
     queryClient.prefetchQuery(teamRosterQueryOptions(team.id)),
     queryClient.prefetchQuery(standingsQueryOptions()),
+    // The server assembles the leaders itself instead of calling its own route handler.
+    queryClient.prefetchQuery({
+      ...teamLeadersQueryOptions(team.id),
+      queryFn: () => fetchTeamLeaders(team.id),
+    }),
   ]);
 
   return (

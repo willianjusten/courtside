@@ -1,5 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { LeaderCategory } from "@/app/lib/domain/leaders";
+import type {
+  LeaderCategory,
+  TeamLeaderCategory,
+} from "@/app/lib/domain/leaders";
 
 // Matches the hour the server caches ESPN's leaders for, so the client never refetches a copy the server would repeat.
 const LEADERS_STALE_MILLISECONDS = 60 * 60 * 1000;
@@ -18,6 +21,30 @@ export function leadersQueryOptions() {
   return queryOptions({
     queryKey: ["leaders"],
     queryFn: fetchLeadersFromApi,
+    staleTime: LEADERS_STALE_MILLISECONDS,
+  });
+}
+
+export function teamLeadersApiPath(teamId: string) {
+  return `/api/teams/${encodeURIComponent(teamId)}/leaders`;
+}
+
+async function fetchTeamLeadersFromApi(
+  teamId: string,
+): Promise<TeamLeaderCategory[]> {
+  const response = await fetch(teamLeadersApiPath(teamId));
+  if (!response.ok) {
+    throw new Error(
+      `Team leaders request failed with status ${response.status}`,
+    );
+  }
+  return response.json();
+}
+
+export function teamLeadersQueryOptions(teamId: string) {
+  return queryOptions({
+    queryKey: ["team-leaders", teamId],
+    queryFn: () => fetchTeamLeadersFromApi(teamId),
     staleTime: LEADERS_STALE_MILLISECONDS,
   });
 }

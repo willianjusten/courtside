@@ -111,7 +111,7 @@ export const ESPN_ENDPOINTS = {
     access: "proxy",
     revalidateSeconds: FIVE_MINUTES_IN_SECONDS,
   },
-  // Leaders are assembled from these three on the server; "proxy" keeps any browser access off ESPN directly.
+  // League and team leaders are assembled from these on the server; "proxy" keeps any browser access off ESPN directly.
   currentSeason: {
     host: "core",
     path: `${CORE_NBA_PATH}/season`,
@@ -121,6 +121,12 @@ export const ESPN_ENDPOINTS = {
   leaders: {
     host: "core",
     path: `${CORE_NBA_PATH}/seasons/{seasonYear}/types/{seasonTypeId}/leaders`,
+    access: "proxy",
+    revalidateSeconds: ONE_HOUR_IN_SECONDS,
+  },
+  teamLeaders: {
+    host: "core",
+    path: `${CORE_NBA_PATH}/seasons/{seasonYear}/types/{seasonTypeId}/teams/{teamId}/leaders`,
     access: "proxy",
     revalidateSeconds: ONE_HOUR_IN_SECONDS,
   },
