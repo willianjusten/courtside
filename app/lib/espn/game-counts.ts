@@ -15,6 +15,8 @@ export async function fetchGameCounts(
       sport: "basketball",
       league: "nba",
       dates: `${toEspnDate(firstDate)}-${toEspnDate(lastDate)}`,
+      // Without a limit ESPN truncates the range to about 75 events, dropping the later days of a 15-day rail.
+      limit: "1000",
     }),
   });
 

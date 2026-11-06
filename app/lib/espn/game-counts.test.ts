@@ -29,7 +29,7 @@ describe("fetchGameCounts", () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=basketball&league=nba&dates=20261017-20261023",
+      "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=basketball&league=nba&dates=20261017-20261023&limit=1000",
       expect.anything(),
     );
   });
