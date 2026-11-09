@@ -1,9 +1,9 @@
-import { loadShareView } from "@/app/lib/game/share-view.server";
+import { loadShareView } from "@/features/game/share-view.server";
 import type {
   FinalShareView,
   MatchupShareView,
-} from "@/app/lib/game/share-view";
-import { INK } from "@/app/lib/home/team-colors";
+} from "@/features/game/share-view";
+import { INK } from "@/lib/team-colors";
 import {
   GLOW_ALPHA,
   renderDefaultImage,
@@ -13,9 +13,9 @@ import {
   ShareImageHeading,
   TeamMark,
   withInlinedLogos,
-} from "@/app/lib/share-image/render";
-import type { ShareTeam } from "@/app/lib/share-image/share-image";
-import { strings } from "@/app/lib/strings";
+} from "@/lib/share-image/render";
+import type { ShareTeam } from "@/lib/share-image/share-image";
+import { strings } from "@/lib/strings";
 import {
   ACCENT,
   ELEVATED,
@@ -24,7 +24,7 @@ import {
   MUTED,
   ON_ACCENT,
   ON_LIVE,
-} from "@/app/lib/theme-colors";
+} from "@/lib/theme-colors";
 
 // The image follows the game's live status, so it renders on every request; caching is left to Cache-Control.
 export const dynamic = "force-dynamic";

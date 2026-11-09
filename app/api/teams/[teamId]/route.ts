@@ -2,8 +2,8 @@ import {
   cachedJsonResponse,
   notFoundResponse,
   TEAM_ID_PATTERN,
-} from "@/app/lib/server/json-route";
-import { CACHE_SECONDS, loadTeamDetail } from "@/app/lib/server/loaders";
+} from "@/lib/server/json-route";
+import { CACHE_SECONDS, loadTeamDetail } from "@/lib/server/loaders";
 
 export async function GET(
   _request: Request,

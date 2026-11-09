@@ -1,5 +1,5 @@
 // @vitest-environment node
-import headerWeek from "@/app/lib/espn/__fixtures__/scoreboard-header-week.json";
+import headerWeek from "@/lib/espn/__fixtures__/scoreboard-header-week.json";
 import { GET } from "./route";
 
 const fetchMock = vi.fn();

@@ -1,7 +1,14 @@
 import { notFound } from "next/navigation";
-import TeamPage from "@/app/components/TeamPage";
-import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
-import { serverQueries } from "@/app/lib/query/server-queries";
+import TeamPage from "@/features/teams/components/TeamPage";
+import { getServerQueryClient, Hydrate } from "@/lib/query/server";
+import { teamLeadersServerQuery } from "@/features/leaders/queries/server";
+import { standingsServerQuery } from "@/features/standings/queries/server";
+import {
+  teamDetailServerQuery,
+  teamRosterServerQuery,
+  teamSchedulesServerQuery,
+  teamsServerQuery,
+} from "@/features/teams/queries/server";
 
 // Rendered per request from the server's memory cache instead of ISR: a regenerated team page wrote ~330 KB
 // of HTML and RSC to the ISR cache, every five minutes, for every team.
@@ -14,17 +21,17 @@ type TeamPageProps = {
 export default async function TeamRoute({ params }: TeamPageProps) {
   const { slug } = await params;
   const queryClient = getServerQueryClient();
-  const teams = await queryClient.fetchQuery(serverQueries.teams());
+  const teams = await queryClient.fetchQuery(teamsServerQuery());
   const team = teams.find((listedTeam) => listedTeam.slug === slug);
   if (!team) notFound();
 
   // A failed prefetch is left to the client, which fetches again.
   await Promise.all([
-    queryClient.prefetchQuery(serverQueries.teamDetail(team.id)),
-    queryClient.prefetchQuery(serverQueries.teamSchedules(team.id)),
-    queryClient.prefetchQuery(serverQueries.teamRoster(team.id)),
-    queryClient.prefetchQuery(serverQueries.standings()),
-    queryClient.prefetchQuery(serverQueries.teamLeaders(team.id)),
+    queryClient.prefetchQuery(teamDetailServerQuery(team.id)),
+    queryClient.prefetchQuery(teamSchedulesServerQuery(team.id)),
+    queryClient.prefetchQuery(teamRosterServerQuery(team.id)),
+    queryClient.prefetchQuery(standingsServerQuery()),
+    queryClient.prefetchQuery(teamLeadersServerQuery(team.id)),
   ]);
 
   return (

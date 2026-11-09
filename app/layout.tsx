@@ -3,9 +3,9 @@ import { Bebas_Neue, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Providers from "@/app/providers";
-import AppFooter from "@/app/components/AppFooter";
-import AppHeader from "@/app/components/AppHeader";
-import { strings } from "@/app/lib/strings";
+import AppFooter from "@/features/shell/components/AppFooter";
+import AppHeader from "@/features/shell/components/AppHeader";
+import { strings } from "@/lib/strings";
 
 import "./globals.css";
 

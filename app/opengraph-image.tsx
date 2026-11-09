@@ -2,9 +2,9 @@ import {
   renderDefaultImage,
   SHARE_IMAGE_CONTENT_TYPE,
   SHARE_IMAGE_SIZE,
-} from "@/app/lib/share-image/render";
-import { INDEFINITE_CACHE_SECONDS } from "@/app/lib/share-image/share-image";
-import { strings } from "@/app/lib/strings";
+} from "@/lib/share-image/render";
+import { INDEFINITE_CACHE_SECONDS } from "@/lib/share-image/share-image";
+import { strings } from "@/lib/strings";
 
 export const alt = strings.app.name;
 export const size = SHARE_IMAGE_SIZE;

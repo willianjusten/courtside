@@ -6,42 +6,44 @@ import {
 } from "@testing-library/react";
 import type { ReactElement } from "react";
 import Providers from "./providers";
-import { favoritesStore } from "@/app/lib/favorites/use-favorite-team-ids";
-import { leadersQueryOptions } from "@/app/lib/queries/leaders";
-import { standingsQueryOptions } from "@/app/lib/queries/standings";
+import { favoritesStore } from "@/features/favorites/use-favorite-team-ids";
 import {
+  leadersQueryOptions,
   teamLeadersQueryOptions,
+} from "@/features/leaders/queries/leaders";
+import { standingsQueryOptions } from "@/features/standings/queries/standings";
+import {
   teamRosterQueryOptions,
   teamSchedulesQueryOptions,
-} from "@/app/lib/queries/team";
-import { getQueryClient } from "@/app/lib/query/get-query-client";
-import { strings } from "@/app/lib/strings";
-import { withApiRoutes } from "@/app/test-utils/api-routes";
+} from "@/features/teams/queries/team";
+import { getQueryClient } from "@/lib/query/get-query-client";
+import { strings } from "@/lib/strings";
+import { withApiRoutes } from "@/test-utils/api-routes";
 import HomePage from "./page";
 import GamesPage from "./games/[date]/page";
 import GamePage from "./game/[id]/page";
 import StandingsPage from "./standings/page";
 import TeamPage from "./teams/[slug]/page";
 import PlayoffsPage from "./playoffs/page";
-import finalDay from "./lib/espn/__fixtures__/scoreboard-final-day.json";
-import headerWeek from "./lib/espn/__fixtures__/scoreboard-header-week.json";
-import teamsList from "./lib/espn/__fixtures__/teams-list.json";
-import lakersDetail from "./lib/espn/__fixtures__/team-detail-lakers.json";
-import lakersSchedule from "./lib/espn/__fixtures__/team-schedule-lakers.json";
-import lakersPostseasonSchedule from "./lib/espn/__fixtures__/team-schedule-lakers-postseason.json";
-import lakersRoster from "./lib/espn/__fixtures__/team-roster-lakers.json";
-import lakersInjuries from "./lib/espn/__fixtures__/team-injuries-lakers.json";
-import lakersInjuryItems from "./lib/espn/__fixtures__/team-injuries-lakers-items.json";
-import lakersLiveScoreboard from "./lib/espn/__fixtures__/scoreboard-lakers-live-simulated.json";
-import standings from "./lib/espn/__fixtures__/standings-regular-season.json";
-import currentSeason from "./lib/espn/__fixtures__/season-current.json";
-import regularSeasonLeaders from "./lib/espn/__fixtures__/leaders-regular-season.json";
-import leaderAthletes from "./lib/espn/__fixtures__/leaders-athletes.json";
-import lakersLeaders from "./lib/espn/__fixtures__/team-leaders-lakers.json";
-import lakersLeaderAthletes from "./lib/espn/__fixtures__/team-leaders-lakers-athletes.json";
-import finalSummary from "./lib/espn/__fixtures__/summary-final.json";
-import liveSummary from "./lib/espn/__fixtures__/summary-live.json";
-import preGameSummary from "./lib/espn/__fixtures__/summary-pre-game.json";
+import finalDay from "@/lib/espn/__fixtures__/scoreboard-final-day.json";
+import headerWeek from "@/lib/espn/__fixtures__/scoreboard-header-week.json";
+import teamsList from "@/lib/espn/__fixtures__/teams-list.json";
+import lakersDetail from "@/lib/espn/__fixtures__/team-detail-lakers.json";
+import lakersSchedule from "@/lib/espn/__fixtures__/team-schedule-lakers.json";
+import lakersPostseasonSchedule from "@/lib/espn/__fixtures__/team-schedule-lakers-postseason.json";
+import lakersRoster from "@/lib/espn/__fixtures__/team-roster-lakers.json";
+import lakersInjuries from "@/lib/espn/__fixtures__/team-injuries-lakers.json";
+import lakersInjuryItems from "@/lib/espn/__fixtures__/team-injuries-lakers-items.json";
+import lakersLiveScoreboard from "@/lib/espn/__fixtures__/scoreboard-lakers-live-simulated.json";
+import standings from "@/lib/espn/__fixtures__/standings-regular-season.json";
+import currentSeason from "@/lib/espn/__fixtures__/season-current.json";
+import regularSeasonLeaders from "@/lib/espn/__fixtures__/leaders-regular-season.json";
+import leaderAthletes from "@/lib/espn/__fixtures__/leaders-athletes.json";
+import lakersLeaders from "@/lib/espn/__fixtures__/team-leaders-lakers.json";
+import lakersLeaderAthletes from "@/lib/espn/__fixtures__/team-leaders-lakers-athletes.json";
+import finalSummary from "@/lib/espn/__fixtures__/summary-final.json";
+import liveSummary from "@/lib/espn/__fixtures__/summary-live.json";
+import preGameSummary from "@/lib/espn/__fixtures__/summary-pre-game.json";
 
 const LEADERS_URL_PATTERN = /\/types\/2\/leaders\?limit=5$/;
 const ATHLETE_URL_PATTERN = /\/athletes\/(\d+)$/;
@@ -52,7 +54,9 @@ const PRE_GAME_ID = "401909094";
 const LAKERS_TEAM_ID = "13";
 
 // The sidebar is an async server component, which the client renderer here cannot render; it has its own tests.
-vi.mock("./components/HomeSidebar", () => ({ default: () => null }));
+vi.mock("@/features/scoreboard/components/HomeSidebar", () => ({
+  default: () => null,
+}));
 
 vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next/navigation")>()),

@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import DayScoreboard from "@/app/components/DayScoreboard";
-import HomeSidebar from "@/app/components/HomeSidebar";
-import { HomeSidebarLoading } from "@/app/components/HomeSidebar/states";
-import { prefetchDayScoreboard } from "@/app/lib/queries/prefetch-day";
-import { Hydrate } from "@/app/lib/query/server";
-import { currentNbaDate, parseNbaDate } from "@/app/lib/time/nba-date";
+import DayScoreboard from "@/features/scoreboard/components/DayScoreboard";
+import HomeSidebar from "@/features/scoreboard/components/HomeSidebar";
+import { HomeSidebarLoading } from "@/features/scoreboard/components/HomeSidebar/states";
+import { prefetchDayScoreboard } from "@/features/scoreboard/queries/prefetch-day";
+import { Hydrate } from "@/lib/query/server";
+import { currentNbaDate, parseNbaDate } from "@/lib/time/nba-date";
 
 // The navigation reads today's live scoreboard to decide on the Playoffs tab, so the page renders on every request.
 export const dynamic = "force-dynamic";

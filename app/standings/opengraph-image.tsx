@@ -1,4 +1,4 @@
-import { INK } from "@/app/lib/home/team-colors";
+import { INK } from "@/lib/team-colors";
 import {
   GLOW_ALPHA,
   renderDefaultImage,
@@ -8,15 +8,15 @@ import {
   ShareImageHeading,
   TeamMark,
   withInlinedLogos,
-} from "@/app/lib/share-image/render";
+} from "@/lib/share-image/render";
 import type {
   ConferencesShareView,
   StandingsShareConference,
   StandingsShareRow,
-} from "@/app/lib/standings/share-view";
-import { loadStandingsShareView } from "@/app/lib/standings/share-view.server";
-import { strings } from "@/app/lib/strings";
-import { ACCENT, ELEVATED, FOREGROUND, MUTED } from "@/app/lib/theme-colors";
+} from "@/features/standings/share-view";
+import { loadStandingsShareView } from "@/features/standings/share-view.server";
+import { strings } from "@/lib/strings";
+import { ACCENT, ELEVATED, FOREGROUND, MUTED } from "@/lib/theme-colors";
 
 // Standings move after every game, so the image renders on every request; caching is left to Cache-Control.
 export const dynamic = "force-dynamic";

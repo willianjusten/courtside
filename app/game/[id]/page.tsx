@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import GameDetail from "@/app/components/GameDetail";
-import { EspnRequestError } from "@/app/lib/espn";
-import { isGameId } from "@/app/lib/game/game-id";
-import { loadShareView } from "@/app/lib/game/share-view.server";
-import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
-import { serverQueries } from "@/app/lib/query/server-queries";
+import GameDetail from "@/features/game/components/GameDetail";
+import { EspnRequestError } from "@/lib/espn";
+import { isGameId } from "@/features/game/game-id";
+import { loadShareView } from "@/features/game/share-view.server";
+import { getServerQueryClient, Hydrate } from "@/lib/query/server";
+import { gameSummaryServerQuery } from "@/features/game/queries/server";
 
 // The navigation reads today's live scoreboard to decide on the Playoffs tab, so the page renders on every request.
 export const dynamic = "force-dynamic";
@@ -39,7 +39,7 @@ export default async function GamePage({ params }: GamePageProps) {
   if (!isGameId(id)) notFound();
 
   try {
-    await getServerQueryClient().fetchQuery(serverQueries.gameSummary(id));
+    await getServerQueryClient().fetchQuery(gameSummaryServerQuery(id));
   } catch (error) {
     if (
       error instanceof EspnRequestError &&

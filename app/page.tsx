@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import DayScoreboard from "@/app/components/DayScoreboard";
-import HomeSidebar from "@/app/components/HomeSidebar";
-import { HomeSidebarLoading } from "@/app/components/HomeSidebar/states";
-import { prefetchDayScoreboard } from "@/app/lib/queries/prefetch-day";
-import { Hydrate } from "@/app/lib/query/server";
-import { currentNbaDate } from "@/app/lib/time/nba-date";
+import DayScoreboard from "@/features/scoreboard/components/DayScoreboard";
+import HomeSidebar from "@/features/scoreboard/components/HomeSidebar";
+import { HomeSidebarLoading } from "@/features/scoreboard/components/HomeSidebar/states";
+import { prefetchDayScoreboard } from "@/features/scoreboard/queries/prefetch-day";
+import { Hydrate } from "@/lib/query/server";
+import { currentNbaDate } from "@/lib/time/nba-date";
 
 // The current NBA date depends on request time, so the page cannot be prerendered at build time.
 export const dynamic = "force-dynamic";
