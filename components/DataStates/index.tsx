@@ -1,4 +1,3 @@
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import { strings } from "@/lib/strings";
 
 type RetryableErrorProps = {
@@ -25,7 +24,7 @@ export function RetryableError({
         type="button"
         onClick={onRetry}
         disabled={isRetrying}
-        className={`min-h-11 cursor-pointer rounded-full bg-accent px-5 text-sm font-bold text-on-accent transition-colors hover:bg-accent-soft disabled:cursor-default disabled:opacity-60 ${FOCUS_RING_CLASS_NAME}`}
+        className={`min-h-11 cursor-pointer rounded-full bg-accent px-5 text-sm font-bold text-on-accent transition-colors hover:bg-accent-soft disabled:cursor-default disabled:opacity-60 focus-ring`}
       >
         {isRetrying ? strings.common.retrying : strings.common.retry}
       </button>

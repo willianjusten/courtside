@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import type { HighlightVideo, HighlightsView } from "@/features/game/game-view";
 import { useIsDesktop } from "@/lib/use-is-desktop";
 import { strings } from "@/lib/strings";
@@ -39,7 +38,7 @@ function VideoItem({
       type="button"
       aria-current={isSelected ? "true" : undefined}
       onClick={onPick}
-      className={`flex min-h-[52px] w-full cursor-pointer items-start gap-2.5 rounded-[10px] p-2.5 text-left transition-colors md:min-h-14 md:gap-3 md:p-3 ${isSelected ? "bg-white/6" : "hover:bg-white/4"} ${FOCUS_RING_CLASS_NAME}`}
+      className={`flex min-h-[52px] w-full cursor-pointer items-start gap-2.5 rounded-[10px] p-2.5 text-left transition-colors md:min-h-14 md:gap-3 md:p-3 ${isSelected ? "bg-white/6" : "hover:bg-white/4"} focus-ring`}
     >
       <PlayIcon className="mt-[3px] size-3 shrink-0 md:size-3.5" />
       <span className="flex min-w-0 flex-col gap-[3px] md:gap-1">
@@ -123,7 +122,7 @@ export function Highlights({ highlights }: { highlights: HighlightsView }) {
               aria-expanded={isExpanded}
               aria-controls={LIST_ID}
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-accent/40 bg-accent/10 text-[13px] font-bold text-accent-soft transition-colors hover:bg-accent/16 ${FOCUS_RING_CLASS_NAME}`}
+              className={`flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-accent/40 bg-accent/10 text-[13px] font-bold text-accent-soft transition-colors hover:bg-accent/16 focus-ring`}
             >
               {isExpanded
                 ? strings.game.highlights.viewLess

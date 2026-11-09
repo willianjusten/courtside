@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import {
   PANEL_HEADING_CLASS_NAME,
   PANEL_SURFACE_CLASS_NAME,
@@ -80,7 +79,7 @@ function InjuryReport({
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger
-        className={`${INJURY_STATUS_CLASS_NAME} cursor-help ${FOCUS_RING_CLASS_NAME}`}
+        className={`${INJURY_STATUS_CLASS_NAME} cursor-help focus-ring`}
         onPointerEnter={({ pointerType }) => {
           if (pointerType === "mouse") setIsOpen(true);
         }}

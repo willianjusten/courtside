@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, type RefObject } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/components/TeamLogo";
 import type { PlayByPlayView, PlayRow } from "@/features/game/game-view";
 import { useIsDesktop } from "@/lib/use-is-desktop";
@@ -195,7 +194,7 @@ export function PlayByPlay({ playByPlay }: { playByPlay: PlayByPlayView }) {
               aria-expanded={isExpanded}
               aria-controls={LIST_ID}
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/4 text-[13px] font-bold text-secondary transition-colors hover:bg-white/8 ${FOCUS_RING_CLASS_NAME}`}
+              className={`flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/4 text-[13px] font-bold text-secondary transition-colors hover:bg-white/8 focus-ring`}
             >
               {isExpanded
                 ? strings.game.plays.showFewer

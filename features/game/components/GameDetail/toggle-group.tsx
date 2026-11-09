@@ -1,5 +1,3 @@
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
-
 export type ToggleOption<Value> = {
   value: Value;
   label: string;
@@ -32,7 +30,7 @@ export function ToggleGroup<Value extends string | number>({
             aria-pressed={isSelected}
             onClick={() => onSelect(option.value)}
             // The pill is drawn 36px tall; its hit area reaches 4px past the toggle's edge to make a 44px target.
-            className={`relative min-h-9 grow cursor-pointer rounded-full px-2.5 text-xs font-bold tracking-[0.04em] transition-colors before:absolute before:inset-x-0 before:-inset-y-1 md:grow-0 md:px-3.5 ${FOCUS_RING_CLASS_NAME} ${isSelected ? "bg-white/92 text-ink" : "text-secondary hover:bg-white/8"}`}
+            className={`relative min-h-9 grow cursor-pointer rounded-full px-2.5 text-xs font-bold tracking-[0.04em] transition-colors before:absolute before:inset-x-0 before:-inset-y-1 md:grow-0 md:px-3.5 focus-ring ${isSelected ? "bg-white/92 text-ink" : "text-secondary hover:bg-white/8"}`}
           >
             {option.label}
           </button>

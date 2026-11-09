@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import GameStatusChip from "@/components/StatusChip";
 import TeamLogo from "@/components/TeamLogo";
 import type {
@@ -25,7 +24,7 @@ function TeamLink({ team, side }: { team: HeaderTeam; side: TeamSide }) {
   return (
     <Link
       href={team.href}
-      className={`flex min-w-0 grow basis-0 flex-col items-center gap-1.5 rounded-tile text-center ${alignClassName} ${team.isDimmed ? "opacity-70" : ""} ${FOCUS_RING_CLASS_NAME}`}
+      className={`flex min-w-0 grow basis-0 flex-col items-center gap-1.5 rounded-tile text-center ${alignClassName} ${team.isDimmed ? "opacity-70" : ""} focus-ring`}
     >
       <TeamLogo logoUrl={team.logoUrl} size={HEADER_LOGO_SIZE} />
       <span className="flex min-w-0 flex-col">
@@ -127,7 +126,7 @@ function MobileTopBar({ header }: { header: GameHeaderView }) {
       <Link
         href={header.back.href}
         aria-label={strings.game.header.back(header.back.label)}
-        className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] border border-white/12 bg-white/6 ${FOCUS_RING_CLASS_NAME}`}
+        className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] border border-white/12 bg-white/6 focus-ring`}
       >
         <BackArrow className="size-[19px]" />
       </Link>
@@ -164,7 +163,7 @@ export function GameHeader({
       <Link
         href={header.back.href}
         aria-label={strings.game.header.back(header.back.label)}
-        className={`hidden min-h-11 items-center gap-2 self-start rounded-tile text-[13px] font-bold text-link md:inline-flex ${FOCUS_RING_CLASS_NAME}`}
+        className={`hidden min-h-11 items-center gap-2 self-start rounded-tile text-[13px] font-bold text-link md:inline-flex focus-ring`}
       >
         <BackArrow className="size-4" />
         {header.back.label}

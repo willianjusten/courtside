@@ -13,7 +13,6 @@ import { seasonStartYearOf } from "@/lib/season/season-year";
 import { strings } from "@/lib/strings";
 import { startOfNbaMonth } from "@/lib/time/nba-date";
 import DatePickerTrigger, {
-  FOCUS_RING_CLASS_NAME,
   type DatePickerPlacement,
 } from "./DatePickerTrigger";
 
@@ -148,7 +147,7 @@ function CalendarDayButton({
       aria-current={day.isToday ? "date" : undefined}
       onClick={onClick}
       // On a 375px phone a cell is just under 44px wide, so its hit area also covers half the gap on each side.
-      className={`relative flex min-h-11 cursor-pointer before:absolute before:inset-y-0 before:-inset-x-px items-center justify-center rounded-tile text-sm transition-colors ${FOCUS_RING_CLASS_NAME} ${toneClassName} ${todayClassName}`}
+      className={`relative flex min-h-11 cursor-pointer before:absolute before:inset-y-0 before:-inset-x-px items-center justify-center rounded-tile text-sm transition-colors focus-ring ${toneClassName} ${todayClassName}`}
     >
       {day.dayNumber}
       {day.hasGames && (
@@ -173,7 +172,7 @@ function MonthArrowButton({ label, onClick, children }: MonthArrowButtonProps) {
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/12 bg-white/4 text-secondary transition-colors hover:bg-white/8 ${FOCUS_RING_CLASS_NAME}`}
+      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/12 bg-white/4 text-secondary transition-colors hover:bg-white/8 focus-ring`}
     >
       <svg
         width="18"

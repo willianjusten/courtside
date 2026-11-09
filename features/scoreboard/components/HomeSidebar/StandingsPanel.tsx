@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/components/TeamLogo";
 import type { ConferenceStandings } from "@/lib/domain/standings";
 import { useFavoriteTeamIds } from "@/features/favorites/use-favorite-team-ids";
@@ -29,7 +28,7 @@ function StandingsPanelRow({ row }: { row: SidebarStandingsRow }) {
     <li>
       <Link
         href={row.href}
-        className={`grid min-h-11 grid-cols-[24px_1fr_52px_44px] items-center gap-2 rounded-[10px] px-1.5 py-0.5 transition-colors hover:bg-white/5 ${row.isFavorite ? "bg-favorite/8" : ""} ${FOCUS_RING_CLASS_NAME}`}
+        className={`grid min-h-11 grid-cols-[24px_1fr_52px_44px] items-center gap-2 rounded-[10px] px-1.5 py-0.5 transition-colors hover:bg-white/5 ${row.isFavorite ? "bg-favorite/8" : ""} focus-ring`}
       >
         <span className="flex size-6 items-center justify-center rounded-lg border border-playoff/45 bg-playoff/18 font-display text-sm text-foreground">
           {row.seed}
@@ -87,7 +86,7 @@ export default function StandingsPanel({
           href="/standings"
           aria-label={sidebar.allStandingsLabel}
           // A 44px target whose negative margin keeps the heading row as short as the design draws it.
-          className={`-my-3 inline-flex min-h-11 items-center text-xs font-bold text-link transition-colors hover:text-accent ${FOCUS_RING_CLASS_NAME}`}
+          className={`-my-3 inline-flex min-h-11 items-center text-xs font-bold text-link transition-colors hover:text-accent focus-ring`}
         >
           {sidebar.allStandings}
         </Link>

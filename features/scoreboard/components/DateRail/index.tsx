@@ -7,9 +7,6 @@ import { strings } from "@/lib/strings";
 // The rail fits 7 days at a time, so the selected day sits in the middle with 3 on each side.
 const DAYS_BESIDE_CENTER = 3;
 
-const FOCUS_RING_CLASS_NAME =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-
 // Seven pills share a phone's width, narrower than a 44px target, so each one's hit area reaches into half the gap beside it.
 const WIDENED_HIT_AREA_CLASS_NAME =
   "before:absolute before:inset-y-0 before:-inset-x-1";
@@ -143,7 +140,7 @@ function DayPill({ day, onClick, onPreview }: DayPillProps) {
       onClick={onClick}
       onPointerEnter={onPreview}
       onFocus={onPreview}
-      className={`relative cursor-pointer flex min-h-16 shrink-0 basis-[calc((100%-6*0.5rem)/7)] snap-start flex-col items-center gap-0.75 rounded-tile border py-2.25 transition-[background-color,translate] md:min-h-21 md:basis-[calc((100%-6*0.625rem)/7)] md:rounded-card md:px-3.5 md:py-3 ${FOCUS_RING_CLASS_NAME} ${WIDENED_HIT_AREA_CLASS_NAME} ${toneClassName}`}
+      className={`relative cursor-pointer flex min-h-16 shrink-0 basis-[calc((100%-6*0.5rem)/7)] snap-start flex-col items-center gap-0.75 rounded-tile border py-2.25 transition-[background-color,translate] md:min-h-21 md:basis-[calc((100%-6*0.625rem)/7)] md:rounded-card md:px-3.5 md:py-3 focus-ring ${WIDENED_HIT_AREA_CLASS_NAME} ${toneClassName}`}
     >
       <span className="sr-only">{day.label}</span>
       <span
@@ -188,7 +185,7 @@ function SlideArrowButton({ label, onClick, children }: SlideArrowButtonProps) {
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`hidden cursor-pointer size-11 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/4 text-secondary transition-colors hover:bg-white/8 md:flex ${FOCUS_RING_CLASS_NAME}`}
+      className={`hidden cursor-pointer size-11 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/4 text-secondary transition-colors hover:bg-white/8 md:flex focus-ring`}
     >
       <svg
         width="18"

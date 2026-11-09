@@ -3,7 +3,6 @@
 import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { useQuery } from "@tanstack/react-query";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/components/TeamLogo";
 import {
   favoritesStore,
@@ -87,7 +86,7 @@ function TeamOptionButton({
       aria-pressed={option.isFavorite}
       title={option.displayName}
       onClick={onClick}
-      className={`flex aspect-square min-h-11 cursor-pointer items-center justify-center rounded-full border transition-colors ${FOCUS_RING_CLASS_NAME} ${toneClassName}`}
+      className={`flex aspect-square min-h-11 cursor-pointer items-center justify-center rounded-full border transition-colors focus-ring ${toneClassName}`}
     >
       <TeamLogo logoUrl={option.logoUrl} size={PICKER_LOGO_SIZE} />
     </button>

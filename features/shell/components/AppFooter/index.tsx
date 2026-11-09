@@ -1,5 +1,4 @@
 import { Fragment } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import { strings } from "@/lib/strings";
 
 export default function AppFooter() {
@@ -15,7 +14,7 @@ export default function AppFooter() {
               href={author.href}
               target="_blank"
               rel="noreferrer"
-              className={`rounded-sm text-secondary underline-offset-2 transition-colors hover:text-foreground hover:underline ${FOCUS_RING_CLASS_NAME}`}
+              className={`rounded-sm text-secondary underline-offset-2 transition-colors hover:text-foreground hover:underline focus-ring`}
             >
               {author.name}
             </a>

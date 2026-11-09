@@ -4,9 +4,6 @@ import type {
 } from "@/features/scoreboard/home-view";
 import { strings } from "@/lib/strings";
 
-const FOCUS_RING_CLASS_NAME =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-
 type GameFiltersProps = {
   filters: GameFilterOption[];
   // Shown at the end of the row on mobile only, as the mobile artboard draws it.
@@ -62,7 +59,7 @@ function FilterPill({ option, onClick }: FilterPillProps) {
       aria-pressed={option.isSelected}
       onClick={onClick}
       // The pill is drawn 36px tall; its hit area reaches 4px into the gap above and below to make a 44px target.
-      className={`relative min-h-9 cursor-pointer rounded-full before:absolute before:inset-x-0 before:-inset-y-1 border px-3.5 text-xs font-bold tracking-[0.04em] transition-colors ${FOCUS_RING_CLASS_NAME} ${toneClassName}`}
+      className={`relative min-h-9 cursor-pointer rounded-full before:absolute before:inset-x-0 before:-inset-y-1 border px-3.5 text-xs font-bold tracking-[0.04em] transition-colors focus-ring ${toneClassName}`}
     >
       {option.label}
     </button>

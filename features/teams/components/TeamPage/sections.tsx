@@ -2,20 +2,19 @@
 
 import * as Tabs from "@radix-ui/react-tabs";
 import type { ReactNode } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import { strings } from "@/lib/strings";
 import type { TeamTab, TeamTabId, TeamTabs } from "@/features/teams/team-view";
 
 // Every panel stays mounted: on mobile the inactive ones are hidden, and from md up the panels dissolve
 // (display: contents) so their sections are placed straight on the column grid.
 // Radix puts each panel in the tab order, so on mobile it shows the shared focus ring.
-const PANEL_CLASS_NAME = `flex flex-col gap-3 rounded-xl data-[state=inactive]:hidden md:contents md:data-[state=inactive]:contents ${FOCUS_RING_CLASS_NAME}`;
+const PANEL_CLASS_NAME = `flex flex-col gap-3 rounded-xl data-[state=inactive]:hidden md:contents md:data-[state=inactive]:contents focus-ring`;
 
 function TabTrigger({ tab }: { tab: TeamTab }) {
   return (
     <Tabs.Trigger
       value={tab.id}
-      className={`min-h-11 grow basis-0 cursor-pointer rounded-xl border border-white/12 bg-white/4 px-2 text-xs font-bold tracking-[0.02em] text-secondary transition-colors hover:bg-white/8 data-[state=active]:border-white/92 data-[state=active]:bg-white/92 data-[state=active]:text-ink ${FOCUS_RING_CLASS_NAME}`}
+      className={`min-h-11 grow basis-0 cursor-pointer rounded-xl border border-white/12 bg-white/4 px-2 text-xs font-bold tracking-[0.02em] text-secondary transition-colors hover:bg-white/8 data-[state=active]:border-white/92 data-[state=active]:bg-white/92 data-[state=active]:text-ink focus-ring`}
     >
       {tab.label}
     </Tabs.Trigger>

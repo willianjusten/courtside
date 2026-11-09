@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import { PANEL_HEADING_CLASS_NAME } from "@/components/panel-styles";
 import TeamLogo from "@/components/TeamLogo";
 import { strings } from "@/lib/strings";
@@ -25,7 +24,7 @@ const PLAYOFFS_HEADING_ID = "team-schedule-playoffs";
 const ROW_CLASS_NAME =
   "grid min-h-14 grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[14px] border px-3 py-2.5 lg:grid-cols-[110px_minmax(0,1fr)_auto] lg:gap-4 lg:px-3.5";
 const DEFAULT_ROW_TONE_CLASS_NAME = "border-white/7 bg-white/3.5";
-const ROW_LINK_CLASS_NAME = `transition-colors hover:bg-white/7 ${FOCUS_RING_CLASS_NAME}`;
+const ROW_LINK_CLASS_NAME = `transition-colors hover:bg-white/7 focus-ring`;
 const LIVE_ROW_TONE_CLASS_NAME =
   "border-live/34 bg-linear-to-r from-live/16 to-elevated/90 to-60%";
 const NEXT_ROW_TONE_CLASS_NAME = "border-accent/45 bg-accent/8";
@@ -402,7 +401,7 @@ function ScheduleSection({
         <button
           type="button"
           onClick={onShowMore}
-          className={`min-h-11 cursor-pointer rounded-[14px] border border-white/10 bg-white/4 text-xs font-bold text-link transition-colors hover:bg-white/8 ${FOCUS_RING_CLASS_NAME}`}
+          className={`min-h-11 cursor-pointer rounded-[14px] border border-white/10 bg-white/4 text-xs font-bold text-link transition-colors hover:bg-white/8 focus-ring`}
         >
           {showMoreLabel}
         </button>

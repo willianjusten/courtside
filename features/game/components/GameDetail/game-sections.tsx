@@ -2,7 +2,6 @@
 
 import * as Tabs from "@radix-ui/react-tabs";
 import { useState, type ReactNode } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import type { GameTab, GameTabId, GameTabs } from "@/features/game/game-view";
 import { useIsDesktop } from "@/lib/use-is-desktop";
 import { strings } from "@/lib/strings";
@@ -16,7 +15,7 @@ function TabTrigger({ tab }: { tab: GameTab }) {
   return (
     <Tabs.Trigger
       value={tab.id}
-      className={`min-h-11 grow basis-0 cursor-pointer rounded-xl border border-white/12 bg-white/4 px-1.5 text-xs font-bold tracking-[0.02em] text-secondary transition-colors hover:bg-white/8 data-[state=active]:border-white/92 data-[state=active]:bg-white/92 data-[state=active]:text-ink ${FOCUS_RING_CLASS_NAME}`}
+      className={`min-h-11 grow basis-0 cursor-pointer rounded-xl border border-white/12 bg-white/4 px-1.5 text-xs font-bold tracking-[0.02em] text-secondary transition-colors hover:bg-white/8 data-[state=active]:border-white/92 data-[state=active]:bg-white/92 data-[state=active]:text-ink focus-ring`}
     >
       {tab.label}
     </Tabs.Trigger>

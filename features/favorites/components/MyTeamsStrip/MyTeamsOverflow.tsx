@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import * as Popover from "@radix-ui/react-popover";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/components/TeamLogo";
 import type { MyTeamLink } from "@/features/favorites/my-teams";
 import { strings } from "@/lib/strings";
@@ -37,7 +36,7 @@ export default function MyTeamsOverflow({ teams }: { teams: MyTeamLink[] }) {
         aria-label={strings.myTeams.more(teams.length)}
         onPointerEnter={openOnMouse}
         onPointerLeave={closeOnMouse}
-        className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-favorite/40 bg-favorite/10 font-display text-base text-foreground transition-colors hover:bg-favorite/18 ${FOCUS_RING_CLASS_NAME}`}
+        className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-favorite/40 bg-favorite/10 font-display text-base text-foreground transition-colors hover:bg-favorite/18 focus-ring`}
       >
         +{teams.length}
       </Popover.Trigger>
@@ -57,7 +56,7 @@ export default function MyTeamsOverflow({ teams }: { teams: MyTeamLink[] }) {
                 <Link
                   href={team.href}
                   onClick={() => setIsOpen(false)}
-                  className={`flex min-h-11 items-center gap-2.5 rounded-[10px] px-2.5 text-sm transition-colors hover:bg-white/6 ${FOCUS_RING_CLASS_NAME}`}
+                  className={`flex min-h-11 items-center gap-2.5 rounded-[10px] px-2.5 text-sm transition-colors hover:bg-white/6 focus-ring`}
                 >
                   <TeamLogo logoUrl={team.logoUrl} size={LOGO_SIZE} />
                   {team.displayName}

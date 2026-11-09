@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/components/TeamLogo";
 import TeamPicker from "@/features/favorites/components/TeamPicker";
 import { myTeamsOf, type MyTeamLink } from "@/features/favorites/my-teams";
@@ -20,7 +19,7 @@ function MyTeamLogoLink({ team }: { team: MyTeamLink }) {
     <Link
       href={team.href}
       aria-label={team.displayName}
-      className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-favorite/40 bg-favorite/10 transition-colors hover:bg-favorite/18 ${FOCUS_RING_CLASS_NAME}`}
+      className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-favorite/40 bg-favorite/10 transition-colors hover:bg-favorite/18 focus-ring`}
     >
       <TeamLogo logoUrl={team.logoUrl} size={LOGO_SIZE} />
     </Link>

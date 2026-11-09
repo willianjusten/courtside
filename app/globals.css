@@ -158,3 +158,8 @@
     background: rgb(255 255 255 / 0.32);
   }
 }
+
+/* The keyboard focus outline shared by every interactive element. */
+@utility focus-ring {
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent;
+}

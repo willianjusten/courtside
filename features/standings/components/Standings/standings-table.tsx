@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/components/TeamLogo";
 import type { Clincher } from "@/lib/domain/standings";
 import type {
@@ -129,7 +128,7 @@ function StandingsTableRowView({
           href={row.href}
           // The overlay stretches the link over the whole row, so any cell opens the team page. The sticky cell
           // contains it, so it reaches back over the seed column (w-11.5) and on over the stat columns (444px in all).
-          className={`flex min-h-11 min-w-0 items-center gap-2 rounded-md after:absolute after:inset-y-0 after:-right-111 after:-left-11.5 after:content-[''] ${FOCUS_RING_CLASS_NAME}`}
+          className={`flex min-h-11 min-w-0 items-center gap-2 rounded-md after:absolute after:inset-y-0 after:-right-111 after:-left-11.5 after:content-[''] focus-ring`}
         >
           <TeamLogo
             logoUrl={row.logoUrl}

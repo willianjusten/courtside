@@ -1,4 +1,3 @@
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import TeamLogo from "@/components/TeamLogo";
 import type { StandingsZone } from "@/features/standings/standings-view";
 import type { StreakKind } from "@/features/standings/streak";
@@ -68,7 +67,7 @@ function FollowButton({
       type="button"
       aria-pressed={follow.isFollowing}
       onClick={onToggleFollow}
-      className={`inline-flex size-11 cursor-pointer items-center justify-center rounded-full border text-sm font-bold transition-colors md:h-auto md:min-h-12 md:w-auto md:gap-2 md:px-5.5 ${FOCUS_RING_CLASS_NAME} ${toneClassName}`}
+      className={`inline-flex size-11 cursor-pointer items-center justify-center rounded-full border text-sm font-bold transition-colors md:h-auto md:min-h-12 md:w-auto md:gap-2 md:px-5.5 focus-ring ${toneClassName}`}
     >
       <svg
         viewBox="0 0 24 24"

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import type { HighlightVideo } from "@/features/game/game-view";
 import { PlayIcon } from "./play-icon";
 import { VIDEO_FRAME_CLASS_NAME } from "./styles";
@@ -47,7 +46,7 @@ export function VideoPlayer({
             type="button"
             aria-label={video.playLabel}
             onClick={() => play(videoRef.current)}
-            className={`absolute inset-0 m-auto flex size-14 cursor-pointer items-center justify-center rounded-full bg-white/92 text-ink transition-colors hover:bg-white md:size-[76px] ${FOCUS_RING_CLASS_NAME}`}
+            className={`absolute inset-0 m-auto flex size-14 cursor-pointer items-center justify-center rounded-full bg-white/92 text-ink transition-colors hover:bg-white md:size-[76px] focus-ring`}
           >
             <PlayIcon className="size-6 md:size-[30px]" />
           </button>

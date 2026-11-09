@@ -7,7 +7,6 @@ import {
   RetryableError,
   StaleNotice,
 } from "@/components/DataStates";
-import { FOCUS_RING_CLASS_NAME } from "@/features/scoreboard/components/DatePicker/DatePickerTrigger";
 import LeagueLeaders from "@/features/leaders/components/LeagueLeaders";
 import { useFavoriteTeamIds } from "@/features/favorites/use-favorite-team-ids";
 import { leadersQueryOptions } from "@/features/leaders/queries/leaders";
@@ -41,7 +40,7 @@ function ConferenceSwitch({ options }: { options: ConferenceOption[] }) {
           aria-pressed={option.selected}
           // Replacing the entry keeps the conference in the URL without adding a history step per switch.
           onClick={() => window.history.replaceState(null, "", option.href)}
-          className={`min-h-10 grow cursor-pointer rounded-full px-5.5 text-[13px] font-bold tracking-[0.04em] transition-colors md:min-h-11 ${option.selected ? "bg-white/92 text-ink" : "text-secondary hover:bg-white/8"} ${FOCUS_RING_CLASS_NAME}`}
+          className={`min-h-10 grow cursor-pointer rounded-full px-5.5 text-[13px] font-bold tracking-[0.04em] transition-colors md:min-h-11 ${option.selected ? "bg-white/92 text-ink" : "text-secondary hover:bg-white/8"} focus-ring`}
         >
           {option.label}
         </button>
@@ -65,7 +64,7 @@ function ViewSwitch({ options }: { options: StandingsViewOption[] }) {
           aria-pressed={option.selected}
           // Replacing the entry keeps the view in the URL without adding a history step per switch.
           onClick={() => window.history.replaceState(null, "", option.href)}
-          className={`-mb-px min-h-11 cursor-pointer border-b-2 px-0.5 text-sm font-bold tracking-[0.04em] ${option.selected ? "border-accent text-foreground" : "border-transparent text-muted"} ${FOCUS_RING_CLASS_NAME}`}
+          className={`-mb-px min-h-11 cursor-pointer border-b-2 px-0.5 text-sm font-bold tracking-[0.04em] ${option.selected ? "border-accent text-foreground" : "border-transparent text-muted"} focus-ring`}
         >
           {option.label}
         </button>

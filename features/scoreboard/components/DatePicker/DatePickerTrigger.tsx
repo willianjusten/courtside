@@ -3,9 +3,6 @@ import { strings } from "@/lib/strings";
 
 export type DatePickerPlacement = "rail" | "header";
 
-export const FOCUS_RING_CLASS_NAME =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-
 // Each placement shows on one breakpoint only: the rail row on desktop, the header on mobile.
 const PLACEMENT_CLASS_NAMES: Record<DatePickerPlacement, string> = {
   rail: "hidden min-h-21 shrink-0 flex-col items-center justify-center gap-1.5 rounded-card border border-dashed border-accent/45 bg-accent/8 px-4.5 text-[11px] font-bold tracking-[0.08em] text-accent-soft uppercase transition-colors hover:bg-accent/14 md:flex",
@@ -30,7 +27,7 @@ export default function DatePickerTrigger({
         placement === "header" ? strings.calendar.openCalendar : undefined
       }
       {...buttonProps}
-      className={`cursor-pointer ${FOCUS_RING_CLASS_NAME} ${PLACEMENT_CLASS_NAMES[placement]}`}
+      className={`cursor-pointer focus-ring ${PLACEMENT_CLASS_NAMES[placement]}`}
     >
       <svg
         viewBox="0 0 24 24"
