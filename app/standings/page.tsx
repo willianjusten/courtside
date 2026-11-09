@@ -3,8 +3,6 @@ import { getServerQueryClient, Hydrate } from "@/lib/query/server";
 import { leadersServerQuery } from "@/features/leaders/queries/server";
 import { standingsServerQuery } from "@/features/standings/queries/server";
 
-export const dynamic = "force-dynamic";
-
 export default function StandingsPage() {
   const queryClient = getServerQueryClient();
   // Not awaited: the page streams with its skeletons while ESPN answers, and the pending queries hydrate on the client.

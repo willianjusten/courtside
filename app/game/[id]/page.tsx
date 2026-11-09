@@ -7,9 +7,6 @@ import { loadShareView } from "@/features/game/share-view.server";
 import { getServerQueryClient, Hydrate } from "@/lib/query/server";
 import { gameSummaryServerQuery } from "@/features/game/queries/server";
 
-// The navigation reads today's live scoreboard to decide on the Playoffs tab, so the page renders on every request.
-export const dynamic = "force-dynamic";
-
 // ESPN answers 404 for an unknown event and 400 for an id it cannot read.
 const UNKNOWN_GAME_STATUSES = new Set([400, 404]);
 
