@@ -9,6 +9,10 @@ import { strings } from "@/lib/strings";
 
 import "./globals.css";
 
+// Every page renders on request: the navigation reads today's live scoreboard, and pages serve ESPN data from the
+// server's memory cache. Never ISR, whose cache writes Vercel bills in 8 KB units (see docs/adr/0001).
+export const dynamic = "force-dynamic";
+
 // next/font self-hosts the files and sizes a fallback to each font's metrics, so swapping fonts does not shift the layout.
 const bebasNeue = Bebas_Neue({
   weight: "400",

@@ -10,10 +10,6 @@ import {
   teamsServerQuery,
 } from "@/features/teams/queries/server";
 
-// Rendered per request from the server's memory cache instead of ISR: a regenerated team page wrote ~330 KB
-// of HTML and RSC to the ISR cache, every five minutes, for every team.
-export const dynamic = "force-dynamic";
-
 type TeamPageProps = {
   params: Promise<{ slug: string }>;
 };

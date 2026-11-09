@@ -7,9 +7,6 @@ import { prefetchDayScoreboard } from "@/features/scoreboard/queries/prefetch-da
 import { Hydrate } from "@/lib/query/server";
 import { currentNbaDate, parseNbaDate } from "@/lib/time/nba-date";
 
-// The navigation reads today's live scoreboard to decide on the Playoffs tab, so the page renders on every request.
-export const dynamic = "force-dynamic";
-
 type GamesPageProps = {
   params: Promise<{ date: string }>;
 };

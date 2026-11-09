@@ -6,9 +6,6 @@ import { prefetchDayScoreboard } from "@/features/scoreboard/queries/prefetch-da
 import { Hydrate } from "@/lib/query/server";
 import { currentNbaDate } from "@/lib/time/nba-date";
 
-// The current NBA date depends on request time, so the page cannot be prerendered at build time.
-export const dynamic = "force-dynamic";
-
 export default async function HomePage() {
   const nbaDate = currentNbaDate();
   await prefetchDayScoreboard(nbaDate);
