@@ -19,7 +19,7 @@
     ],
     "types": ["vitest/globals"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     },
     "target": "ES2017"
   },

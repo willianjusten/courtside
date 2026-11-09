@@ -13,3 +13,9 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("server-only", () => ({}));
+
+// The server's memory cache outlives a test, and tests answer ESPN differently.
+afterEach(async () => {
+  const { clearMemoryCache } = await import("@/lib/server/memory-cache");
+  clearMemoryCache();
+});
