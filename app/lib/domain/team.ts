@@ -1,4 +1,4 @@
-import type { Team } from "./game";
+import type { Game, PlayoffGame, Team } from "./game";
 
 // Short lowercase team name, e.g. "lakers" or "trail-blazers". Used in /teams/[slug] URLs.
 export type TeamSlug = string;
@@ -28,4 +28,10 @@ export type RosterPlayer = {
   injuryStatus: string | null;
   // ESPN's report on the injury, e.g. "Carr (oblique) is out for Friday's game"; null when ESPN has none.
   injuryComment: string | null;
+};
+
+export type TeamSchedules = {
+  regularSeason: Game[];
+  // Empty outside the postseason.
+  postseason: PlayoffGame[];
 };

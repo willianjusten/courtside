@@ -20,13 +20,13 @@ afterEach(() => {
 });
 
 describe("fetchTeams", () => {
-  it("requests the teams list through the server, since ESPN blocks CORS here", async () => {
+  it("requests the teams list from ESPN", async () => {
     respondWith(teamsList);
 
     await fetchTeams();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/espn/site/apis/site/v2/sports/basketball/nba/teams",
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams",
       expect.anything(),
     );
   });
@@ -109,13 +109,13 @@ describe("fetchTeamIdBySlug", () => {
 });
 
 describe("fetchTeamDetail", () => {
-  it("requests the team by its ESPN id through the server, since ESPN blocks CORS here", async () => {
+  it("requests the team by its ESPN id from ESPN", async () => {
     respondWith(lakersDetail);
 
     await fetchTeamDetail("13");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/espn/site/apis/site/v2/sports/basketball/nba/teams/13",
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13",
       expect.anything(),
     );
   });

@@ -1,6 +1,6 @@
 import { unstable_rethrow } from "next/navigation";
 import NavigationLinks from "@/app/components/PrimaryNavigation/NavigationLinks";
-import { scoreboardQueryOptions } from "@/app/lib/queries/scoreboard";
+import { serverQueries } from "@/app/lib/query/server-queries";
 import { getServerQueryClient } from "@/app/lib/query/server";
 import {
   isPostseason,
@@ -22,7 +22,7 @@ async function shouldShowPlayoffs() {
   try {
     // Shares the request-scoped client so the home page prefetch and this lookup make a single ESPN request.
     const { games } = await getServerQueryClient().fetchQuery(
-      scoreboardQueryOptions(currentNbaDate()),
+      serverQueries.scoreboard(currentNbaDate()),
     );
     return isPostseason(games, forcedOn);
   } catch (error) {

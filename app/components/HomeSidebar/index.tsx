@@ -1,6 +1,4 @@
-import { fetchStandings } from "@/app/lib/espn";
-// Not in the @/app/lib/espn barrel: the leaders module is server-only and the barrel is also imported by client code.
-import { fetchLeaders } from "@/app/lib/espn/leaders";
+import { loadLeaders, loadStandings } from "@/app/lib/server/loaders";
 import { strings } from "@/app/lib/strings";
 import LeadersPanel from "./LeadersPanel";
 import StandingsPanel from "./StandingsPanel";
@@ -16,8 +14,8 @@ function logFailureAsNull(description: string) {
 // Desktop only. Render it inside Suspense so it streams after the game list instead of holding it back.
 export default async function HomeSidebar() {
   const [standings, leaderCategories] = await Promise.all([
-    fetchStandings().catch(logFailureAsNull("the sidebar standings")),
-    fetchLeaders().catch(logFailureAsNull("the sidebar league leaders")),
+    loadStandings().catch(logFailureAsNull("the sidebar standings")),
+    loadLeaders().catch(logFailureAsNull("the sidebar league leaders")),
   ]);
 
   return (

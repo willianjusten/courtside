@@ -6,7 +6,7 @@ import lakersInjuryItems from "./__fixtures__/team-injuries-lakers-items.json";
 const ROSTER_URL =
   "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/13/roster";
 const INJURIES_URL =
-  "/api/espn/core/v2/sports/basketball/leagues/nba/teams/13/injuries";
+  "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/teams/13/injuries";
 const INJURY_ID_IN_URL_PATTERN = /\/injuries\/(-?\d+)$/;
 
 const fetchMock = vi.fn();
@@ -109,14 +109,14 @@ describe("fetchTeamRoster", () => {
     ]);
   });
 
-  it("follows the injury reports through the ESPN proxy", async () => {
+  it("follows the injury reports on the public core host", async () => {
     respondWithEspn();
 
     await fetchTeamRoster("13");
 
     expect(fetchMock).toHaveBeenCalledWith(INJURIES_URL, expect.anything());
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/espn/core/v2/sports/basketball/leagues/nba/seasons/2027/athletes/5113969/injuries/-59637",
+      "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/2027/athletes/5113969/injuries/-59637",
       expect.anything(),
     );
   });

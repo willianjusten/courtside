@@ -6,7 +6,6 @@ import regularSeasonLeaders from "./__fixtures__/leaders-regular-season.json";
 import leaderAthletes from "./__fixtures__/leaders-athletes.json";
 import teamsList from "./__fixtures__/teams-list.json";
 
-const ONE_HOUR_IN_SECONDS = 60 * 60;
 const CORE_NBA_URL =
   "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba";
 const SEASON_URL = `${CORE_NBA_URL}/season`;
@@ -63,19 +62,17 @@ afterEach(() => {
 });
 
 describe("fetchLeaders", () => {
-  it("requests the top 5 regular season leaders of the season derived from ESPN, revalidating hourly", async () => {
+  it("requests the top 5 regular season leaders of the season derived from ESPN, skipping the Data Cache", async () => {
     respondWithEspn();
 
     await fetchLeaders();
 
-    const hourlyRevalidation = expect.objectContaining({
-      next: { revalidate: ONE_HOUR_IN_SECONDS },
-    });
-    expect(fetchMock).toHaveBeenCalledWith(SEASON_URL, hourlyRevalidation);
-    expect(fetchMock).toHaveBeenCalledWith(LEADERS_URL, hourlyRevalidation);
+    const uncached = expect.objectContaining({ cache: "no-store" });
+    expect(fetchMock).toHaveBeenCalledWith(SEASON_URL, uncached);
+    expect(fetchMock).toHaveBeenCalledWith(LEADERS_URL, uncached);
     expect(fetchMock).toHaveBeenCalledWith(
       `${CORE_NBA_URL}/seasons/2027/athletes/4065733`,
-      hourlyRevalidation,
+      uncached,
     );
   });
 

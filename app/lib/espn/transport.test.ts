@@ -4,17 +4,6 @@ import noGames from "./__fixtures__/scoreboard-no-games.json";
 import playoffGame from "./__fixtures__/scoreboard-playoff-game.json";
 import { espnGet } from "./transport";
 
-vi.mock("./config", async (importOriginal) => {
-  const original = await importOriginal<typeof import("./config")>();
-  return {
-    ...original,
-    ESPN_ENDPOINTS: {
-      ...original.ESPN_ENDPOINTS,
-      scoreboard: { ...original.ESPN_ENDPOINTS.scoreboard, access: "proxy" },
-    },
-  };
-});
-
 const fetchMock = vi.fn();
 
 beforeEach(() => {
@@ -27,18 +16,18 @@ afterEach(() => {
 });
 
 describe("ESPN transport", () => {
-  it("routes a proxied endpoint through the app's route handler in the browser", async () => {
+  it("calls ESPN directly", async () => {
     fetchMock.mockResolvedValueOnce(new Response(JSON.stringify(noGames)));
 
     await fetchScoreboard(parseNbaDate("2026-08-01")!);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/espn/site/apis/site/v2/sports/basketball/nba/scoreboard?dates=20260801",
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=20260801",
       expect.anything(),
     );
   });
 
-  it("skips the browser cache for live game data", async () => {
+  it("skips every cache for ESPN responses", async () => {
     fetchMock.mockImplementation(
       async () => new Response(JSON.stringify(noGames)),
     );

@@ -1,4 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
+import { withApiRoutes } from "@/app/test-utils/api-routes";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import type { NbaDate } from "@/app/lib/domain/nba-date";
 import finalDay from "@/app/lib/espn/__fixtures__/scoreboard-final-day.json";
@@ -81,10 +82,13 @@ beforeEach(() => {
   gameCountsFetchMock.mockReset();
   gameCountsFetchMock.mockImplementation(async () => jsonResponse(headerWeek));
   // The rail's game counts come from their own endpoint, so each test scripts the scoreboard alone.
-  vi.stubGlobal("fetch", (url: string, init?: RequestInit) =>
-    url.includes("/scoreboard/header")
-      ? gameCountsFetchMock(url, init)
-      : fetchMock(url, init),
+  vi.stubGlobal(
+    "fetch",
+    withApiRoutes((url, init) =>
+      url.includes("/scoreboard/header")
+        ? gameCountsFetchMock(url, init)
+        : fetchMock(url, init),
+    ),
   );
 });
 

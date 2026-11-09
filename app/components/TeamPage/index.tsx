@@ -7,20 +7,19 @@ import { RetryableError, StaleNotice } from "@/app/components/DataStates";
 import LeadersPanel from "@/app/components/HomeSidebar/LeadersPanel";
 import TeamRoster from "@/app/components/TeamRoster";
 import TeamSchedule from "@/app/components/TeamSchedule";
-import type { TeamSlug } from "@/app/lib/domain/team";
-import { EspnRequestError } from "@/app/lib/espn";
+import type { TeamSchedules, TeamSlug } from "@/app/lib/domain/team";
+import { ApiRequestError } from "@/app/lib/api/fetch-api";
 import {
   favoritesStore,
   useFavoriteTeamIds,
 } from "@/app/lib/favorites/use-favorite-team-ids";
-import { teamLeadersQueryOptions } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import { useTeamScoreboard } from "@/app/lib/queries/use-team-scoreboard";
 import {
   teamDetailQueryOptions,
-  teamPlayoffScheduleQueryOptions,
+  teamLeadersQueryOptions,
   teamRosterQueryOptions,
-  teamScheduleQueryOptions,
+  teamSchedulesQueryOptions,
 } from "@/app/lib/queries/team";
 import type { StandingsQueryState } from "@/app/lib/standings/standings-view";
 import { strings } from "@/app/lib/strings";
@@ -41,14 +40,11 @@ import {
   TeamScheduleLoading,
 } from "./states";
 
-// ESPN answers 404 for an unknown team and 400 for an id it cannot read.
-const UNKNOWN_TEAM_STATUSES = new Set([400, 404]);
+const NOT_FOUND_STATUS = 404;
 const TEAM_LEADERS_HEADING_ID = "team-leaders";
 
 function isUnknownTeamError(error: Error | null) {
-  return (
-    error instanceof EspnRequestError && UNKNOWN_TEAM_STATUSES.has(error.status)
-  );
+  return error instanceof ApiRequestError && error.status === NOT_FOUND_STATUS;
 }
 
 // Data is checked before the error: a failed refetch keeps the last data instead of hiding it.
@@ -107,12 +103,15 @@ function SectionContent<Content>({
   );
 }
 
+const regularSeasonOf = (schedules: TeamSchedules) => schedules.regularSeason;
+const postseasonOf = (schedules: TeamSchedules) => schedules.postseason;
+
 type TeamPageProps = {
   teamId: string;
   slug: TeamSlug;
 };
 
-export function TeamPageContent({
+function TeamPageContent({
   teamId,
   slug,
   tabParam,
@@ -124,11 +123,15 @@ export function TeamPageContent({
     error: standingsError,
     isRefetchError: isStandingsRefetchError,
   } = useQuery(standingsQueryOptions());
-  const scheduleQuery = useQuery(teamScheduleQueryOptions(teamId));
+  const scheduleQuery = useQuery({
+    ...teamSchedulesQueryOptions(teamId),
+    select: regularSeasonOf,
+  });
   const games = scheduleQuery.data;
-  const { data: playoffGames } = useQuery(
-    teamPlayoffScheduleQueryOptions(teamId),
-  );
+  const { data: playoffGames } = useQuery({
+    ...teamSchedulesQueryOptions(teamId),
+    select: postseasonOf,
+  });
   // A playoff game day reads the scoreboard as well, so the live playoff game updates in place.
   const scoreboardGames = useTeamScoreboard(
     teamId,

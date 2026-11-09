@@ -1,28 +1,20 @@
-// Not in the @/app/lib/espn barrel: the leaders module is server-only and the barrel is also imported by client code.
-import { fetchTeamLeaders } from "@/app/lib/espn/leaders";
+import {
+  cachedJsonResponse,
+  notFoundResponse,
+  TEAM_ID_PATTERN,
+} from "@/app/lib/server/json-route";
+import { CACHE_SECONDS, loadTeamLeaders } from "@/app/lib/server/loaders";
 
-const BAD_REQUEST_STATUS = 400;
-const BAD_GATEWAY_STATUS = 502;
-// ESPN team ids are numeric, so anything else never reaches ESPN.
-const TEAM_ID_PATTERN = /^\d+$/;
-
-// The leaders come from ESPN at request time, so the route cannot be prerendered at build time.
-export const dynamic = "force-dynamic";
-
-type RouteContext = {
-  params: Promise<{ teamId: string }>;
-};
-
-export async function GET(_request: Request, { params }: RouteContext) {
+export async function GET(
+  _request: Request,
+  { params }: RouteContext<"/api/teams/[teamId]/leaders">,
+) {
   const { teamId } = await params;
-  if (!TEAM_ID_PATTERN.test(teamId)) {
-    return new Response(null, { status: BAD_REQUEST_STATUS });
-  }
+  if (!TEAM_ID_PATTERN.test(teamId)) return notFoundResponse();
 
-  try {
-    return Response.json(await fetchTeamLeaders(teamId));
-  } catch (error) {
-    console.error(`Failed to load the leaders of team ${teamId}`, error);
-    return new Response(null, { status: BAD_GATEWAY_STATUS });
-  }
+  return cachedJsonResponse(
+    () => loadTeamLeaders(teamId),
+    CACHE_SECONDS.teamLeaders,
+    `the leaders of team ${teamId}`,
+  );
 }

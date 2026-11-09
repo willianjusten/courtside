@@ -9,7 +9,7 @@ const SEASON_FIRST_DAY = "1001";
 export async function fetchSeasonCalendar(
   seasonStartYear: number,
 ): Promise<NbaDate[]> {
-  const rawScoreboard = await espnGet<RawScoreboard>("seasonCalendar", {
+  const rawScoreboard = await espnGet<RawScoreboard>("scoreboard", {
     searchParams: new URLSearchParams({
       dates: `${seasonStartYear}${SEASON_FIRST_DAY}`,
     }),

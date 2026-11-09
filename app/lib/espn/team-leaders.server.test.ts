@@ -6,7 +6,6 @@ import lakersLeaders from "./__fixtures__/team-leaders-lakers.json";
 import lakersLeaderAthletes from "./__fixtures__/team-leaders-lakers-athletes.json";
 
 const LAKERS_TEAM_ID = "13";
-const ONE_HOUR_IN_SECONDS = 60 * 60;
 const CORE_NBA_URL =
   "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba";
 const SEASON_URL = `${CORE_NBA_URL}/season`;
@@ -51,14 +50,14 @@ afterEach(() => {
 });
 
 describe("fetchTeamLeaders", () => {
-  it("requests the team's top 3 regular season leaders of the current season, revalidating hourly", async () => {
+  it("requests the team's top 3 regular season leaders of the current season, skipping the Data Cache", async () => {
     respondWithEspn();
 
     await fetchTeamLeaders(LAKERS_TEAM_ID);
 
     expect(fetchMock).toHaveBeenCalledWith(
       TEAM_LEADERS_URL,
-      expect.objectContaining({ next: { revalidate: ONE_HOUR_IN_SECONDS } }),
+      expect.objectContaining({ cache: "no-store" }),
     );
   });
 

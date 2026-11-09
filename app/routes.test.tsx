@@ -7,28 +7,21 @@ import {
 import type { ReactElement } from "react";
 import Providers from "./providers";
 import { favoritesStore } from "@/app/lib/favorites/use-favorite-team-ids";
-import {
-  LEADERS_API_PATH,
-  leadersQueryOptions,
-  teamLeadersApiPath,
-  teamLeadersQueryOptions,
-} from "@/app/lib/queries/leaders";
+import { leadersQueryOptions } from "@/app/lib/queries/leaders";
 import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import {
-  teamPlayoffScheduleQueryOptions,
+  teamLeadersQueryOptions,
   teamRosterQueryOptions,
+  teamSchedulesQueryOptions,
 } from "@/app/lib/queries/team";
 import { getQueryClient } from "@/app/lib/query/get-query-client";
 import { strings } from "@/app/lib/strings";
+import { withApiRoutes } from "@/app/test-utils/api-routes";
 import HomePage from "./page";
 import GamesPage from "./games/[date]/page";
 import GamePage from "./game/[id]/page";
 import StandingsPage from "./standings/page";
-import { GET as getLeaders } from "./api/leaders/route";
-import { GET as getTeamLeaders } from "./api/teams/[teamId]/leaders/route";
-import TeamPage, {
-  generateStaticParams as generateTeamStaticParams,
-} from "./teams/[slug]/page";
+import TeamPage from "./teams/[slug]/page";
 import PlayoffsPage from "./playoffs/page";
 import finalDay from "./lib/espn/__fixtures__/scoreboard-final-day.json";
 import headerWeek from "./lib/espn/__fixtures__/scoreboard-header-week.json";
@@ -96,16 +89,8 @@ function espnFixtureFor(url: string) {
   return finalDay;
 }
 
-// The client reads the leaders through the app's route handler, which assembles them from the ESPN fixtures.
-function responseFor(url: string) {
-  if (url === LEADERS_API_PATH) return getLeaders();
-  if (url === teamLeadersApiPath(LAKERS_TEAM_ID)) {
-    return getTeamLeaders(new Request(url), {
-      params: Promise.resolve({ teamId: LAKERS_TEAM_ID }),
-    });
-  }
-  return new Response(JSON.stringify(espnFixtureFor(url)));
-}
+// The client reads everything but live games through the app's route handlers, which answer from the ESPN fixtures.
+const responseFor = withApiRoutes((url) => Response.json(espnFixtureFor(url)));
 
 function render(ui: ReactElement) {
   return renderWithoutProviders(ui, { wrapper: Providers });
@@ -131,7 +116,7 @@ describe("routes", () => {
     getQueryClient().removeQueries({ queryKey: ["scoreboard"] });
     // The playoffs test answers the postseason schedule with the Lakers' playoff run.
     getQueryClient().removeQueries({
-      queryKey: teamPlayoffScheduleQueryOptions(LAKERS_TEAM_ID).queryKey,
+      queryKey: teamSchedulesQueryOptions(LAKERS_TEAM_ID).queryKey,
     });
     // The team leaders retry test answers the team leaders with an error first.
     getQueryClient().removeQueries({
@@ -668,11 +653,16 @@ describe("routes", () => {
     expect(screen.queryByText(strings.team.roster.error)).toBeNull();
   });
 
-  it("generates a page for every team, with hyphenated slugs", async () => {
-    const staticParams = await generateTeamStaticParams();
+  it("returns not found for a slug that names no team", async () => {
+    await expect(
+      TeamPage({ params: Promise.resolve({ slug: "not-a-team" }) }),
+    ).rejects.toThrow();
+  });
 
-    expect(staticParams).toHaveLength(30);
-    expect(staticParams).toContainEqual({ slug: "trail-blazers" });
+  it("finds a team by its hyphenated slug", async () => {
+    await expect(
+      TeamPage({ params: Promise.resolve({ slug: "trail-blazers" }) }),
+    ).resolves.toBeDefined();
   });
 
   it("lists the team's results with W/L announced in full and a game center link", async () => {

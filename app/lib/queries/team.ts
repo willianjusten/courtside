@@ -1,35 +1,34 @@
 import { queryOptions } from "@tanstack/react-query";
-import {
-  fetchTeamDetail,
-  fetchTeamPlayoffSchedule,
-  fetchTeamRoster,
-  fetchTeamSchedule,
-} from "@/app/lib/espn";
+import type {
+  RosterPlayer,
+  TeamDetail,
+  TeamSchedules,
+} from "@/app/lib/domain/team";
+import type { TeamLeaderCategory } from "@/app/lib/domain/leaders";
+import { fetchApi } from "@/app/lib/api/fetch-api";
+import { LEADERS_STALE_MILLISECONDS } from "./leaders";
 
-// Match the server cache periods of the ESPN client: the team detail for a day, the schedule for five minutes.
+// Match the server cache periods in app/lib/server/loaders.ts.
 const TEAM_DETAIL_STALE_MILLISECONDS = 24 * 60 * 60 * 1000;
 const TEAM_SCHEDULE_STALE_MILLISECONDS = 5 * 60 * 1000;
+const TEAM_ROSTER_STALE_MILLISECONDS = 10 * 60 * 1000;
+
+const teamApiPath = (teamId: string, resource = "") =>
+  `/api/teams/${encodeURIComponent(teamId)}${resource}`;
 
 export function teamDetailQueryOptions(teamId: string) {
   return queryOptions({
     queryKey: ["team", teamId],
-    queryFn: () => fetchTeamDetail(teamId),
+    queryFn: () => fetchApi<TeamDetail>(teamApiPath(teamId)),
     staleTime: TEAM_DETAIL_STALE_MILLISECONDS,
   });
 }
 
-export function teamScheduleQueryOptions(teamId: string) {
+// The regular season and playoff games in one request.
+export function teamSchedulesQueryOptions(teamId: string) {
   return queryOptions({
-    queryKey: ["team-schedule", teamId],
-    queryFn: () => fetchTeamSchedule(teamId),
-    staleTime: TEAM_SCHEDULE_STALE_MILLISECONDS,
-  });
-}
-
-export function teamPlayoffScheduleQueryOptions(teamId: string) {
-  return queryOptions({
-    queryKey: ["team-playoff-schedule", teamId],
-    queryFn: () => fetchTeamPlayoffSchedule(teamId),
+    queryKey: ["team-schedules", teamId],
+    queryFn: () => fetchApi<TeamSchedules>(teamApiPath(teamId, "/schedule")),
     staleTime: TEAM_SCHEDULE_STALE_MILLISECONDS,
   });
 }
@@ -37,6 +36,16 @@ export function teamPlayoffScheduleQueryOptions(teamId: string) {
 export function teamRosterQueryOptions(teamId: string) {
   return queryOptions({
     queryKey: ["team-roster", teamId],
-    queryFn: () => fetchTeamRoster(teamId),
+    queryFn: () => fetchApi<RosterPlayer[]>(teamApiPath(teamId, "/roster")),
+    staleTime: TEAM_ROSTER_STALE_MILLISECONDS,
+  });
+}
+
+export function teamLeadersQueryOptions(teamId: string) {
+  return queryOptions({
+    queryKey: ["team-leaders", teamId],
+    queryFn: () =>
+      fetchApi<TeamLeaderCategory[]>(teamApiPath(teamId, "/leaders")),
+    staleTime: LEADERS_STALE_MILLISECONDS,
   });
 }

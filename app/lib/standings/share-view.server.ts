@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_rethrow } from "next/navigation";
-import { standingsQueryOptions } from "@/app/lib/queries/standings";
 import { getServerQueryClient } from "@/app/lib/query/server";
+import { serverQueries } from "@/app/lib/query/server-queries";
 import {
   standingsShareViewOf,
   type StandingsShareView,
@@ -10,7 +10,7 @@ import {
 export async function loadStandingsShareView(): Promise<StandingsShareView> {
   try {
     return standingsShareViewOf(
-      await getServerQueryClient().fetchQuery(standingsQueryOptions()),
+      await getServerQueryClient().fetchQuery(serverQueries.standings()),
     );
   } catch (error) {
     // Next signals dynamic rendering by throwing, which must not be mistaken for a failed fetch.

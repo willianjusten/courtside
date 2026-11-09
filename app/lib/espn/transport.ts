@@ -1,10 +1,8 @@
 import {
   ESPN_ENDPOINTS,
-  ESPN_HOSTS,
-  endpointCacheOptions,
+  ESPN_ORIGINS,
   fillPathTemplate,
-  findEndpointForPath,
-  type EspnEndpoint,
+  isConfiguredCorePath,
   type EspnEndpointName,
 } from "./config";
 
@@ -21,9 +19,6 @@ export class EspnRequestError extends Error {
 
 // ESPN sometimes returns $ref links on its internal host, which is not reachable from outside.
 const PRIVATE_CORE_HOST_PATTERN = /https?:\/\/sports\.core\.api\.espn\.pvt/g;
-const PUBLIC_CORE_ORIGIN = ESPN_HOSTS.core.origin;
-
-const isServer = typeof window === "undefined";
 
 type EspnRequestOptions = {
   searchParams?: URLSearchParams;
@@ -31,31 +26,12 @@ type EspnRequestOptions = {
   pathParams?: Record<string, string>;
 };
 
-function buildEspnUrl(
-  endpoint: EspnEndpoint,
-  path: string,
-  searchParams = new URLSearchParams(),
-) {
-  const query = searchParams.size > 0 ? `?${searchParams}` : "";
-
-  if (isServer || endpoint.access === "direct") {
-    return `${ESPN_HOSTS[endpoint.host].origin}${path}${query}`;
-  }
-
-  return `/api/espn/${endpoint.host}${path}${query}`;
-}
-
-export function rewritePrivateCoreHosts(rawText: string) {
-  return rawText.replace(PRIVATE_CORE_HOST_PATTERN, PUBLIC_CORE_ORIGIN);
-}
-
-async function requestEspn<RawResponse>(
-  endpoint: EspnEndpoint,
-  url: string,
-): Promise<RawResponse> {
+// Never through Next.js' Data Cache: on Vercel every write there bills as an ISR write, and ESPN's payloads are large.
+// The server caches mapped results in memory instead (see app/lib/server/memory-cache.ts).
+async function requestEspn<RawResponse>(url: string): Promise<RawResponse> {
   const response = await fetch(url, {
     headers: { accept: "application/json" },
-    ...endpointCacheOptions(endpoint),
+    cache: "no-store",
   });
 
   const responseText = await response.text();
@@ -63,31 +39,34 @@ async function requestEspn<RawResponse>(
     throw new EspnRequestError(url, response.status, responseText);
   }
 
-  return JSON.parse(rewritePrivateCoreHosts(responseText)) as RawResponse;
+  return JSON.parse(
+    responseText.replace(PRIVATE_CORE_HOST_PATTERN, ESPN_ORIGINS.core),
+  ) as RawResponse;
 }
 
 export function espnGet<RawResponse>(
   endpointName: EspnEndpointName,
   { searchParams, pathParams = {} }: EspnRequestOptions = {},
 ): Promise<RawResponse> {
-  const endpoint: EspnEndpoint = ESPN_ENDPOINTS[endpointName];
-  const path = fillPathTemplate(endpoint.path, pathParams);
-  return requestEspn(endpoint, buildEspnUrl(endpoint, path, searchParams));
+  const { host, path } = ESPN_ENDPOINTS[endpointName];
+  const query = searchParams && searchParams.size > 0 ? `?${searchParams}` : "";
+  return requestEspn(
+    `${ESPN_ORIGINS[host]}${fillPathTemplate(path, pathParams)}${query}`,
+  );
 }
 
 // Follows a core API $ref link. Only refs to a configured core endpoint are followed, so a ref can never reach another host or API.
-export async function espnGetRef<RawResponse>(
-  ref: string,
-): Promise<RawResponse> {
+export function espnGetRef<RawResponse>(ref: string): Promise<RawResponse> {
   const refUrl = new URL(ref);
-  const endpoint =
-    refUrl.hostname === new URL(PUBLIC_CORE_ORIGIN).hostname
-      ? findEndpointForPath("core", refUrl.pathname)
-      : undefined;
-  if (!endpoint) {
-    throw new Error(`ESPN $ref does not match a configured endpoint: ${ref}`);
+  if (
+    refUrl.hostname !== new URL(ESPN_ORIGINS.core).hostname ||
+    !isConfiguredCorePath(refUrl.pathname)
+  ) {
+    return Promise.reject(
+      new Error(`ESPN $ref does not match a configured endpoint: ${ref}`),
+    );
   }
 
-  // Refs come over http and carry lang/region params; dropping them keeps one cache entry per resource.
-  return requestEspn(endpoint, buildEspnUrl(endpoint, refUrl.pathname));
+  // Refs come over http and carry lang/region params; dropping them keeps the request canonical.
+  return requestEspn(`${ESPN_ORIGINS.core}${refUrl.pathname}`);
 }

@@ -1,67 +1,36 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import TeamPage, { TeamPageContent } from "@/app/components/TeamPage";
-import { fetchTeams } from "@/app/lib/espn";
-// Not in the @/app/lib/espn barrel: the leaders module is server-only and the barrel is also imported by client code.
-import { fetchTeamLeaders } from "@/app/lib/espn/leaders";
-import { teamLeadersQueryOptions } from "@/app/lib/queries/leaders";
-import { standingsQueryOptions } from "@/app/lib/queries/standings";
-import {
-  teamDetailQueryOptions,
-  teamPlayoffScheduleQueryOptions,
-  teamRosterQueryOptions,
-  teamScheduleQueryOptions,
-} from "@/app/lib/queries/team";
-import { teamsQueryOptions } from "@/app/lib/queries/teams";
+import TeamPage from "@/app/components/TeamPage";
 import { getServerQueryClient, Hydrate } from "@/app/lib/query/server";
+import { serverQueries } from "@/app/lib/query/server-queries";
 
-// Prerendered for every team, then regenerated at most every 12 hours (43200 seconds, a literal so Next.js can read it statically).
-// The page's queries are hydrated with the time they were fetched, so the client refetches anything past its stale time on load.
-// Forced static because the shared header reads the live scoreboard, which would otherwise render every request.
-export const dynamic = "force-static";
-export const revalidate = 43200;
+// Rendered per request from the server's memory cache instead of ISR: a regenerated team page wrote ~330 KB
+// of HTML and RSC to the ISR cache, every five minutes, for every team.
+export const dynamic = "force-dynamic";
 
 type TeamPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateStaticParams() {
-  const teams = await fetchTeams();
-  return teams.map(({ slug }) => ({ slug }));
-}
-
 export default async function TeamRoute({ params }: TeamPageProps) {
   const { slug } = await params;
   const queryClient = getServerQueryClient();
-  const teams = await queryClient.fetchQuery(teamsQueryOptions());
+  const teams = await queryClient.fetchQuery(serverQueries.teams());
   const team = teams.find((listedTeam) => listedTeam.slug === slug);
   if (!team) notFound();
 
-  // Awaited so the prerendered page carries the data; a failed prefetch is left to the client, which fetches again.
+  // A failed prefetch is left to the client, which fetches again.
   await Promise.all([
-    queryClient.prefetchQuery(teamDetailQueryOptions(team.id)),
-    queryClient.prefetchQuery(teamScheduleQueryOptions(team.id)),
-    queryClient.prefetchQuery(teamPlayoffScheduleQueryOptions(team.id)),
-    queryClient.prefetchQuery(teamRosterQueryOptions(team.id)),
-    queryClient.prefetchQuery(standingsQueryOptions()),
-    // The server assembles the leaders itself instead of calling its own route handler.
-    queryClient.prefetchQuery({
-      ...teamLeadersQueryOptions(team.id),
-      queryFn: () => fetchTeamLeaders(team.id),
-    }),
+    queryClient.prefetchQuery(serverQueries.teamDetail(team.id)),
+    queryClient.prefetchQuery(serverQueries.teamSchedules(team.id)),
+    queryClient.prefetchQuery(serverQueries.teamRoster(team.id)),
+    queryClient.prefetchQuery(serverQueries.standings()),
+    queryClient.prefetchQuery(serverQueries.teamLeaders(team.id)),
   ]);
 
   return (
     <Hydrate>
       <section className="py-6 md:py-9">
-        {/* The tab lives in the query string, unknown when prerendering, so the page is prerendered on the default tab. */}
-        <Suspense
-          fallback={
-            <TeamPageContent teamId={team.id} slug={slug} tabParam={null} />
-          }
-        >
-          <TeamPage teamId={team.id} slug={slug} />
-        </Suspense>
+        <TeamPage teamId={team.id} slug={slug} />
       </section>
     </Hydrate>
   );
