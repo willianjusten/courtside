@@ -12,11 +12,11 @@ On Vercel, every write to the ISR cache, including Next.js' Data Cache (`fetch` 
 
 ## Decision
 
-- ESPN is always fetched with `cache: "no-store"` (`lib/espn/transport.ts`). Nothing writes to the Data Cache.
-- The server keeps mapped results in a per-instance memory cache with stale-while-revalidate (`lib/server/memory-cache.ts`, TTLs in `lib/server/loaders.ts`). Fluid Compute reuses instances, so most renders skip ESPN.
-- The browser reads non-live data from `/api/*` route handlers that return mapped JSON with `CDN-Cache-Control` (`lib/server/json-route.ts`). CDN cache reads and writes are free.
+- ESPN is always fetched with `cache: "no-store"` (`src/lib/espn/transport.ts`). Nothing writes to the Data Cache.
+- The server keeps mapped results in a per-instance memory cache with stale-while-revalidate (`src/lib/server/memory-cache.ts`, TTLs in `src/lib/server/loaders.ts`). Fluid Compute reuses instances, so most renders skip ESPN.
+- The browser reads non-live data from `/api/*` route handlers that return mapped JSON with `CDN-Cache-Control` (`src/lib/server/json-route.ts`). CDN cache reads and writes are free.
 - Live data (scoreboard, game summary) and the small season calendar are fetched by the browser straight from ESPN, so polling never reaches Vercel.
-- Every page renders on demand (`dynamic = "force-dynamic"` in `app/layout.tsx`). No page is ISR.
+- Every page renders on demand (`dynamic = "force-dynamic"` in `src/app/layout.tsx`). No page is ISR.
 
 ## Consequences
 
