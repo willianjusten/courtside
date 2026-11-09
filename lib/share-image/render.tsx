@@ -16,7 +16,7 @@ import { ACCENT, FOREGROUND, MUTED } from "@/lib/theme-colors";
 export const SHARE_IMAGE_SIZE = { width: 1200, height: 630 };
 export const SHARE_IMAGE_CONTENT_TYPE = "image/png";
 
-const ASSETS_DIRECTORY = join(process.cwd(), "app/lib/share-image/assets");
+const ASSETS_DIRECTORY = join(process.cwd(), "lib/share-image/assets");
 
 // Hex alpha appended to a color for the soft glows behind the content.
 export const GLOW_ALPHA = "38";

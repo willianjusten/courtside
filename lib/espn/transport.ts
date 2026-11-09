@@ -27,7 +27,7 @@ type EspnRequestOptions = {
 };
 
 // Never through Next.js' Data Cache: on Vercel every write there bills as an ISR write, and ESPN's payloads are large.
-// The server caches mapped results in memory instead (see app/lib/server/memory-cache.ts).
+// The server caches mapped results in memory instead (see lib/server/memory-cache.ts).
 async function requestEspn<RawResponse>(url: string): Promise<RawResponse> {
   const response = await fetch(url, {
     headers: { accept: "application/json" },
