@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SURFACE_CLASS_NAME } from "./styles";
+import { SURFACE_CLASS_NAME } from "@/components/panel-styles";
 
 export function Section({
   headingId,

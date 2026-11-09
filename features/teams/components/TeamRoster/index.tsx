@@ -6,7 +6,7 @@ import {
   PANEL_HEADING_CLASS_NAME,
   PANEL_SURFACE_CLASS_NAME,
 } from "@/components/panel-styles";
-import { resizedImageUrl } from "@/lib/espn";
+import { resizedHeadshotUrl } from "@/lib/espn";
 import { strings } from "@/lib/strings";
 import type { TeamRosterPlayer } from "@/features/teams/team-view";
 
@@ -14,8 +14,6 @@ const HEADING_ID = "team-roster";
 // Close to the 1040x760 aspect ratio of ESPN headshots, cropped slightly to fill the box.
 const HEADSHOT_WIDTH = 32;
 const HEADSHOT_HEIGHT = 24;
-// Requested at twice the display size so headshots stay sharp on high-density screens.
-const HEADSHOT_REQUEST_SCALE = 2;
 const HEADSHOT_CLASS_NAME =
   "h-6 w-8 shrink-0 rounded-md bg-white/6 object-cover";
 // About the rows a phone shows under the header and tabs; their headshots load right away and the rest wait for the scroll.
@@ -47,11 +45,7 @@ function Headshot({
 
   return (
     <img
-      src={resizedImageUrl(
-        headshotUrl,
-        HEADSHOT_WIDTH * HEADSHOT_REQUEST_SCALE,
-        HEADSHOT_HEIGHT * HEADSHOT_REQUEST_SCALE,
-      )}
+      src={resizedHeadshotUrl(headshotUrl, HEADSHOT_WIDTH, HEADSHOT_HEIGHT)}
       // The name sits next to the photo, so the photo adds nothing for screen readers.
       alt=""
       width={HEADSHOT_WIDTH}

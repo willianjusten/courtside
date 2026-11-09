@@ -1,5 +1,5 @@
 import type { GameLeaderStat } from "@/lib/domain/leaders";
-import { resizedImageUrl } from "@/lib/espn";
+import { resizedHeadshotUrl } from "@/lib/espn";
 import type {
   GameLeaderAthlete,
   GameLeaderRow,
@@ -11,8 +11,6 @@ import { Section } from "./sections";
 // ESPN headshots are 1040x760, so this keeps their aspect ratio.
 const HEADSHOT_DISPLAY_WIDTH = 48;
 const HEADSHOT_DISPLAY_HEIGHT = 35;
-// Requested at twice the display size so headshots stay sharp on high-density screens.
-const HEADSHOT_REQUEST_SCALE = 2;
 const HEADSHOT_CLASS_NAME = "shrink-0 rounded-lg bg-white/6 object-cover";
 
 // The stat tints of the artboards: accent orange for points, playoff blue for rebounds, win green for assists.
@@ -37,10 +35,10 @@ const LEADER_TONE_CLASS_NAMES: Record<
 function Headshot({ athlete }: { athlete: GameLeaderAthlete }) {
   return athlete.headshotUrl ? (
     <img
-      src={resizedImageUrl(
+      src={resizedHeadshotUrl(
         athlete.headshotUrl,
-        HEADSHOT_DISPLAY_WIDTH * HEADSHOT_REQUEST_SCALE,
-        HEADSHOT_DISPLAY_HEIGHT * HEADSHOT_REQUEST_SCALE,
+        HEADSHOT_DISPLAY_WIDTH,
+        HEADSHOT_DISPLAY_HEIGHT,
       )}
       alt={athlete.name}
       width={HEADSHOT_DISPLAY_WIDTH}

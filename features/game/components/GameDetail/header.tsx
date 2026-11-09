@@ -10,7 +10,8 @@ import type {
 import { isInProgress } from "@/lib/game-status";
 import type { TeamSide } from "@/lib/team-colors";
 import { strings } from "@/lib/strings";
-import { DESKTOP_SURFACE_CLASS_NAME, SURFACE_CLASS_NAME } from "./styles";
+import { SURFACE_CLASS_NAME } from "@/components/panel-styles";
+import { DESKTOP_SURFACE_CLASS_NAME } from "./styles";
 
 const HEADER_LOGO_SIZE = 52;
 const SCORE_CLASS_NAME = "font-display text-[52px] leading-[0.9] md:text-7xl";

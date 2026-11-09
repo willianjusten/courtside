@@ -4,7 +4,7 @@ import {
   StaleNotice,
 } from "@/components/DataStates";
 import TeamLogo from "@/components/TeamLogo";
-import { resizedImageUrl } from "@/lib/espn";
+import { resizedHeadshotUrl } from "@/lib/espn";
 import type {
   LeaderCategoryView,
   LeaderRow,
@@ -12,8 +12,6 @@ import type {
 } from "@/features/standings/standings-view";
 import { strings } from "@/lib/strings";
 
-// Requested at twice the display size so headshots stay sharp on high-density screens.
-const HEADSHOT_REQUEST_SCALE = 2;
 const TEAM_LOGO_SIZE = 14;
 const HEADING_ID = "league-leaders";
 // The categories shown before the percentages unlock, so the skeleton matches the early-season grid.
@@ -76,10 +74,10 @@ function LeaderListItem({
       </span>
       {leader.headshotUrl ? (
         <img
-          src={resizedImageUrl(
+          src={resizedHeadshotUrl(
             leader.headshotUrl,
-            headshot.width * HEADSHOT_REQUEST_SCALE,
-            headshot.height * HEADSHOT_REQUEST_SCALE,
+            headshot.width,
+            headshot.height,
           )}
           // The name sits next to the photo, so the photo adds nothing for screen readers.
           alt=""

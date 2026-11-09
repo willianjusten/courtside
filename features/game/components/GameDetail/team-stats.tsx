@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import type { TeamStatRow, TeamStatsView } from "@/features/game/game-view";
 import type { TeamSide } from "@/lib/team-colors";
 import { strings } from "@/lib/strings";
-import { SURFACE_CLASS_NAME } from "./styles";
+import { SURFACE_CLASS_NAME } from "@/components/panel-styles";
 
 const HEADING_ID = "game-team-stats";
 // Staggers the bars so they grow one row after another, as in the artboards.

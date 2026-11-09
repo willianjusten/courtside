@@ -1,18 +1,14 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Game, Scoreboard } from "@/lib/domain/game";
 import { scoreboardDateOf } from "@/features/teams/team-view";
+import { useIsClient } from "@/lib/use-is-client";
 import { currentNbaDate } from "@/lib/time/nba-date";
 import {
   livePollingOptions,
   usePollingWindowRecheck,
 } from "@/lib/live-polling/live-polling";
 import { scoreboardQueryOptions } from "@/features/scoreboard/queries/scoreboard";
-
-const subscribeToNothing = () => () => {};
-// The prerendered page, and the first client render that hydrates it, don't know the viewer's current date.
-const isClientRender = () => true;
-const isServerRender = () => false;
 
 function teamGamesOf(scoreboard: Scoreboard | undefined, teamId: string) {
   return (scoreboard?.games ?? []).filter(
@@ -25,11 +21,7 @@ export function useTeamScoreboard(
   teamId: string,
   games: Game[] | null,
 ): Game[] | null {
-  const isClient = useSyncExternalStore(
-    subscribeToNothing,
-    isClientRender,
-    isServerRender,
-  );
+  const isClient = useIsClient();
   const nbaDate = isClient ? scoreboardDateOf(games, new Date()) : null;
   const selectTeamGames = useCallback(
     (scoreboard: Scoreboard) => teamGamesOf(scoreboard, teamId),

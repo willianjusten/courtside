@@ -322,16 +322,11 @@ export type GameScreen =
       kind: "final";
       header: GameHeader;
       lineScore: LineScoreView;
-      // Null until ESPN lists any leader.
       leaders: GameLeadersView | null;
-      // Null until ESPN lists any player.
       boxScore: BoxScoreView | null;
-      // Null until ESPN lists the statistics of both teams.
       teamStats: TeamStatsView | null;
-      // Null until ESPN sends any play.
       gameFlow: GameFlowView | null;
       playByPlay: PlayByPlayView;
-      // Null when ESPN has no playable video.
       highlights: HighlightsView | null;
       tabs: GameTabs;
     };

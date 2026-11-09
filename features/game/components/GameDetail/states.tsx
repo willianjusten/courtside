@@ -1,5 +1,5 @@
 import { strings } from "@/lib/strings";
-import { SURFACE_CLASS_NAME } from "./styles";
+import { SURFACE_CLASS_NAME } from "@/components/panel-styles";
 
 export function GameDetailLoading() {
   return (

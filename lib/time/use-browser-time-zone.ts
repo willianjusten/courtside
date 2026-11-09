@@ -1,16 +1,9 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useIsClient } from "@/lib/use-is-client";
 
-const subscribeToNothing = () => () => {};
-const browserTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
-// The server, and the first client render that hydrates its markup, don't know the viewer's timezone.
-const unknownTimeZone = () => null;
-
+// Null on the server and on the first client render, which don't know the viewer's timezone.
 export function useBrowserTimeZone(): string | null {
-  return useSyncExternalStore(
-    subscribeToNothing,
-    browserTimeZone,
-    unknownTimeZone,
-  );
+  const isClient = useIsClient();
+  return isClient ? Intl.DateTimeFormat().resolvedOptions().timeZone : null;
 }

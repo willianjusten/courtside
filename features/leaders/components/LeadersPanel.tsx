@@ -1,5 +1,5 @@
 import type { LeaderCategory, TeamLeaderCategory } from "@/lib/domain/leaders";
-import { resizedImageUrl } from "@/lib/espn";
+import { resizedHeadshotUrl } from "@/lib/espn";
 import {
   buildSidebarLeaders,
   type SidebarLeaderCategory,
@@ -10,11 +10,8 @@ import {
   PANEL_SURFACE_CLASS_NAME,
 } from "@/components/panel-styles";
 
-// ESPN headshots are 1040x760, so this keeps their aspect ratio.
 const HEADSHOT_DISPLAY_WIDTH = 56;
 const HEADSHOT_DISPLAY_HEIGHT = 41;
-// Requested at twice the display size so headshots stay sharp on high-density screens.
-const HEADSHOT_REQUEST_SCALE = 2;
 const DEFAULT_HEADING_ID = "sidebar-leaders";
 
 const HEADSHOT_CLASS_NAME = "shrink-0 rounded-[10px] bg-white/6 object-cover";
@@ -46,10 +43,10 @@ function LeaderRow({
     >
       {category.status === "ready" && category.leader.athlete.headshotUrl ? (
         <img
-          src={resizedImageUrl(
+          src={resizedHeadshotUrl(
             category.leader.athlete.headshotUrl,
-            HEADSHOT_DISPLAY_WIDTH * HEADSHOT_REQUEST_SCALE,
-            HEADSHOT_DISPLAY_HEIGHT * HEADSHOT_REQUEST_SCALE,
+            HEADSHOT_DISPLAY_WIDTH,
+            HEADSHOT_DISPLAY_HEIGHT,
           )}
           alt={category.leader.athlete.displayName}
           width={HEADSHOT_DISPLAY_WIDTH}

@@ -411,7 +411,6 @@ export function dateRailRange(nbaDate: NbaDate) {
 
 export function isInDateRail(nbaDate: NbaDate, railCenterDate: NbaDate) {
   const { firstDate, lastDate } = dateRailRange(railCenterDate);
-  // NbaDate strings are YYYY-MM-DD, so string order is calendar order.
   return firstDate <= nbaDate && nbaDate <= lastDate;
 }
 
@@ -534,7 +533,6 @@ export function buildCalendarMonth({
     { length: nbaDayOfWeek(monthStart) },
     () => null,
   );
-  // NbaDate strings are YYYY-MM-DD, so string order is calendar order.
   for (
     let nbaDate = monthStart;
     nbaDate < nextMonthStart;

@@ -15,7 +15,6 @@ export async function loadStandingsShareView(): Promise<StandingsShareView> {
   } catch (error) {
     // Next signals dynamic rendering by throwing, which must not be mistaken for a failed fetch.
     unstable_rethrow(error);
-    // A failed fetch keeps the default preview rather than a broken one.
     return standingsShareViewOf(null);
   }
 }
