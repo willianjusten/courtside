@@ -7,5 +7,178 @@
     "node_modules/**",
     "out/**",
     "public/**"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/api/**",
+        "src/components/**",
+        "src/config/**",
+        "src/hooks/**",
+        "src/lib/**",
+        "src/stores/**",
+        "src/types/**",
+        "src/utils/**",
+        "src/testing/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/features/**",
+                  "@/app/**"
+                ],
+                "message": "Shared code must not import features or routes (shared -> features -> app). See CLAUDE.md."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/favorites/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/app/**",
+                  "@/features/**",
+                  "!@/features/favorites/**"
+                ],
+                "message": "A feature imports only itself and shared code; compose features in src/app. See CLAUDE.md."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/game/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/app/**",
+                  "@/features/**",
+                  "!@/features/game/**"
+                ],
+                "message": "A feature imports only itself and shared code; compose features in src/app. See CLAUDE.md."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/navigation/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/app/**",
+                  "@/features/**",
+                  "!@/features/navigation/**"
+                ],
+                "message": "A feature imports only itself and shared code; compose features in src/app. See CLAUDE.md."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/scoreboard/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/app/**",
+                  "@/features/**",
+                  "!@/features/scoreboard/**"
+                ],
+                "message": "A feature imports only itself and shared code; compose features in src/app. See CLAUDE.md."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/standings/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/app/**",
+                  "@/features/**",
+                  "!@/features/standings/**"
+                ],
+                "message": "A feature imports only itself and shared code; compose features in src/app. See CLAUDE.md."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/features/teams/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/app/**",
+                  "@/features/**",
+                  "!@/features/teams/**"
+                ],
+                "message": "A feature imports only itself and shared code; compose features in src/app. See CLAUDE.md."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "src/testing/**"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
   ]
 }
